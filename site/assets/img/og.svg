@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#100E0B"/>
+      <stop offset="55%" stop-color="#16130F"/>
+      <stop offset="100%" stop-color="#1B1712"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="12%" r="70%">
+      <stop offset="0%" stop-color="#A98850" stop-opacity=".26"/>
+      <stop offset="100%" stop-color="#A98850" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="80%" cy="88%" r="55%">
+      <stop offset="0%" stop-color="#8B9A8C" stop-opacity=".18"/>
+      <stop offset="100%" stop-color="#8B9A8C" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <g font-family="'Noto Serif KR','Nanum Myeongjo',serif" text-anchor="middle">
+    <text x="600" y="268" font-size="112" fill="#EDE7DA" letter-spacing="30">운향재</text>
+    <text x="600" y="344" font-size="30" fill="#A98850" letter-spacing="34">雲 香 齋</text>
+    <text x="600" y="428" font-size="30" fill="#A79E8E" letter-spacing="8"
+          font-family="'Noto Sans KR',sans-serif">향으로 머무는 시간</text>
+  </g>
+
+  <line x1="500" y1="472" x2="700" y2="472" stroke="#A98850" stroke-opacity=".5" stroke-width="1"/>
+  <text x="600" y="520" text-anchor="middle" font-family="Georgia,serif"
+        font-size="20" fill="#A98850" letter-spacing="12">WOONHYANGJAE</text>
+</svg>
