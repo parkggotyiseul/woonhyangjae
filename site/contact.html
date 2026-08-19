@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문의 — 운향재 雲香齋</title>
+<meta name="description" content="제품 문의, 공간 향 제안(B2B), 도매·제휴 문의. 영업일 기준 2일 내에 회신드립니다.">
+<meta name="theme-color" content="#1C1A17">
+<link rel="canonical" href="https://woonhyangjae.com/contact.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="운향재">
+<meta property="og:title" content="문의 — 운향재">
+<meta property="og:description" content="영업일 기준 2일 내에 회신드립니다.">
+<meta property="og:url" content="https://woonhyangjae.com/contact.html">
+<meta property="og:image" content="https://woonhyangjae.com/assets/img/og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header is-stuck" id="header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label="운향재 홈">
+      <span class="brand-ko">雲香齋</span>
+      <span class="brand-en">WOONHYANGJAE</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="주요 메뉴">
+      <a href="/philosophy.html">철학</a>
+      <a href="/collection.html">컬렉션</a>
+      <a href="/craft.html">품질</a>
+      <a href="/spaces.html">공간</a>
+      <a href="/contact.html" aria-current="page">문의</a>
+    </nav>
+    <div class="header-util">
+      <a href="/shop.html">SHOP</a>
+      <a href="/cart.html" aria-label="장바구니">CART<span class="cart-dot" aria-hidden="true"></span></a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav" aria-label="메뉴 열기">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main" style="padding-top:4.5rem">
+
+  <section class="section">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">—</span>
+        <h1 class="sec-title">문의</h1>
+        <span class="sec-en">CONTACT</span>
+      </div>
+      <p class="sec-lede reveal">영업일 기준 2일 내에 회신드립니다.</p>
+
+      <div class="cart-layout">
+        <form class="reveal" id="contactForm" novalidate>
+          <div class="checkout-block">
+            <h3>문의 유형</h3>
+            <div class="field">
+              <label for="f-type">유형 선택</label>
+              <select id="f-type" name="type">
+                <option value="product">제품 문의</option>
+                <option value="order">주문 · 배송</option>
+                <option value="b2b">공간 향 제안 (B2B)</option>
+                <option value="wholesale">도매 · 입점</option>
+                <option value="etc">기타</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkout-block">
+            <h3>연락처</h3>
+            <div class="field-row">
+              <div class="field">
+                <label for="f-name">성함</label>
+                <input id="f-name" name="name" type="text" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label for="f-phone">연락처</label>
+                <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-email">이메일</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required>
+            </div>
+          </div>
+
+          <!-- B2B 선택 시에만 노출되는 항목 -->
+          <div class="checkout-block" id="b2bBlock" hidden>
+            <h3>공간 정보</h3>
+            <div class="field">
+              <label for="f-company">회사명 · 공간명</label>
+              <input id="f-company" name="company" type="text">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="f-space">공간 유형</label>
+                <select id="f-space" name="space">
+                  <option>호텔</option><option>라운지</option><option>오피스</option>
+                  <option>갤러리 · 편집숍</option><option>기타</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="f-qty">예상 수량</label>
+                <select id="f-qty" name="quantity">
+                  <option>50개 미만</option><option>50~200개</option>
+                  <option>200개 이상</option><option>미정</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-block" style="border-bottom:0">
+            <h3>문의 내용</h3>
+            <div class="field">
+              <label for="f-msg">내용</label>
+              <textarea id="f-msg" name="message" rows="6" required></textarea>
+            </div>
+            <label class="check">
+              <input type="checkbox" id="f-agree" name="agree">
+              <span>개인정보 수집 및 이용에 동의합니다. 문의 응대 목적으로만 사용하며, 처리 완료 후 파기합니다.</span>
+            </label>
+            <button type="submit" class="btn">문의 보내기</button>
+            <p class="buybox-note" id="formStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <div class="reveal" style="--d:.1s">
+          <div class="summary" style="position:sticky">
+            <h3>직접 연락</h3>
+            <div class="summary-row"><span>일반 문의</span><a href="mailto:hello@woonhyangjae.com">hello@woonhyangjae.com</a></div>
+            <div class="summary-row"><span>도매 · 제휴</span><a href="mailto:partner@woonhyangjae.com">partner@woonhyangjae.com</a></div>
+            <div class="summary-row"><span>회신</span><span>영업일 2일 내</span></div>
+          </div>
+
+          <div class="notice" style="margin-top:1.5rem">
+            B2B 단가는 페이지에 표기하지 않습니다. 공간의 규모와 운용 방식에 따라 달라지므로
+            상담 후 견적을 안내드립니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-warm">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">—</span>
+        <h2 class="sec-title">교환 · 반품</h2>
+        <span class="sec-en">POLICY</span>
+      </div>
+      <ul class="list-rows reveal">
+        <li><h4>단순 변심 — 7일 이내</h4><p>미개봉 상품에 한합니다. 왕복 배송비는 고객 부담이며, 향 제품 특성상 개봉 후에는 반품이 어렵습니다.</p></li>
+        <li><h4>파손 · 불량 — 즉시 교환</h4><p>사진을 보내주시면 확인 후 바로 재발송해 드립니다. 회수는 그 다음입니다. 기다리시게 하지 않습니다.</p></li>
+        <li><h4>향이 맞지 않는 경우</h4><p>정책상 반품 대상은 아니지만, 개별적으로 판단해 대응합니다. 문의를 남겨 주세요.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell shell-narrow">
+      <div class="sec-head reveal">
+        <span class="sec-num">—</span>
+        <h2 class="sec-title">사업자 정보</h2>
+        <span class="sec-en">BUSINESS</span>
+      </div>
+      <dl class="spec reveal" id="bizinfo"></dl>
+      <p class="notice reveal">
+        아래 정보는 실제 등록 정보로 교체가 필요합니다. 통신판매업 신고번호, 사업장 주소,
+        대표 전화, 개인정보처리방침·이용약관 링크는 오픈 전 반드시 채워야 하는 법적 필수 항목입니다.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <span class="brand-ko">雲香齋</span>
+        <span class="brand-en">WOONHYANGJAE</span>
+        <p>자연의 요소를 향으로 옮기다</p>
+      </div>
+      <nav class="foot-nav" aria-label="푸터 메뉴">
+        <a href="/philosophy.html">철학</a>
+        <a href="/collection.html">컬렉션</a>
+        <a href="/craft.html">품질</a>
+        <a href="/spaces.html">공간</a>
+        <a href="/contact.html">문의</a>
+        <a href="/shop.html">SHOP</a>
+      </nav>
+    </div>
+    <div class="foot-legal">
+      <p id="bizline"></p>
+      <p>&copy; <span id="year">2026</span> WOONHYANGJAE. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/data/catalog.js"></script>
+<script src="/assets/js/main.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var W = window.WHJ, b = (W && W.catalog.brand) || {};
+
+  /* 사업자 정보 */
+  var info = document.getElementById('bizinfo');
+  if (info) {
+    info.innerHTML =
+      '<div><dt>상호</dt><dd>' + W.esc(b.company) + '</dd></div>' +
+      '<div><dt>대표자</dt><dd>' + W.esc(b.ceo) + '</dd></div>' +
+      '<div><dt>브랜드</dt><dd>운향재 雲香齋</dd></div>' +
+      '<div><dt>사업자등록번호</dt><dd>' + W.esc(b.bizNumber) + '</dd></div>' +
+      '<div><dt>통신판매업 신고</dt><dd>' + W.esc(b.mailOrderNumber) + '</dd></div>' +
+      '<div><dt>주소</dt><dd>' + W.esc(b.address) + '</dd></div>' +
+      '<div><dt>이메일</dt><dd>' + W.esc(b.email) + '</dd></div>';
+  }
+
+  /* B2B 항목 토글 — spaces.html에서 ?type=b2b 로 넘어오면 미리 선택된다 */
+  var type = document.getElementById('f-type');
+  var b2b = document.getElementById('b2bBlock');
+  var q = new URLSearchParams(location.search).get('type');
+  if (q) type.value = q;
+  var sync = function () { b2b.hidden = !(type.value === 'b2b' || type.value === 'wholesale'); };
+  type.addEventListener('change', sync);
+  sync();
+
+  /* 폼 — 백엔드가 붙기 전까지는 메일 클라이언트로 넘긴다.
+     2단계에서 이 핸들러만 API 호출로 교체하면 된다. */
+  var form = document.getElementById('contactForm');
+  var status = document.getElementById('formStatus');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var bad = null;
+    [['name', '성함'], ['email', '이메일'], ['message', '내용']].forEach(function (f) {
+      var el = form.elements[f[0]];
+      var ok = el.value.trim() !== '' &&
+        (f[0] !== 'email' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()));
+      el.setAttribute('aria-invalid', String(!ok));
+      if (!ok && !bad) bad = el;
+    });
+    if (bad) { status.textContent = '성함 · 이메일 · 내용을 확인해 주세요.'; bad.focus(); return; }
+    if (!form.elements.agree.checked) { status.textContent = '개인정보 수집 및 이용에 동의해 주세요.'; return; }
+
+    var label = type.options[type.selectedIndex].text;
+    var to = (type.value === 'b2b' || type.value === 'wholesale') ? b.b2bEmail : b.email;
+    var body = [
+      '유형: ' + label,
+      '성함: ' + form.elements.name.value.trim(),
+      '연락처: ' + form.elements.phone.value.trim(),
+      '이메일: ' + form.elements.email.value.trim()
+    ];
+    if (!b2b.hidden) {
+      body.push('회사명·공간명: ' + form.elements.company.value.trim());
+      body.push('공간 유형: ' + form.elements.space.value);
+      body.push('예상 수량: ' + form.elements.quantity.value);
+    }
+    body.push('', form.elements.message.value.trim());
+
+    status.textContent = '메일 작성 창을 엽니다. 열리지 않으면 ' + to + ' 로 보내 주세요.';
+    location.href = 'mailto:' + to +
+      '?subject=' + encodeURIComponent('[운향재 문의] ' + label + ' — ' + form.elements.name.value.trim()) +
+      '&body=' + encodeURIComponent(body.join('\n'));
+  });
+});
+</script>
+</body>
+</html>

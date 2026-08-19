@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>컬렉션 — 여덟 개의 장 | 운향재 雲香齋</title>
+<meta name="description" content="운향재는 자연을 여덟 개의 장(木水火土石家人風)으로 나눕니다. 첫 번째 장은 나무. 묵향헌·느루 출시, 세 번째 향 준비 중.">
+<meta name="theme-color" content="#1C1A17">
+<link rel="canonical" href="https://woonhyangjae.com/collection.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="운향재">
+<meta property="og:title" content="컬렉션 — 여덟 개의 장 | 운향재">
+<meta property="og:description" content="한 요소를 정하면 그 안을 끝까지 파고듭니다. 첫 번째 장은 나무입니다.">
+<meta property="og:url" content="https://woonhyangjae.com/collection.html">
+<meta property="og:image" content="https://woonhyangjae.com/assets/img/og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header is-stuck" id="header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label="운향재 홈">
+      <span class="brand-ko">雲香齋</span>
+      <span class="brand-en">WOONHYANGJAE</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="주요 메뉴">
+      <a href="/philosophy.html">철학</a>
+      <a href="/collection.html" aria-current="page">컬렉션</a>
+      <a href="/craft.html">품질</a>
+      <a href="/spaces.html">공간</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+    <div class="header-util">
+      <a href="/shop.html">SHOP</a>
+      <a href="/cart.html" aria-label="장바구니">CART<span class="cart-dot" aria-hidden="true"></span></a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav" aria-label="메뉴 열기">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main" style="padding-top:4.5rem">
+
+  <section class="section section-dark">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">—</span>
+        <h1 class="sec-title">자연이 감춘 것에서, 향이 시작됩니다</h1>
+        <span class="sec-en">COLLECTION</span>
+      </div>
+      <p class="sec-lede reveal">
+        운향재는 자연을 여덟 개의 장으로 나눕니다.<br>
+        한 요소를 정하면 그 안을 끝까지 나눕니다.
+        나무 하나에도 심재와 뿌리와 꽃이 있고, 전부 다른 냄새를 냅니다.
+      </p>
+      <div class="chapters reveal" data-chapters></div>
+      <p class="chapters-note reveal">진행 중인 장만 밝게 표시됩니다. 컬렉션이 하나씩 완성될 때마다 글자가 하나씩 밝아집니다.</p>
+    </div>
+  </section>
+
+  <!-- 진행 중인 컬렉션 (카탈로그에서 생성) -->
+  <div id="active-collections"></div>
+
+  <!-- 앞으로의 장 -->
+  <section class="section section-warm">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">—</span>
+        <h2 class="sec-title">앞으로의 장</h2>
+        <span class="sec-en">CHAPTERS TO COME</span>
+      </div>
+      <p class="sec-lede reveal">
+        한 컬렉션을 완성한 뒤 다음으로 넘어갑니다.<br>
+        동시에 여러 요소를 벌이지 않습니다.
+      </p>
+      <ul class="list-rows reveal" id="upcoming"></ul>
+    </div>
+  </section>
+
+  <section class="pull-quote">
+    <div class="shell shell-narrow">
+      <p class="reveal">한 요소를 정하면<br>그 안을 끝까지 파고듭니다.</p>
+      <div class="link-row reveal" style="justify-content:center">
+        <a class="link-line" href="/shop.html">SHOP →</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <span class="brand-ko">雲香齋</span>
+        <span class="brand-en">WOONHYANGJAE</span>
+        <p>자연의 요소를 향으로 옮기다</p>
+      </div>
+      <nav class="foot-nav" aria-label="푸터 메뉴">
+        <a href="/philosophy.html">철학</a>
+        <a href="/collection.html">컬렉션</a>
+        <a href="/craft.html">품질</a>
+        <a href="/spaces.html">공간</a>
+        <a href="/contact.html">문의</a>
+        <a href="/shop.html">SHOP</a>
+      </nav>
+    </div>
+    <div class="foot-legal">
+      <p id="bizline"></p>
+      <p>&copy; <span id="year">2026</span> WOONHYANGJAE. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/data/catalog.js"></script>
+<script src="/assets/js/main.js" defer></script>
+<script>
+/* 진행 중인 컬렉션을 순서대로 펼친다.
+   컬렉션 02 水를 열 때는 catalog.js에서 status를 active로 바꾸고 제품을 등록하면 끝이다. */
+document.addEventListener('DOMContentLoaded', function () {
+  var W = window.WHJ;
+  if (!W) return;
+  var host = document.getElementById('active-collections');
+  var upcoming = document.getElementById('upcoming');
+
+  var actives = W.collections.filter(function (c) { return c.status === 'active'; });
+
+  host.innerHTML = actives.map(function (c) {
+    var items = W.byCollection(c.id);
+    var onsale = items.filter(function (p) { return p.status === 'onsale'; });
+
+    var head =
+      '<div class="sec-head reveal">' +
+        '<span class="sec-num">' + W.esc(c.code) + '</span>' +
+        '<h2 class="sec-title">' + W.esc(c.hanja) + ' ' + W.esc(c.ko) + ' — ' + W.esc(c.title || c.subtitle) + '</h2>' +
+        '<span class="sec-en">' + W.esc(c.titleEn || c.en) + '</span>' +
+      '</div>' +
+      '<p class="sec-lede reveal">' + W.esc(c.description) + '</p>';
+
+    var grid = '<div class="product-grid reveal" id="grid-' + W.esc(c.id) + '"></div>';
+
+    /* 제품별 2화면 구조 — 감성 먼저, 정보 나중 */
+    var details = onsale.map(function (p) {
+      return '<section class="section"><div class="shell"><div class="detail">' +
+        '<div class="detail-visual reveal">' + W.bottle(p) +
+          '<p class="ps-caption">PS-01 · ' + W.esc(p.photoSpots[0] ? p.photoSpots[0].role : '') + '</p>' +
+        '</div>' +
+        '<div class="reveal">' +
+          '<p class="detail-num">' + W.esc(p.number) + '</p>' +
+          '<h3 class="detail-name">' + W.esc(p.nameKo) +
+            (p.nameHanja ? '<span class="hanja">' + W.esc(p.nameHanja) + '</span>' : '') + '</h3>' +
+          '<p class="detail-sig">' + W.esc(p.signature) + '</p>' +
+          '<p class="detail-cap">' + W.esc(p.caption + ' · ' + p.species + ' · ' + p.layer) + '</p>' +
+          '<div class="detail-story">' +
+            p.story.map(function (l) { return '<p>' + W.esc(l) + '</p>'; }).join('') +
+            '<p class="last">' + W.esc(p.storyLast) + '</p>' +
+          '</div>' +
+          '<dl class="notes">' +
+            '<div><dt>TOP</dt><dd>' + W.esc(p.notes.top) + '</dd></div>' +
+            '<div><dt>HEART</dt><dd>' + W.esc(p.notes.heart) + '</dd></div>' +
+            '<div><dt>BASE</dt><dd>' + W.esc(p.notes.base) + '</dd></div>' +
+          '</dl>' +
+          '<p class="notes-hint">탑 노트는 첫인사입니다. 오래 머무는 것은 베이스 노트입니다.</p>' +
+          '<dl class="spec">' +
+            '<div><dt>무드</dt><dd>' + W.esc(p.mood) + '</dd></div>' +
+            '<div><dt>추천 공간</dt><dd>' + W.esc(p.spaces.join(' · ')) + '</dd></div>' +
+            '<div><dt>부향률</dt><dd>20%</dd></div>' +
+            '<div><dt>조향</dt><dd>서울향료</dd></div>' +
+          '</dl>' +
+          '<div class="link-row">' +
+            '<a class="link-line" href="/product.html?p=' + encodeURIComponent(p.slug) + '">구매하기 →</a>' +
+          '</div>' +
+        '</div>' +
+      '</div></div></section>';
+    }).join('');
+
+    return '<section class="section"><div class="shell">' + head + grid + '</div></section>' + details;
+  }).join('');
+
+  /* 카드 그리드 채우기 */
+  actives.forEach(function (c) {
+    W.renderProducts(document.getElementById('grid-' + c.id), { collectionId: c.id, base: '/product.html' });
+  });
+
+  /* 아직 오지 않은 장 — 링크를 걸지 않는다 */
+  upcoming.innerHTML = W.collections.filter(function (c) { return c.status !== 'active'; })
+    .map(function (c) {
+      return '<li><h4>' + W.esc(c.hanja) + ' ' + W.esc(c.ko) + ' — ' + W.esc(c.subtitle) + '</h4>' +
+        '<p>' + W.esc(c.description) + '</p></li>';
+    }).join('');
+
+  W.observe(document.querySelectorAll('.reveal'));
+});
+</script>
+</body>
+</html>

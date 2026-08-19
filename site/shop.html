@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHOP — 컬렉션 01 木 | 운향재 雲香齋</title>
+<meta name="description" content="운향재 리드 디퓨저 구매. 묵향헌(호두나무·심재), 느루(느티나무·뿌리), 2종 세트. 부향률 20%, 서울향료 조향.">
+<meta name="theme-color" content="#1C1A17">
+<link rel="canonical" href="https://woonhyangjae.com/shop.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="운향재">
+<meta property="og:title" content="SHOP — 컬렉션 01 木 | 운향재">
+<meta property="og:description" content="나무가 기억하는 시간. 묵향헌 · 느루.">
+<meta property="og:url" content="https://woonhyangjae.com/shop.html">
+<meta property="og:image" content="https://woonhyangjae.com/assets/img/og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
+<link rel="stylesheet" href="/assets/css/style.css">
+<style>
+  .notify{ position:fixed; inset:0; background:rgba(28,26,23,.6); display:none;
+           place-items:center; z-index:150; padding:1.5rem; }
+  .notify.is-open{ display:grid; }
+  .notify-card{ background:var(--cream); max-width:420px; width:100%; padding:2.25rem; }
+  .notify-card h3{ font-size:1.2rem; margin-bottom:.75rem; }
+  .notify-card p{ font-size:.9rem; color:var(--on-light-mute); margin-bottom:1.5rem; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header is-stuck" id="header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label="운향재 홈">
+      <span class="brand-ko">雲香齋</span>
+      <span class="brand-en">WOONHYANGJAE</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="주요 메뉴">
+      <a href="/philosophy.html">철학</a>
+      <a href="/collection.html">컬렉션</a>
+      <a href="/craft.html">품질</a>
+      <a href="/spaces.html">공간</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+    <div class="header-util">
+      <a href="/shop.html" aria-current="page">SHOP</a>
+      <a href="/cart.html" aria-label="장바구니">CART<span class="cart-dot" aria-hidden="true"></span></a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav" aria-label="메뉴 열기">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main" style="padding-top:4.5rem">
+
+  <section class="section">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">01</span>
+        <h1 class="sec-title">컬렉션 01 — 木</h1>
+        <span class="sec-en">SHOP</span>
+      </div>
+      <p class="sec-lede reveal">나무가 기억하는 시간</p>
+
+      <div class="product-grid" data-products="wood" data-base="/product.html"></div>
+
+      <!-- 세트 -->
+      <div id="sets" style="margin-top:clamp(2.5rem,5vw,3.5rem)"></div>
+
+      <div class="notice reveal" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+        <span id="shipNotice"></span><br>
+        교환 · 반품 정책은 <a href="/contact.html" style="color:var(--mahogany)">문의</a> 페이지에서 확인하실 수 있습니다.<br>
+        공간 단위 납품과 커스텀 에디션은 <a href="/spaces.html" style="color:var(--mahogany)">공간</a> 페이지를 참고해 주세요.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Coming Soon 알림 신청 -->
+<div class="notify" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle">
+  <div class="notify-card">
+    <h3 id="notifyTitle">출시 소식 받기</h3>
+    <p>세 번째 향이 준비되면 가장 먼저 알려드립니다. 출시 안내 외의 목적으로는 사용하지 않습니다.</p>
+    <form id="notifyForm">
+      <div class="field">
+        <label for="n-email">이메일</label>
+        <input id="n-email" type="email" required>
+      </div>
+      <div class="buy-actions">
+        <button class="btn" type="submit">신청하기</button>
+        <button class="btn btn-outline" type="button" id="notifyClose">닫기</button>
+      </div>
+      <p class="buybox-note" id="notifyStatus" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <span class="brand-ko">雲香齋</span>
+        <span class="brand-en">WOONHYANGJAE</span>
+        <p>자연의 요소를 향으로 옮기다</p>
+      </div>
+      <nav class="foot-nav" aria-label="푸터 메뉴">
+        <a href="/philosophy.html">철학</a>
+        <a href="/collection.html">컬렉션</a>
+        <a href="/craft.html">품질</a>
+        <a href="/spaces.html">공간</a>
+        <a href="/contact.html">문의</a>
+        <a href="/shop.html">SHOP</a>
+      </nav>
+    </div>
+    <div class="foot-legal">
+      <p id="bizline"></p>
+      <p>&copy; <span id="year">2026</span> WOONHYANGJAE. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/data/catalog.js"></script>
+<script src="/assets/js/main.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var W = window.WHJ;
+  if (!W) return;
+
+  /* 배송 안내 */
+  var ship = W.catalog.shipping || {};
+  document.getElementById('shipNotice').textContent =
+    (ship.notice || '') + ' ' + W.won(ship.freeThreshold) + ' 이상 구매 시 배송비는 무료입니다.';
+
+  /* 세트 — 할인이 아니라 전용 기프트 박스라는 부가가치로 판다 */
+  var sets = W.sets || [];
+  document.getElementById('sets').innerHTML = sets.length ? (
+    '<h2 class="sec-title reveal" style="font-size:1.15rem;margin-bottom:1.25rem">세트</h2>' +
+    '<div class="product-grid">' + sets.map(function (s) {
+      var v = s.variants[0];
+      var items = s.items.map(function (id) { var p = W.product(id); return p ? p.nameKo : id; });
+      return '<a class="pcard reveal" href="/product.html?p=' + encodeURIComponent(s.slug) + '">' +
+        '<div class="pcard-visual" style="display:flex;gap:.5rem;justify-content:center">' +
+          s.items.map(function (id) { return W.bottle(W.product(id)); }).join('') +
+        '</div>' +
+        '<div class="pcard-body">' +
+          '<p class="pcard-num">SET</p>' +
+          '<h3 class="pcard-name">' + W.esc(s.nameKo) + '</h3>' +
+          '<p class="pcard-sig">' + W.esc(s.signature) + '</p>' +
+          '<p class="pcard-cap">' + W.esc(items.join(' · ')) + '</p>' +
+          '<div class="pcard-foot"><span>자세히 보기 →</span>' +
+            '<span class="pcard-price">' + W.won(v.price) + '</span></div>' +
+        '</div></a>';
+    }).join('') + '</div>'
+  ) : '';
+
+  W.observe(document.querySelectorAll('.reveal'));
+
+  /* Coming Soon 알림 모달 */
+  var modal = document.getElementById('notifyModal');
+  var open = function () { modal.classList.add('is-open'); document.getElementById('n-email').focus(); };
+  var close = function () { modal.classList.remove('is-open'); };
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href="#notify"]');
+    if (a) { e.preventDefault(); open(); }
+  });
+  document.getElementById('notifyClose').addEventListener('click', close);
+  modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+  document.getElementById('notifyForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var el = document.getElementById('n-email');
+    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+    el.setAttribute('aria-invalid', String(!ok));
+    var st = document.getElementById('notifyStatus');
+    if (!ok) { st.textContent = '이메일 주소를 확인해 주세요.'; return; }
+    /* 2단계에서 이 부분만 Subscriber API 호출로 교체한다 */
+    try {
+      var list = JSON.parse(localStorage.getItem('whj_notify') || '[]');
+      if (list.indexOf(el.value.trim()) < 0) list.push(el.value.trim());
+      localStorage.setItem('whj_notify', JSON.stringify(list));
+    } catch (err) {}
+    st.textContent = '신청되었습니다. 준비가 되면 알려드리겠습니다.';
+    el.value = '';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공간 — 어떤 향이 당신의 공간에 맞을까요 | 운향재 雲香齋</title>
+<meta name="description" content="공간과 원하는 공기로 향을 고릅니다. 거실·서재·침실·현관·드레스룸별 추천과 세 개의 질문. 호텔·라운지·오피스를 위한 공간 향 큐레이션 제안.">
+<meta name="theme-color" content="#1C1A17">
+<link rel="canonical" href="https://woonhyangjae.com/spaces.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="운향재">
+<meta property="og:title" content="공간 — 어떤 향이 당신의 공간에 맞을까요 | 운향재">
+<meta property="og:description" content="공간마다 어울리는 공기가 다릅니다.">
+<meta property="og:url" content="https://woonhyangjae.com/spaces.html">
+<meta property="og:image" content="https://woonhyangjae.com/assets/img/og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
+<link rel="stylesheet" href="/assets/css/style.css">
+<style>
+  .choices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+            background:var(--cream-dim); border:1px solid var(--cream-dim); }
+  .choice{ background:var(--cream); border:0; padding:1.5rem 1rem; cursor:pointer;
+           font-family:var(--serif); font-size:1rem; letter-spacing:.05em; color:var(--on-light);
+           transition:background .3s var(--ease); text-align:center; }
+  .choice:hover{ background:#FBF8F3; }
+  .choice.is-picked{ background:var(--ink); color:var(--cream); }
+  .choice small{ display:block; font-family:var(--sans); font-size:.72rem;
+                 color:var(--on-light-mute); margin-top:.4rem; }
+  .choice.is-picked small{ color:var(--on-dark-mute); }
+  .q-step{ margin-bottom:2.5rem; }
+  .q-label{ font-family:var(--sans); font-size:.76rem; letter-spacing:.18em;
+            color:var(--oak); margin-bottom:.9rem; }
+  .q-title{ font-size:1.15rem; font-weight:300; margin-bottom:1.25rem; }
+  .result{ border:1px solid var(--cream-dim); padding:clamp(1.75rem,4vw,2.75rem);
+           display:grid; grid-template-columns:150px 1fr; gap:2rem; align-items:center; }
+  @media (max-width:640px){ .result{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header is-stuck" id="header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label="운향재 홈">
+      <span class="brand-ko">雲香齋</span>
+      <span class="brand-en">WOONHYANGJAE</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="주요 메뉴">
+      <a href="/philosophy.html">철학</a>
+      <a href="/collection.html">컬렉션</a>
+      <a href="/craft.html">품질</a>
+      <a href="/spaces.html" aria-current="page">공간</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+    <div class="header-util">
+      <a href="/shop.html">SHOP</a>
+      <a href="/cart.html" aria-label="장바구니">CART<span class="cart-dot" aria-hidden="true"></span></a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav" aria-label="메뉴 열기">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main" style="padding-top:4.5rem">
+
+  <section class="section">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">—</span>
+        <h1 class="sec-title">어떤 향이 당신의 공간에 맞을까요</h1>
+        <span class="sec-en">FIND YOURS</span>
+      </div>
+      <p class="sec-lede reveal">
+        공간마다 어울리는 공기가 다릅니다.<br>
+        혼자 있는 방과 손님을 맞는 방은 같을 수 없습니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 3문항 인터랙션 -->
+  <section class="section section-warm" style="padding-top:0">
+    <div class="shell shell-narrow">
+      <div class="q-step reveal">
+        <p class="q-label">QUESTION 01</p>
+        <h2 class="q-title">어느 공간에 두시겠습니까</h2>
+        <div class="choices" id="q1"></div>
+      </div>
+      <div class="q-step reveal">
+        <p class="q-label">QUESTION 02</p>
+        <h2 class="q-title">어떤 공기를 원하십니까</h2>
+        <div class="choices" id="q2"></div>
+      </div>
+      <div class="q-step reveal">
+        <p class="q-label">QUESTION 03</p>
+        <h2 class="q-title">혼자 쓰시나요, 함께 쓰시나요</h2>
+        <div class="choices" id="q3">
+          <button class="choice" data-v="alone" type="button">혼자<small>고요와 밀도를 원하는 시간</small></button>
+          <button class="choice" data-v="together" type="button">함께<small>사람이 모이는 공간</small></button>
+        </div>
+      </div>
+      <div id="result"></div>
+    </div>
+  </section>
+
+  <!-- 공간별 -->
+  <section class="section">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">01</span>
+        <h2 class="sec-title">공간으로 찾기</h2>
+        <span class="sec-en">BY SPACE</span>
+      </div>
+      <ul class="list-rows reveal" id="by-space"></ul>
+    </div>
+  </section>
+
+  <!-- 무드별 -->
+  <section class="section section-warm">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">02</span>
+        <h2 class="sec-title">분위기로 찾기</h2>
+        <span class="sec-en">BY MOOD</span>
+      </div>
+      <p class="sec-lede reveal">공간이 아니라 원하는 공기의 상태로 고릅니다.</p>
+      <ul class="list-rows reveal" id="by-mood"></ul>
+    </div>
+  </section>
+
+  <!-- B2B -->
+  <section class="section section-dark">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">03</span>
+        <h2 class="sec-title">공간의 기억을 설계합니다</h2>
+        <span class="sec-en">FOR SPACES</span>
+      </div>
+      <p class="sec-lede reveal">
+        호텔을 다시 찾는 이유는 침구가 아니라 로비의 공기입니다.<br>
+        라운지가 기억되는 이유는 인테리어가 아니라 그날의 냄새입니다.<br>
+        당신의 공간에 맞는 단 하나의 향을 함께 설계합니다.
+      </p>
+      <ul class="list-rows reveal">
+        <li><h4>공간 향 큐레이션</h4><p>용도와 규모, 인테리어 톤을 분석해 최적의 조합을 제안합니다. 층별·구역별로 다른 향을 운용하는 것도 가능합니다.</p></li>
+        <li><h4>커스텀 에디션</h4><p>브랜드 전용 라벨을 제작합니다. 일정 수량 이상은 전용 조향 개발도 검토합니다.</p></li>
+        <li><h4>정기 납품</h4><p>분기별 정기 배송 계약. 리필 단독 공급으로 폐기물을 줄이는 운영도 가능합니다.</p></li>
+      </ul>
+      <div class="link-row">
+        <a class="link-line" href="/contact.html?type=b2b">공간 제안 문의하기 →</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <span class="brand-ko">雲香齋</span>
+        <span class="brand-en">WOONHYANGJAE</span>
+        <p>자연의 요소를 향으로 옮기다</p>
+      </div>
+      <nav class="foot-nav" aria-label="푸터 메뉴">
+        <a href="/philosophy.html">철학</a>
+        <a href="/collection.html">컬렉션</a>
+        <a href="/craft.html">품질</a>
+        <a href="/spaces.html">공간</a>
+        <a href="/contact.html">문의</a>
+        <a href="/shop.html">SHOP</a>
+      </nav>
+    </div>
+    <div class="foot-legal">
+      <p id="bizline"></p>
+      <p>&copy; <span id="year">2026</span> WOONHYANGJAE. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/data/catalog.js"></script>
+<script src="/assets/js/main.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var W = window.WHJ;
+  if (!W) return;
+  var cur = (W.catalog.curation) || { spaces: [], moods: [] };
+  var pick = { space: null, mood: null, company: null };
+
+  function name(slug) { var p = W.product(slug); return p ? p.nameKo : slug; }
+
+  /* Q1 · Q2 는 카탈로그에서 생성된다 — 제품이 늘어도 그대로 동작한다 */
+  document.getElementById('q1').innerHTML = cur.spaces.map(function (s) {
+    return '<button class="choice" type="button" data-v="' + W.esc(s.id) + '">' + W.esc(s.ko) +
+      '<small>' + W.esc(s.en) + '</small></button>';
+  }).join('');
+  document.getElementById('q2').innerHTML = cur.moods.map(function (m) {
+    return '<button class="choice" type="button" data-v="' + W.esc(m.id) + '">' + W.esc(m.ko) + '</button>';
+  }).join('');
+
+  function wire(id, key) {
+    var box = document.getElementById(id);
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest('.choice');
+      if (!btn) return;
+      box.querySelectorAll('.choice').forEach(function (b) { b.classList.remove('is-picked'); });
+      btn.classList.add('is-picked');
+      pick[key] = btn.getAttribute('data-v');
+      render();
+    });
+  }
+  wire('q1', 'space'); wire('q2', 'mood'); wire('q3', 'company');
+
+  function render() {
+    var host = document.getElementById('result');
+    if (!pick.space || !pick.mood || !pick.company) {
+      host.innerHTML = '';
+      return;
+    }
+    /* 세 답의 추천이 겹치는 제품을 고른다. 겹치지 않으면 공간 추천을 우선한다. */
+    var score = {};
+    function add(list, w) { (list || []).forEach(function (s) { score[s] = (score[s] || 0) + w; }); }
+    var sp = cur.spaces.filter(function (s) { return s.id === pick.space; })[0];
+    var md = cur.moods.filter(function (m) { return m.id === pick.mood; })[0];
+    add(sp && sp.recommend, 2);
+    add(md && md.recommend, 1.5);
+    add(pick.company === 'alone' ? ['neuru'] : ['mukhyanghun'], 1);
+
+    var best = null, bestScore = -1;
+    Object.keys(score).forEach(function (k) { if (score[k] > bestScore) { bestScore = score[k]; best = k; } });
+    var p = W.product(best);
+    if (!p) { host.innerHTML = ''; return; }
+
+    var reason = sp ? sp.desc : '';
+    host.innerHTML = '<div class="result">' +
+      '<div>' + W.bottle(p) + '</div>' +
+      '<div>' +
+        '<p class="detail-num">' + W.esc(p.number) + '</p>' +
+        '<h3 class="detail-name" style="margin-top:.5rem">' + W.esc(p.nameKo) +
+          (p.nameHanja ? '<span class="hanja">' + W.esc(p.nameHanja) + '</span>' : '') + '</h3>' +
+        '<p class="detail-sig">' + W.esc(p.signature) + '</p>' +
+        '<p style="font-size:.9rem;color:var(--on-light-mute);line-height:1.9">' + W.esc(reason) + '</p>' +
+        '<div class="link-row" style="margin-top:1.5rem">' +
+          '<a class="link-line" href="/product.html?p=' + encodeURIComponent(p.slug) + '">자세히 보기 →</a>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* 공간별 · 무드별 목록 */
+  document.getElementById('by-space').innerHTML = cur.spaces.map(function (s) {
+    return '<li><h4>' + W.esc(s.ko) + ' · ' + W.esc(s.en) + '</h4><p>' + W.esc(s.desc) +
+      '<br><span style="color:var(--mahogany)">추천 — ' +
+      W.esc(s.recommend.map(name).join(' · ')) + '</span></p></li>';
+  }).join('');
+
+  document.getElementById('by-mood').innerHTML = cur.moods.map(function (m) {
+    return '<li><h4>' + W.esc(m.ko) + '</h4><p>' + W.esc(m.desc) +
+      '<br><span style="color:var(--mahogany)">추천 — ' +
+      W.esc(m.recommend.map(name).join(' · ')) + '</span></p></li>';
+  }).join('');
+});
+</script>
+</body>
+</html>

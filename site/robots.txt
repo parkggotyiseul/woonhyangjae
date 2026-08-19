@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /order.html
 
 Sitemap: https://woonhyangjae.com/sitemap.xml

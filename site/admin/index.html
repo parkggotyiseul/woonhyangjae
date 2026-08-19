@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>운향재 관리자</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+<div class="layout">
+  <aside class="side">
+    <div class="side-brand">
+      <strong>운향재 관리자</strong>
+      <span>WOONHYANGJAE ADMIN</span>
+    </div>
+    <nav id="nav">
+      <a href="#dashboard" class="is-on">대시보드 <span class="badge" id="nav-todo" hidden>0</span></a>
+      <a href="#products">상품 관리</a>
+      <a href="#orders">주문 관리 <span class="badge" id="nav-orders" hidden>0</span></a>
+      <a href="#content">콘텐츠 관리</a>
+      <a href="#customers">고객 관리</a>
+      <a href="#analytics">분석</a>
+      <a href="#seo">SEO</a>
+      <a href="#settings">설정</a>
+    </nav>
+  </aside>
+
+  <main class="main" id="view"></main>
+</div>
+
+<script src="/assets/data/catalog.js"></script>
+<script src="/admin/admin.js"></script>
+</body>
+</html>

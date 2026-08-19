@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주문이 접수되었습니다 — 운향재 雲香齋</title>
+<meta name="description" content="운향재 주문 완료.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1C1A17">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header class="site-header is-stuck" id="header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label="운향재 홈">
+      <span class="brand-ko">雲香齋</span>
+      <span class="brand-en">WOONHYANGJAE</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="주요 메뉴">
+      <a href="/philosophy.html">철학</a>
+      <a href="/collection.html">컬렉션</a>
+      <a href="/craft.html">품질</a>
+      <a href="/spaces.html">공간</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+    <div class="header-util">
+      <a href="/shop.html">SHOP</a>
+      <a href="/cart.html" aria-label="장바구니">CART<span class="cart-dot" aria-hidden="true"></span></a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav" aria-label="메뉴 열기">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main" style="padding-top:4.5rem">
+  <section class="section">
+    <div class="shell">
+      <div class="progress reveal">
+        <span>장바구니</span><i></i><span>주문서</span><i></i><span class="on">완료</span>
+      </div>
+      <div id="order-root"></div>
+    </div>
+  </section>
+
+  <section class="statement">
+    <div class="shell shell-narrow">
+      <p class="reveal">
+        상자를 열 때, 뚜껑을 한 번에 당기지 마세요.<br>
+        공기가 빠져나가며 스스로 열립니다.<br>
+        <em>그 몇 초가 이 제품의 시작입니다.</em>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="sec-head reveal">
+        <span class="sec-num">—</span>
+        <h2 class="sec-title">받으시기 전에</h2>
+        <span class="sec-en">BEFORE IT ARRIVES</span>
+      </div>
+      <ul class="list-rows reveal">
+        <li><h4>스틱 개수로 향의 세기를 조절합니다</h4><p>부향률 20% 제품입니다. 처음에는 절반만 꽂고, 공간에 맞춰 늘려 가시기를 권합니다.</p></li>
+        <li><h4>첫 발향까지 반나절이 걸립니다</h4><p>스틱이 용액을 끝까지 빨아올리는 데 시간이 필요합니다. 하루 정도 두고 판단해 주세요.</p></li>
+        <li><h4>주 1회 스틱을 뒤집어 주세요</h4><p>발향이 처음처럼 돌아옵니다. 직사광선은 피해 주세요.</p></li>
+      </ul>
+      <div class="link-row">
+        <a class="link-line" href="/craft.html">사용 가이드 자세히 →</a>
+        <a class="link-line" href="/collection.html">컬렉션 →</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <span class="brand-ko">雲香齋</span>
+        <span class="brand-en">WOONHYANGJAE</span>
+        <p>자연의 요소를 향으로 옮기다</p>
+      </div>
+      <nav class="foot-nav" aria-label="푸터 메뉴">
+        <a href="/philosophy.html">철학</a>
+        <a href="/collection.html">컬렉션</a>
+        <a href="/craft.html">품질</a>
+        <a href="/spaces.html">공간</a>
+        <a href="/contact.html">문의</a>
+        <a href="/shop.html">SHOP</a>
+      </nav>
+    </div>
+    <div class="foot-legal">
+      <p id="bizline"></p>
+      <p>&copy; <span id="year">2026</span> WOONHYANGJAE. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/data/catalog.js"></script>
+<script src="/assets/js/main.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var W = window.WHJ;
+  if (!W) return;
+  var root = document.getElementById('order-root');
+  var id = new URLSearchParams(location.search).get('id');
+  var order = null;
+  try {
+    var orders = JSON.parse(localStorage.getItem('whj_orders') || '[]');
+    orders.forEach(function (o) { if (o.id === id) order = o; });
+  } catch (e) {}
+
+  if (!order) {
+    root.innerHTML = '<div class="empty"><h1 class="sec-title">주문 내역을 찾을 수 없습니다</h1>' +
+      '<p>주문번호를 다시 확인해 주세요.</p><a class="link-line" href="/shop.html">SHOP으로 →</a></div>';
+    return;
+  }
+
+  /* 배송 예정일 — 영업일 3일 기준 */
+  var d = new Date(order.at);
+  var added = 0;
+  while (added < 3) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) added++; }
+  var due = d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+
+  root.innerHTML =
+    '<div class="sec-head reveal"><span class="sec-num">03</span>' +
+      '<h1 class="sec-title">주문이 접수되었습니다</h1><span class="sec-en">ORDER RECEIVED</span></div>' +
+    '<div class="cart-layout">' +
+      '<div class="reveal">' +
+        '<dl class="spec">' +
+          '<div><dt>주문번호</dt><dd>' + W.esc(order.id) + '</dd></div>' +
+          '<div><dt>배송 예정일</dt><dd>' + W.esc(due) + '</dd></div>' +
+          '<div><dt>받는 분</dt><dd>' + W.esc(order.shipping.receiver) + '</dd></div>' +
+          '<div><dt>배송지</dt><dd>(' + W.esc(order.shipping.zip) + ') ' + W.esc(order.shipping.addr) + '</dd></div>' +
+          '<div><dt>요청사항</dt><dd>' + W.esc(order.shipping.memo) + '</dd></div>' +
+          (order.gift ? '<div><dt>기프트</dt><dd>메시지 카드 동봉' +
+            (order.gift.hidePrice ? ' · 가격 미표기 명세서' : '') + '</dd></div>' : '') +
+        '</dl>' +
+        '<p class="notice">주문 확인 안내를 ' + W.esc(order.buyer.email) + ' 로 보내드립니다. ' +
+          '출고 시 송장번호를 다시 안내드립니다.</p>' +
+      '</div>' +
+      '<div class="summary">' +
+        '<h3>주문 내역</h3>' +
+        order.lines.map(function (l) {
+          return '<div class="summary-row"><span>' + W.esc(l.name) + ' × ' + l.qty + '</span>' +
+            '<span>' + W.won(l.amount) + '</span></div>';
+        }).join('') +
+        '<div class="summary-row" style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--cream-dim)">' +
+          '<span>배송비</span><span>' + (order.totals.ship === 0 ? '무료' : W.won(order.totals.ship)) + '</span></div>' +
+        '<div class="summary-total"><span>결제금액</span><strong>' + W.won(order.totals.total) + '</strong></div>' +
+      '</div>' +
+    '</div>';
+
+  W.observe(document.querySelectorAll('.reveal'));
+});
+</script>
+</body>
+</html>
