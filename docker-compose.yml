@@ -11,6 +11,11 @@ services:
     volumes:
       - ./site:/usr/share/nginx/html:ro
       - ./nginx/site.conf:/etc/nginx/conf.d/default.conf:ro
+      # 관리자 Basic 인증 계정. 호스트에서 아래로 생성한다.
+      #   printf 'admin:%s\n' "$(openssl passwd -apr1)" | sudo tee /etc/nginx/.htpasswd-admin
+      # 파일이 없는 상태로 컨테이너를 올리면 docker 가 같은 경로에 디렉터리를
+      # 만들어버려 인증이 깨지므로, 반드시 파일을 먼저 만들어야 한다.
+      - /etc/nginx/.htpasswd-admin:/etc/nginx/.htpasswd-admin:ro
 
     environment:
       TZ: Asia/Seoul
