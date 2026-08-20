@@ -1,7 +1,22 @@
-/* ?댄뼢????contact ?섏씠吏
-   CSP(script-src 'self')瑜?吏?ㅺ린 ?꾪빐 ?몃씪???ㅽ겕由쏀듃瑜??곗? ?딅뒗?? */
+/* 운향재 — 문의 페이지
+   CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
 document.addEventListener('DOMContentLoaded', function () {
   var W = window.WHJ, b = (W && W.catalog.brand) || {};
+
+  /* 자주 묻는 질문 — 카탈로그의 faq 를 그대로 그린다 */
+  var faqBox = document.getElementById('faqList');
+  if (faqBox) {
+    faqBox.innerHTML = (W.catalog.faq || []).map(function (f) {
+      return '<details><summary>' + W.esc(f.q) + '</summary><p>' + W.esc(f.a) + '</p></details>';
+    }).join('');
+  }
+
+  /* /contact.html#faq 처럼 들어오면 해당 탭을 연다 */
+  var wanted = (location.hash || '').replace('#', '');
+  if (wanted) {
+    var btn = document.querySelector('.tabbar button[data-tab="' + wanted + '"]');
+    if (btn) btn.click();
+  }
 
   /* 사업자 정보 */
   var info = document.getElementById('bizinfo');

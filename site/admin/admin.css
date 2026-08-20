@@ -169,3 +169,10 @@ button.b[disabled]{ opacity:.4; cursor:not-allowed; }
 .slot-in{ margin-top:.5rem; width:100%; padding:.4rem; border:1px solid var(--line); font-size:.76rem; }
 .slot-in2{ margin-top:.35rem; width:100%; padding:.4rem; border:1px solid var(--line); font-size:.76rem; }
 .color-in{ height:2.6rem; padding:.2rem; }
+
+/* 사이트로 돌아가는 링크 */
+.side a.side-out{
+  margin-top:1rem; border-top:1px solid #38322B;
+  padding-top:1.1rem; color:var(--oak);
+}
+.side a.side-out:hover{ color:#fff; background:transparent; }

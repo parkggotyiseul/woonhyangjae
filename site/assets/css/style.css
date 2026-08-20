@@ -847,3 +847,114 @@ li{ list-style:none; }
 }
 .err h1{ font-size:clamp(1.3rem,3.4vw,1.9rem); font-weight:300; margin-bottom:1.25rem; }
 .err p{ color:var(--on-dark-mute); margin-bottom:2.75rem; }
+
+/* ═══════════════════════════════════════════════════════
+   탭 · 표식 · 관리자 링크
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 탭 (공간 · 문의 · SHOP 공용) ───────────────────── */
+.tabbar{
+  display:flex; flex-wrap:wrap; gap:0;
+  border-bottom:1px solid var(--cream-dim);
+  margin-bottom:clamp(2rem,4vw,3rem);
+}
+.tabbar button{
+  background:none; border:0; cursor:pointer;
+  border-bottom:1px solid transparent;
+  margin-bottom:-1px;
+  padding:.9rem 1.35rem;
+  font-family:var(--sans); font-weight:300;
+  font-size:.86rem; letter-spacing:.08em;
+  color:var(--on-light-mute);
+  white-space:nowrap;
+  transition:color .3s var(--ease), border-color .3s var(--ease);
+}
+.tabbar button:hover{ color:var(--on-light); }
+.tabbar button.is-on{ color:var(--ink); border-bottom-color:var(--ink); }
+@media (max-width:560px){
+  .tabbar{ overflow-x:auto; flex-wrap:nowrap; }
+  .tabbar button{ padding:.8rem 1rem; font-size:.8rem; }
+}
+.tabpanel[hidden]{ display:none; }
+
+/* ── 제품 표식 ───────────────────────────────────────── */
+.badges{ display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.85rem; min-height:1.3rem; }
+.badge{
+  display:inline-block;
+  padding:.2rem .6rem;
+  font-family:var(--disp); font-size:.62rem;
+  letter-spacing:.18em; text-transform:uppercase;
+  border:1px solid var(--oak); color:var(--mahogany);
+}
+.badge-best{ background:var(--ink); border-color:var(--ink); color:var(--cream); }
+.badge-pick{ border-color:var(--mahogany); }
+.pcard-coming .badge{ border-color:var(--on-dark-mute); color:var(--on-dark-mute); }
+
+/* ── SHOP 정렬 ───────────────────────────────────────── */
+.sortbar{
+  display:flex; align-items:baseline; gap:1.5rem; flex-wrap:wrap;
+  margin-bottom:1.5rem;
+}
+.sortbar span{
+  font-family:var(--sans); font-size:.76rem;
+  letter-spacing:.16em; color:var(--on-light-mute);
+}
+.sortbar button{
+  background:none; border:0; cursor:pointer; padding:.25rem 0;
+  font-family:var(--sans); font-weight:300; font-size:.84rem;
+  color:var(--on-light-mute);
+  border-bottom:1px solid transparent;
+}
+.sortbar button.is-on{ color:var(--ink); border-bottom-color:var(--oak); }
+
+/* ── 큐레이션 결과 요약 카드 ─────────────────────────── */
+.pick-list{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1px; background:var(--cream-dim); border:1px solid var(--cream-dim);
+}
+.pick{
+  background:var(--cream); padding:1.5rem 1.6rem;
+  display:flex; flex-direction:column; gap:.5rem;
+}
+.pick h4{ font-size:1.02rem; letter-spacing:.04em; }
+.pick p{ font-size:.86rem; color:var(--on-light-mute); line-height:1.8; }
+.pick .rec{
+  margin-top:auto; padding-top:.85rem;
+  border-top:1px solid var(--cream-warm);
+  font-family:var(--sans); font-size:.8rem; color:var(--mahogany);
+}
+.pick .rec a{ text-decoration:none; border-bottom:1px solid var(--oak); }
+
+/* ── 전문가 그룹 (품질) ──────────────────────────────── */
+.makers{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1px; background:var(--ink-line); border:1px solid var(--ink-line);
+}
+.maker{ background:var(--ink); padding:2rem 1.75rem 2.25rem; }
+.maker-step{
+  font-family:var(--disp); font-size:.66rem;
+  letter-spacing:.24em; color:var(--oak);
+}
+.maker h3{ font-size:1.1rem; margin:.85rem 0 .35rem; letter-spacing:.04em; }
+.maker .lead{
+  font-family:var(--sans); font-size:.78rem;
+  color:var(--on-dark-mute); margin-bottom:1rem;
+}
+.maker p.body{ font-size:.88rem; color:var(--on-dark-mute); line-height:1.9; }
+
+/* ── 푸터 관리자 링크 ────────────────────────────────── */
+.foot-admin{
+  display:inline-flex; align-items:center; gap:.5rem;
+  margin-top:1rem;
+  text-decoration:none;
+  font-family:var(--sans); font-size:.76rem;
+  letter-spacing:.1em; color:var(--on-dark-mute);
+  border:1px solid var(--ink-line);
+  padding:.55rem 1rem;
+  transition:border-color .3s var(--ease), color .3s var(--ease);
+}
+.foot-admin:hover{ border-color:var(--oak); color:var(--cream); }
+.foot-admin::before{
+  content:""; width:5px; height:5px; border-radius:50%;
+  background:var(--oak); display:inline-block;
+}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SHOP — 컬렉션 01 木 | 운향재 雲香齋</title>
+<title>SHOP — 컬렉션 01 木 | 운향재</title>
 <meta name="description" content="운향재 리드 디퓨저 구매. 묵향헌(호두나무·심재), 느루(느티나무·뿌리), 2종 세트. 부향률 20%, 서울향료 조향.">
 <meta name="theme-color" content="#1C1A17">
 <link rel="canonical" href="https://woonhyangjae.com/shop.html">
@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
-<link rel="stylesheet" href="/assets/css/style.css?v=20260820b">
+<link rel="stylesheet" href="/assets/css/style.css?v=20260820c">
 </head>
 <body>
 
@@ -26,7 +26,7 @@
 <header class="site-header is-stuck" id="header">
   <div class="shell header-inner">
     <a class="brand" href="/" aria-label="운향재 홈">
-      <span class="brand-ko">雲香齋</span>
+      <span class="brand-ko">운향재</span>
       <span class="brand-en">WOONHYANGJAE</span>
     </a>
     <nav class="nav" id="nav" aria-label="주요 메뉴">
@@ -57,7 +57,14 @@
       </div>
       <p class="sec-lede reveal">나무가 기억하는 시간</p>
 
-      <div class="product-grid" data-products="wood" data-base="/product.html"></div>
+      <div class="sortbar reveal">
+        <span>정렬</span>
+        <button type="button" data-sort="popular" class="is-on">인기순</button>
+        <button type="button" data-sort="recent">최근 업데이트순</button>
+        <button type="button" data-sort="number">번호순</button>
+      </div>
+
+      <div class="product-grid" id="shopGrid"></div>
 
       <!-- 세트 -->
       <div id="sets" class="mt-sec-sm"></div>
@@ -95,7 +102,7 @@
   <div class="shell">
     <div class="foot-top">
       <div class="foot-brand">
-        <span class="brand-ko">雲香齋</span>
+        <span class="brand-ko">운향재</span>
         <span class="brand-en">WOONHYANGJAE</span>
         <p>자연의 요소를 향으로 옮기다</p>
       </div>
@@ -107,6 +114,7 @@
         <a href="/contact.html">문의</a>
         <a href="/shop.html">SHOP</a>
       </nav>
+      <a class="foot-admin" href="/admin/">관리자 모드</a>
     </div>
     <div class="foot-legal">
       <p id="bizline"></p>
@@ -115,8 +123,8 @@
   </div>
 </footer>
 
-<script src="/assets/data/catalog.js?v=20260820b"></script>
-<script src="/assets/js/main.js?v=20260820b" defer></script>
-<script src="/assets/js/page-shop.js?v=20260820b" defer></script>
+<script src="/assets/data/catalog.js?v=20260820c"></script>
+<script src="/assets/js/main.js?v=20260820c" defer></script>
+<script src="/assets/js/page-shop.js?v=20260820c" defer></script>
 </body>
 </html>

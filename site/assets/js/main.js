@@ -81,6 +81,40 @@
   }
   W.esc = esc;
 
+  /* ── 제품 표식 ────────────────────────────────────────
+     BEST / DESIGNER'S PICK 처럼 카탈로그의 badges 를 그대로 그린다. */
+  W.badges = function (p) {
+    var list = (p && p.badges) || [];
+    if (!list.length) return '<div class="badges"></div>';
+    return '<div class="badges">' + list.map(function (b) {
+      var cls = /best/i.test(b) ? ' badge-best' : (/pick|choice/i.test(b) ? ' badge-pick' : '');
+      return '<span class="badge' + cls + '">' + esc(b) + '</span>';
+    }).join('') + '</div>';
+  };
+
+  /* ── 탭 ───────────────────────────────────────────────
+     [data-tabs] 안의 버튼(data-tab)과 패널(data-panel)을 연결한다. */
+  W.tabs = function (root) {
+    if (!root) return;
+    var bar = root.querySelector('.tabbar');
+    if (!bar) return;
+    var show = function (key) {
+      bar.querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('is-on', b.getAttribute('data-tab') === key);
+      });
+      root.querySelectorAll('[data-panel]').forEach(function (p) {
+        p.hidden = p.getAttribute('data-panel') !== key;
+      });
+      observe(root.querySelectorAll('.reveal'));
+    };
+    bar.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-tab]');
+      if (b) show(b.getAttribute('data-tab'));
+    });
+    var first = bar.querySelector('button[data-tab]');
+    if (first) show(first.getAttribute('data-tab'));
+  };
+
   /* ── 八章 렌더링 ──────────────────────────────────────
      상태(active/upcoming/done)만 바꾸면 글자 밝기가 자동으로 반영된다.
      아직 오지 않은 장에는 링크를 걸지 않는다. */
@@ -107,6 +141,7 @@
         '<div class="pcard-visual">' + W.bottle(p) + '</div>' +
         '<div class="pcard-body">' +
           '<p class="pcard-num">' + esc(p.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
+          W.badges(p) +
           '<h3 class="pcard-name">' + (coming ? '준비하고 있습니다' : esc(p.nameKo) +
             (p.nameHanja ? '<span class="hanja">' + esc(p.nameHanja) + '</span>' : '')) + '</h3>' +
           '<p class="pcard-sig">' + esc(p.signature) + '</p>' +
@@ -251,7 +286,8 @@
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setNav(false); });
     }
 
-    // 八章 · 제품 그리드 자동 렌더링
+    // 탭 · 八章 · 제품 그리드 자동 렌더링
+    document.querySelectorAll('[data-tabs]').forEach(function (el) { W.tabs(el); });
     W.renderChapters(document.querySelector('[data-chapters]'));
     document.querySelectorAll('[data-products]').forEach(function (el) {
       W.renderProducts(el, {

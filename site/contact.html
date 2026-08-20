@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>문의 — 운향재 雲香齋</title>
+<title>문의 — 운향재</title>
 <meta name="description" content="제품 문의, 공간 향 제안(B2B), 도매·제휴 문의. 영업일 기준 2일 내에 회신드립니다.">
 <meta name="theme-color" content="#1C1A17">
 <link rel="canonical" href="https://woonhyangjae.com/contact.html">
@@ -17,7 +17,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
-<link rel="stylesheet" href="/assets/css/style.css?v=20260820b">
+<link rel="stylesheet" href="/assets/css/style.css?v=20260820c">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "향이 너무 강합니다", "acceptedAnswer": { "@type": "Answer", "text": "부향률 20% 제품입니다. 스틱 개수를 줄이면 발향 강도가 낮아집니다. 처음에는 절반만 꽂아 사용해 보시기를 권합니다." } },
+    { "@type": "Question", "name": "얼마나 오래 쓸 수 있나요", "acceptedAnswer": { "@type": "Answer", "text": "스틱 개수와 환기량, 공간 크기에 따라 달라집니다. 스틱을 적게 꽂을수록 오래 사용하실 수 있습니다." } },
+    { "@type": "Question", "name": "원목 가구 위에 둬도 되나요", "acceptedAnswer": { "@type": "Answer", "text": "원목 표면 착색 테스트를 통과했습니다. 다만 용액이 직접 접촉하는 것은 피해 주시고, 흘렀을 경우 마른 천으로 닦아내 주세요." } },
+    { "@type": "Question", "name": "아이나 반려동물이 있어도 되나요", "acceptedAnswer": { "@type": "Answer", "text": "손이 닿지 않는 높이에 배치해 주세요. 섭취 시 위험할 수 있으며, 넘어지지 않는 안정된 자리를 권장합니다." } },
+    { "@type": "Question", "name": "리필이 있나요", "acceptedAnswer": { "@type": "Answer", "text": "리필 상품을 준비하고 있습니다. 출시 시 알림을 신청하실 수 있습니다." } },
+    { "@type": "Question", "name": "향이 변한 것 같습니다", "acceptedAnswer": { "@type": "Answer", "text": "직사광선에 노출되면 변색과 변질이 일어날 수 있습니다. 조명과 햇빛을 피한 자리에 두시기를 권합니다." } },
+    { "@type": "Question", "name": "기프트 포장은 어떻게 되나요", "acceptedAnswer": { "@type": "Answer", "text": "전용 리본과 메시지 카드를 함께 보내드립니다. 주문서에서 가격이 표기되지 않은 명세서를 선택하실 수 있습니다." } },
+    { "@type": "Question", "name": "배송은 얼마나 걸리나요", "acceptedAnswer": { "@type": "Answer", "text": "영업일 기준 2~3일 내 출고되며, 출고 시 송장번호를 안내드립니다." } }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -26,7 +42,7 @@
 <header class="site-header is-stuck" id="header">
   <div class="shell header-inner">
     <a class="brand" href="/" aria-label="운향재 홈">
-      <span class="brand-ko">雲香齋</span>
+      <span class="brand-ko">운향재</span>
       <span class="brand-en">WOONHYANGJAE</span>
     </a>
     <nav class="nav" id="nav" aria-label="주요 메뉴">
@@ -48,13 +64,22 @@
 
 <main id="main" class="page-top">
 
-  <section class="section">
+  <section class="section" data-tabs>
     <div class="shell">
       <div class="sec-head reveal">
         <span class="sec-num">—</span>
         <h1 class="sec-title">문의</h1>
         <span class="sec-en">CONTACT</span>
       </div>
+
+      <nav class="tabbar" aria-label="문의 하위 메뉴">
+        <button type="button" data-tab="ask">문의하기</button>
+        <button type="button" data-tab="faq">자주 묻는 질문</button>
+        <button type="button" data-tab="policy">교환 · 반품</button>
+        <button type="button" data-tab="biz">사업자 정보</button>
+      </nav>
+
+      <div data-panel="ask">
       <p class="sec-lede reveal">영업일 기준 2일 내에 회신드립니다.</p>
 
       <div class="cart-layout">
@@ -145,36 +170,34 @@
           </div>
         </div>
       </div>
-    </div>
-  </section>
+      </div><!-- /ask -->
 
-  <section class="section section-warm">
-    <div class="shell">
-      <div class="sec-head reveal">
-        <span class="sec-num">—</span>
-        <h2 class="sec-title">교환 · 반품</h2>
-        <span class="sec-en">POLICY</span>
+      <div data-panel="faq" id="faq" hidden>
+        <p class="sec-lede reveal">제품과 사용에 대해 가장 많이 받는 질문입니다.</p>
+        <div class="faq reveal" id="faqList"></div>
+        <div class="link-row">
+          <a class="link-line" href="/craft.html">품질 기준 자세히 →</a>
+        </div>
       </div>
-      <ul class="list-rows reveal">
-        <li><h4>단순 변심 — 7일 이내</h4><p>미개봉 상품에 한합니다. 왕복 배송비는 고객 부담이며, 향 제품 특성상 개봉 후에는 반품이 어렵습니다.</p></li>
-        <li><h4>파손 · 불량 — 즉시 교환</h4><p>사진을 보내주시면 확인 후 바로 재발송해 드립니다. 회수는 그 다음입니다. 기다리시게 하지 않습니다.</p></li>
-        <li><h4>향이 맞지 않는 경우</h4><p>정책상 반품 대상은 아니지만, 개별적으로 판단해 대응합니다. 문의를 남겨 주세요.</p></li>
-      </ul>
-    </div>
-  </section>
 
-  <section class="section">
-    <div class="shell shell-narrow">
-      <div class="sec-head reveal">
-        <span class="sec-num">—</span>
-        <h2 class="sec-title">사업자 정보</h2>
-        <span class="sec-en">BUSINESS</span>
+      <div data-panel="policy" hidden>
+        <p class="sec-lede reveal">주문하신 뒤 마음이 바뀌셨거나 문제가 있을 때의 처리 기준입니다.</p>
+        <ul class="list-rows reveal">
+          <li><h4>단순 변심 — 7일 이내</h4><p>미개봉 상품에 한합니다. 왕복 배송비는 고객 부담이며, 향 제품 특성상 개봉 후에는 반품이 어렵습니다.</p></li>
+          <li><h4>파손 · 불량 — 즉시 교환</h4><p>사진을 보내주시면 확인 후 바로 재발송해 드립니다. 회수는 그 다음입니다. 기다리시게 하지 않습니다.</p></li>
+          <li><h4>향이 맞지 않는 경우</h4><p>정책상 반품 대상은 아니지만, 개별적으로 판단해 대응합니다. 문의를 남겨 주세요.</p></li>
+          <li><h4>배송 · 출고</h4><p>영업일 기준 2~3일 내 출고되며, 출고 시 송장번호를 안내드립니다.</p></li>
+        </ul>
       </div>
-      <dl class="spec reveal" id="bizinfo"></dl>
-      <p class="notice reveal">
-        아래 정보는 실제 등록 정보로 교체가 필요합니다. 통신판매업 신고번호, 사업장 주소,
-        대표 전화, 개인정보처리방침·이용약관 링크는 오픈 전 반드시 채워야 하는 법적 필수 항목입니다.
-      </p>
+
+      <div data-panel="biz" hidden>
+        <p class="sec-lede reveal">전자상거래법에 따른 사업자 정보입니다.</p>
+        <dl class="spec reveal" id="bizinfo"></dl>
+        <p class="notice reveal">
+          위 정보는 실제 등록 정보로 교체가 필요합니다. 통신판매업 신고번호, 사업장 주소,
+          대표 전화, 개인정보처리방침·이용약관 링크는 오픈 전 반드시 채워야 하는 법적 필수 항목입니다.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -184,7 +207,7 @@
   <div class="shell">
     <div class="foot-top">
       <div class="foot-brand">
-        <span class="brand-ko">雲香齋</span>
+        <span class="brand-ko">운향재</span>
         <span class="brand-en">WOONHYANGJAE</span>
         <p>자연의 요소를 향으로 옮기다</p>
       </div>
@@ -196,6 +219,7 @@
         <a href="/contact.html">문의</a>
         <a href="/shop.html">SHOP</a>
       </nav>
+      <a class="foot-admin" href="/admin/">관리자 모드</a>
     </div>
     <div class="foot-legal">
       <p id="bizline"></p>
@@ -204,8 +228,8 @@
   </div>
 </footer>
 
-<script src="/assets/data/catalog.js?v=20260820b"></script>
-<script src="/assets/js/main.js?v=20260820b" defer></script>
-<script src="/assets/js/page-contact.js?v=20260820b" defer></script>
+<script src="/assets/data/catalog.js?v=20260820c"></script>
+<script src="/assets/js/main.js?v=20260820c" defer></script>
+<script src="/assets/js/page-contact.js?v=20260820c" defer></script>
 </body>
 </html>

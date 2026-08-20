@@ -267,8 +267,17 @@
         f('SKU', input('e-sku', v.sku)) +
         f('가격 (원)', '<input id="e-price" type="number" value="' + Number(v.price || 0) + '">') +
       '</div>' +
-      '<div class="frow">' +
+      '<div class="f">' +
+        '<label>표식 (쉼표로 구분)</label>' +
+        '<input id="e-badges" value="' + esc((p.badges || []).join(', ')) + '" placeholder="BEST, DESIGNER\'S PICK">' +
+        '<p class="hint">SHOP 카드에 붙는 표식입니다. BEST 는 검정, PICK · CHOICE 가 들어가면 갈색 테두리로 표시됩니다. 비워두면 표식이 없습니다.</p>' +
+      '</div>' +
+      '<div class="frow-3">' +
+        f('누적 판매 수 (인기순 정렬)', '<input id="e-sold" type="number" value="' + Number(p.soldCount || 0) + '">') +
+        f('출시 · 갱신일 (최신순 정렬)', '<input id="e-released" type="date" value="' + esc(p.releasedAt || '') + '">') +
         f('재고 수량', '<input id="e-stock" type="number" value="' + Number(v.stock || 0) + '">') +
+      '</div>' +
+      '<div class="frow">' +
         f('URL slug', input('e-slug', p.slug)) +
       '</div>' +
 
@@ -634,6 +643,9 @@
           alt: el('e-psalt' + i).value.trim()
         };
       }).filter(function (ps) { return ps.src || ps.alt; });
+      p.badges = el('e-badges').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      p.soldCount = Number(el('e-sold').value) || 0;
+      p.releasedAt = el('e-released').value;
       var v = p.variants[0];
       v.name = el('e-vname').value.trim();
       v.sku = el('e-sku').value.trim();

@@ -1,5 +1,5 @@
-/* ?댄뼢????spaces ?섏씠吏
-   CSP(script-src 'self')瑜?吏?ㅺ린 ?꾪빐 ?몃씪???ㅽ겕由쏀듃瑜??곗? ?딅뒗?? */
+/* 운향재 — 공간 페이지
+   CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
 document.addEventListener('DOMContentLoaded', function () {
   var W = window.WHJ;
   if (!W) return;
@@ -66,16 +66,32 @@ document.addEventListener('DOMContentLoaded', function () {
     '</div>';
   }
 
-  /* 공간별 · 무드별 목록 */
-  document.getElementById('by-space').innerHTML = cur.spaces.map(function (s) {
-    return '<li><h4>' + W.esc(s.ko) + ' · ' + W.esc(s.en) + '</h4><p>' + W.esc(s.desc) +
-      '<br><span class="accent">추천 — ' +
-      W.esc(s.recommend.map(name).join(' · ')) + '</span></p></li>';
-  }).join('');
+  /* 공간 · 분위기 · 성향 — 카드 한 장에 추천과 바로가기까지 담는다 */
+  function recLinks(slugs) {
+    return (slugs || []).map(function (s) {
+      var p = W.product(s);
+      if (!p) return W.esc(s);
+      return '<a href="/product.html?p=' + encodeURIComponent(p.slug) + '">' + W.esc(p.nameKo) + '</a>';
+    }).join(' · ');
+  }
+  function cards(list, titleFn) {
+    return list.map(function (x) {
+      return '<div class="pick">' +
+        '<h4>' + titleFn(x) + '</h4>' +
+        '<p>' + W.esc(x.desc) + '</p>' +
+        '<p class="rec">추천 — ' + recLinks(x.recommend) + '</p>' +
+      '</div>';
+    }).join('');
+  }
 
-  document.getElementById('by-mood').innerHTML = cur.moods.map(function (m) {
-    return '<li><h4>' + W.esc(m.ko) + '</h4><p>' + W.esc(m.desc) +
-      '<br><span class="accent">추천 — ' +
-      W.esc(m.recommend.map(name).join(' · ')) + '</span></p></li>';
-  }).join('');
+  document.getElementById('by-space').innerHTML =
+    cards(cur.spaces, function (s) { return W.esc(s.ko) + ' <span class="opt-name">' + W.esc(s.en) + '</span>'; });
+
+  document.getElementById('by-mood').innerHTML =
+    cards(cur.moods, function (m) { return W.esc(m.ko); });
+
+  var typeBox = document.getElementById('by-type');
+  if (typeBox) {
+    typeBox.innerHTML = cards(cur.types || [], function (t) { return W.esc(t.ko); });
+  }
 });

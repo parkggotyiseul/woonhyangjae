@@ -1,8 +1,65 @@
-/* ?댄뼢????shop ?섏씠吏
-   CSP(script-src 'self')瑜?吏?ㅺ린 ?꾪빐 ?몃씪???ㅽ겕由쏀듃瑜??곗? ?딅뒗?? */
+/* 운향재 — SHOP 페이지
+   CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
 document.addEventListener('DOMContentLoaded', function () {
   var W = window.WHJ;
   if (!W) return;
+
+  /* ── 제품 목록 · 정렬 ─────────────────────────────────
+     Coming Soon 은 어떤 정렬에서도 항상 마지막에 둔다. */
+  var grid = document.getElementById('shopGrid');
+  var sortBar = document.querySelector('.sortbar');
+  var sortKey = 'popular';
+
+  function sorted() {
+    var list = W.byCollection('wood').slice();
+    return list.sort(function (a, b) {
+      var ac = a.status === 'coming', bc = b.status === 'coming';
+      if (ac !== bc) return ac ? 1 : -1;
+      if (sortKey === 'popular') return (b.soldCount || 0) - (a.soldCount || 0);
+      if (sortKey === 'recent') return String(b.releasedAt || '').localeCompare(String(a.releasedAt || ''));
+      return String(a.number).localeCompare(String(b.number));
+    });
+  }
+
+  function drawGrid() {
+    if (!grid) return;
+    var list = sorted();
+    grid.innerHTML = list.map(function (p, i) {
+      var coming = p.status === 'coming';
+      var price = W.price(p);
+      var href = coming ? '#notify' : '/product.html?p=' + encodeURIComponent(p.slug);
+      return '<a class="pcard reveal' + (coming ? ' pcard-coming' : '') + '" data-i="' + i + '" href="' + href + '">' +
+        '<div class="pcard-visual">' + W.bottle(p) + '</div>' +
+        '<div class="pcard-body">' +
+          '<p class="pcard-num">' + W.esc(p.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
+          W.badges(p) +
+          '<h3 class="pcard-name">' + (coming ? '준비하고 있습니다' : W.esc(p.nameKo) +
+            (p.nameHanja ? '<span class="hanja">' + W.esc(p.nameHanja) + '</span>' : '')) + '</h3>' +
+          '<p class="pcard-sig">' + W.esc(p.signature) + '</p>' +
+          '<p class="pcard-cap">' + W.esc(coming ? p.layer : p.caption + ' · ' + p.species + ' · ' + p.layer) + '</p>' +
+          '<div class="pcard-foot">' +
+            '<span>' + (coming ? '출시 소식 받기 →' : '자세히 보기 →') + '</span>' +
+            (price ? '<span class="pcard-price">' + W.won(price) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</a>';
+    }).join('');
+    W.stagger(grid.querySelectorAll('.pcard'));
+    W.observe(grid.querySelectorAll('.reveal'));
+  }
+
+  if (sortBar) {
+    sortBar.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-sort]');
+      if (!b) return;
+      sortKey = b.getAttribute('data-sort');
+      sortBar.querySelectorAll('button').forEach(function (x) {
+        x.classList.toggle('is-on', x === b);
+      });
+      drawGrid();
+    });
+  }
+  drawGrid();
 
   /* 배송 안내 */
   var ship = W.catalog.shipping || {};
@@ -22,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' +
         '<div class="pcard-body">' +
           '<p class="pcard-num">SET</p>' +
+          W.badges(s) +
           '<h3 class="pcard-name">' + W.esc(s.nameKo) + '</h3>' +
           '<p class="pcard-sig">' + W.esc(s.signature) + '</p>' +
           '<p class="pcard-cap">' + W.esc(items.join(' · ')) + '</p>' +

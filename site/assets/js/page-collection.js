@@ -1,5 +1,5 @@
-/* ?댄뼢????collection ?섏씠吏
-   CSP(script-src 'self')瑜?吏?ㅺ린 ?꾪빐 ?몃씪???ㅽ겕由쏀듃瑜??곗? ?딅뒗?? */
+/* 운향재 — 컬렉션 페이지
+   CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
 /* 진행 중인 컬렉션을 순서대로 펼친다.
    컬렉션 02 水를 열 때는 catalog.js에서 status를 active로 바꾸고 제품을 등록하면 끝이다. */
 document.addEventListener('DOMContentLoaded', function () {
