@@ -219,9 +219,11 @@ button.b[disabled]{ opacity:.4; cursor:not-allowed; }
 .pslot .acts button:hover{ background:var(--line-2); }
 
 /* ═══ 분석 ═══════════════════════════════════════════ */
-.chart{ display:flex; align-items:flex-end; gap:3px; height:140px; margin-top:.5rem; }
-.chart div{ flex:1; background:var(--line-2); position:relative; min-height:2px; }
-.chart div i{ display:block; width:100%; background:var(--oak); position:absolute; bottom:0; }
+/* 막대는 칸(div) 안에서 바닥에 붙는다. 칸이 100% 높이를 가져야
+   안쪽 막대의 퍼센트 높이가 계산된다. */
+.chart{ display:flex; align-items:stretch; gap:3px; height:140px; margin-top:.5rem; }
+.chart div{ flex:1; height:100%; position:relative; background:var(--line-2); }
+.chart div i{ display:block; width:100%; background:var(--oak); position:absolute; bottom:0; left:0; min-height:2px; }
 .chart-x{ display:flex; justify-content:space-between; font-size:.7rem; color:var(--mute); margin-top:.4rem; }
 
 .funnel{ display:grid; gap:.5rem; }
@@ -275,3 +277,11 @@ button.b[disabled]{ opacity:.4; cursor:not-allowed; }
 .side a.side-out{ margin-top:1rem; border-top:1px solid #38322B; padding-top:1.1rem; color:var(--oak); }
 .side a.side-out:hover{ color:#fff; background:transparent; }
 a.b{ text-decoration:none; display:inline-block; text-align:center; }
+
+/* 표가 좁은 화면에서 글자 단위로 쪼개지지 않게 한다.
+   줄바꿈으로 뭉개지느니 가로로 스크롤되는 편이 읽기 쉽다. */
+.table-wrap table{ min-width:640px; }
+.table-wrap.wide table{ min-width:900px; }
+th,td{ word-break:keep-all; }
+td .nowrap,th.nowrap,td.nowrap{ white-space:nowrap; }
+.table-wrap input.sel-sm{ min-width:120px; }

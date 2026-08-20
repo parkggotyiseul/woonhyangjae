@@ -205,16 +205,17 @@
 
       '<div class="panel"><h2>발송 대기 ' + ready.length + '건</h2>' +
         (ready.length
-          ? '<div class="table-wrap"><table><thead><tr>' +
-            '<th>주문번호</th><th>받는 분</th><th>주소</th><th>상품</th><th>택배사</th><th>송장번호</th>' +
+          ? '<div class="table-wrap wide"><table><thead><tr>' +
+            '<th class="nowrap">주문번호</th><th class="nowrap">받는 분</th><th>주소</th><th>상품</th>' +
+            '<th class="nowrap">택배사</th><th class="nowrap">송장번호</th>' +
             '</tr></thead><tbody>' +
             ready.map(function (o) {
               return '<tr>' +
-                '<td>' + esc(o.id) + '</td>' +
-                '<td>' + esc(o.shipping.receiver || o.buyer.name) + '<br><span class="muted-xs">' + esc(o.buyer.phone) + '</span></td>' +
+                '<td class="nowrap">' + esc(o.id) + '</td>' +
+                '<td class="nowrap">' + esc(o.shipping.receiver || o.buyer.name) + '<br><span class="muted-xs">' + esc(o.buyer.phone) + '</span></td>' +
                 '<td>(' + esc(o.shipping.zip || '') + ') ' + esc(o.shipping.addr || '') +
                   (o.shipping.memo ? '<br><span class="muted-xs">' + esc(o.shipping.memo) + '</span>' : '') + '</td>' +
-                '<td>' + (o.lines || []).map(function (l) { return esc(l.name) + ' × ' + l.qty; }).join('<br>') +
+                '<td class="nowrap">' + (o.lines || []).map(function (l) { return esc(l.name) + ' × ' + l.qty; }).join('<br>') +
                   (o.gift ? '<br><span class="tag soft">선물포장</span>' : '') + '</td>' +
                 '<td><input class="sel-sm" data-courier="' + esc(o.id) + '" placeholder="CJ대한통운" value="' + esc(o.courier || '') + '"></td>' +
                 '<td><input class="sel-sm" data-invoice="' + esc(o.id) + '" placeholder="송장번호" value="' + esc(o.invoice || '') + '"></td>' +
