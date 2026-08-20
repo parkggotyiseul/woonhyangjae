@@ -125,11 +125,13 @@
     observe(el.querySelectorAll('.reveal'));
   };
 
-  /* 스크롤 리빌 지연을 순서대로 부여한다 (CSSOM — CSP 영향 없음) */
-  W.stagger = function (nodes, step) {
+  /* 스크롤 리빌 지연을 순서대로 부여한다.
+     인라인 스타일은 CSP 가 막으므로 미리 정의된 d1~d6 클래스를 붙인다. */
+  W.stagger = function (nodes) {
     Array.prototype.forEach.call(nodes || [], function (n, i) {
       var k = n.getAttribute('data-i');
-      n.style.setProperty('--d', ((k == null ? i : Number(k)) * (step || 0.07)) + 's');
+      var idx = Math.min(6, (k == null ? i : Number(k)) + 1);
+      if (idx > 0) n.classList.add('d' + idx);
     });
   };
 
