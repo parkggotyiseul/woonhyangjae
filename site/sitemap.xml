@@ -6,7 +6,10 @@
   <url><loc>https://woonhyangjae.com/philosophy.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://woonhyangjae.com/craft.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://woonhyangjae.com/spaces.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://woonhyangjae.com/contact.html</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
   <url><loc>https://woonhyangjae.com/product.html?p=mukhyanghun</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://woonhyangjae.com/product.html?p=neuru</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://woonhyangjae.com/contact.html</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://woonhyangjae.com/terms.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://woonhyangjae.com/privacy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://woonhyangjae.com/copyright.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

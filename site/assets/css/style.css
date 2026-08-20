@@ -631,9 +631,11 @@ li{ list-style:none; }
 .summary{
   border:1px solid var(--cream-dim);
   padding:1.75rem;
-  position:sticky; top:6rem;
 }
-@media (max-width:880px){ .summary{ position:static; } }
+/* 뒤에 형제 요소가 없는 곳에서만 붙인다. sticky 는 이동하면서
+   아래 형제를 덮기 때문이다. */
+.summary.is-sticky{ position:sticky; top:6rem; }
+@media (max-width:880px){ .summary.is-sticky{ position:static; } }
 .summary h3{
   font-family:var(--sans); font-weight:400;
   font-size:.76rem; letter-spacing:.2em;
@@ -960,3 +962,230 @@ li{ list-style:none; }
   content:""; width:5px; height:5px; border-radius:50%;
   background:var(--oak); display:inline-block;
 }
+
+/* ═══════════════════════════════════════════════════════
+   랜딩 히어로 · 드롭다운 · 언어 · 아코디언 · 법적 고지
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 풀스크린 히어로 ─────────────────────────────────
+   영상이 등록되면 영상을, 없으면 한국적 정경을 그린 SVG 를 깐다.
+   어느 쪽이든 화면을 가득 채운다. */
+.hero-media{
+  position:absolute; inset:0; overflow:hidden;
+  background:var(--ink);
+}
+.hero-media video,
+.hero-media .hero-art{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+}
+/* 아주 느린 호흡. 스크롤 모션이 아니라 정경의 숨결에 가깝다. */
+@media (prefers-reduced-motion:no-preference){
+  .hero-media .hero-art{ animation:heroBreath 32s ease-in-out infinite alternate; }
+}
+@keyframes heroBreath{
+  from{ transform:scale(1) translateY(0); }
+  to  { transform:scale(1.06) translateY(-1.2%); }
+}
+/* 글자가 읽히도록 위아래를 눌러 준다 */
+.hero-veil{
+  position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, rgba(28,26,23,.72) 0%, rgba(28,26,23,.25) 32%,
+                            rgba(28,26,23,.45) 68%, rgba(28,26,23,.88) 100%);
+}
+.hero-inner{ position:relative; z-index:2; }
+
+/* ── 상단 드롭다운 ───────────────────────────────────── */
+.nav-item{ position:relative; }
+.nav-panel{
+  position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  min-width:190px;
+  background:rgba(247,243,238,.98);
+  backdrop-filter:saturate(120%) blur(12px);
+  -webkit-backdrop-filter:saturate(120%) blur(12px);
+  border:1px solid var(--cream-dim);
+  padding:.5rem 0;
+  opacity:0; visibility:hidden;
+  transition:opacity .25s var(--ease), visibility .25s;
+  z-index:110;
+}
+.nav-item:hover .nav-panel,
+.nav-item:focus-within .nav-panel{ opacity:1; visibility:visible; }
+.nav-panel a{
+  display:block;
+  padding:.6rem 1.25rem;
+  font-family:var(--sans); font-weight:300;
+  font-size:.8rem; letter-spacing:.06em;
+  color:var(--on-light-mute);
+  border-bottom:0;
+  white-space:nowrap;
+}
+.nav-panel a:hover{ color:var(--ink); background:var(--cream-warm); border-bottom:0; }
+.site-header .nav-panel a{ color:var(--on-light-mute); }
+.site-header .nav-panel a:hover{ color:var(--ink); }
+
+/* ── 언어 전환 ───────────────────────────────────────── */
+.lang{ position:relative; }
+.lang-btn{
+  display:flex; align-items:center; gap:.45rem;
+  background:none; border:1px solid rgba(237,231,222,.28);
+  padding:.4rem .7rem; cursor:pointer;
+  font-family:var(--sans); font-weight:300;
+  font-size:.72rem; letter-spacing:.12em;
+  color:var(--cream);
+  transition:border-color .3s var(--ease), color .3s var(--ease);
+}
+.lang-btn:hover{ border-color:var(--oak); }
+.site-header.is-stuck .lang-btn{ color:var(--ink); border-color:var(--cream-dim); }
+.site-header.is-stuck .lang-btn:hover{ border-color:var(--oak); }
+.lang-flag{ font-size:.95rem; line-height:1; }
+.lang-caret{ font-size:.55rem; opacity:.7; }
+
+.lang-menu{
+  position:absolute; top:calc(100% + .4rem); right:0;
+  min-width:172px;
+  background:rgba(247,243,238,.98);
+  backdrop-filter:saturate(120%) blur(12px);
+  -webkit-backdrop-filter:saturate(120%) blur(12px);
+  border:1px solid var(--cream-dim);
+  padding:.35rem 0;
+  opacity:0; visibility:hidden;
+  transition:opacity .25s var(--ease), visibility .25s;
+  z-index:120;
+}
+.lang:hover .lang-menu,
+.lang:focus-within .lang-menu,
+.lang-menu.is-open{ opacity:1; visibility:visible; }
+.lang-menu button{
+  display:flex; align-items:center; gap:.6rem;
+  width:100%; background:none; border:0; cursor:pointer;
+  padding:.6rem 1.1rem;
+  font-family:var(--sans); font-weight:300;
+  font-size:.8rem; letter-spacing:.04em;
+  color:var(--on-light-mute); text-align:left;
+}
+.lang-menu button:hover{ background:var(--cream-warm); color:var(--ink); }
+.lang-menu button.is-on{ color:var(--ink); }
+.lang-menu button.is-on::after{ content:"·"; margin-left:auto; color:var(--oak); }
+.lang-name{ font-size:.78rem; }
+
+@media (max-width:880px){
+  .lang-btn{ padding:.35rem .55rem; font-size:.68rem; }
+  .lang-name-full{ display:none; }
+}
+
+/* ── 컬렉션 아코디언 ─────────────────────────────────── */
+.acc{ border-top:1px solid var(--cream-dim); }
+.acc-item{ border-bottom:1px solid var(--cream-dim); }
+.acc-head{
+  display:grid; grid-template-columns:auto 1fr auto; gap:1.5rem;
+  align-items:center; width:100%;
+  background:none; border:0; cursor:pointer;
+  padding:clamp(1.5rem,3vw,2.25rem) 0;
+  text-align:left; font-family:var(--serif); color:var(--on-light);
+  transition:opacity .3s var(--ease);
+}
+.acc-head:hover{ opacity:.62; }
+.acc-hanja{
+  font-size:clamp(1.5rem,3.4vw,2.1rem); font-weight:300;
+  letter-spacing:.1em; color:var(--mahogany);
+  min-width:1.6em;
+}
+.acc-title{ font-size:clamp(1.05rem,2.2vw,1.3rem); font-weight:300; letter-spacing:.06em; }
+.acc-sub{
+  display:block; margin-top:.35rem;
+  font-family:var(--sans); font-size:.8rem;
+  color:var(--on-light-mute); letter-spacing:.02em;
+}
+.acc-sign{
+  font-family:var(--sans); font-size:1.1rem; font-weight:200;
+  color:var(--oak); transition:transform .35s var(--ease);
+}
+.acc-item.is-open .acc-sign{ transform:rotate(45deg); }
+.acc-body{ display:none; padding-bottom:clamp(2rem,4vw,3rem); }
+.acc-item.is-open .acc-body{ display:block; }
+.acc-item.is-locked .acc-head{ cursor:default; }
+.acc-item.is-locked .acc-hanja{ color:var(--cream-dim); }
+.acc-item.is-locked .acc-title,
+.acc-item.is-locked .acc-sub{ color:var(--on-light-mute); opacity:.75; }
+.acc-item.is-locked .acc-sign{ color:var(--cream-dim); }
+.section-dark .acc,
+.section-dark .acc-item{ border-color:var(--ink-line); }
+.section-dark .acc-head{ color:var(--on-dark); }
+
+/* ── 입력 오류 안내 ──────────────────────────────────── */
+.field-msg{
+  display:none;
+  font-family:var(--sans); font-size:.76rem;
+  color:var(--mahogany); margin-top:.4rem;
+}
+.field.has-error .field-msg{ display:block; }
+.field.has-error input,
+.field.has-error textarea,
+.field.has-error select{ border-color:var(--mahogany); }
+.form-alert{
+  display:none;
+  border-left:2px solid var(--mahogany);
+  background:var(--cream-warm);
+  padding:.9rem 1.2rem; margin-bottom:1.5rem;
+  font-family:var(--sans); font-size:.85rem; color:var(--mahogany);
+}
+.form-alert.is-on{ display:block; }
+.form-alert.is-ok{ border-left-color:var(--oak); color:var(--on-light-mute); }
+
+/* ── 푸터 ────────────────────────────────────────────── */
+.foot-legal-nav{
+  display:flex; flex-wrap:wrap; gap:.4rem 1.4rem;
+  margin-bottom:1.1rem;
+}
+.foot-legal-nav a{
+  text-decoration:none;
+  font-family:var(--sans); font-size:.76rem;
+  letter-spacing:.06em; color:var(--on-dark-mute);
+  border-bottom:1px solid transparent;
+}
+.foot-legal-nav a:hover{ color:var(--cream); border-bottom-color:var(--ink-line); }
+.foot-legal-nav a.is-strong{ color:var(--cream); }
+
+.foot-copy{
+  font-family:var(--sans); font-size:.72rem;
+  line-height:1.95; color:var(--on-dark-mute);
+}
+.foot-copy strong{ color:var(--on-dark); font-weight:400; }
+
+/* 관리자 링크 — 운영자만 찾을 수 있을 만큼 작게 */
+.foot-admin{
+  display:inline-block;
+  margin-top:.9rem;
+  padding:0; border:0;
+  text-decoration:none;
+  font-family:var(--sans); font-size:.66rem;
+  letter-spacing:.12em;
+  color:rgba(163,154,141,.42);
+  transition:color .3s var(--ease);
+}
+.foot-admin::before{ content:none; }
+.foot-admin:hover{ color:var(--on-dark-mute); border:0; }
+
+/* ── 법적 고지 문서 ──────────────────────────────────── */
+.legal h2{
+  font-size:1.1rem; font-weight:400; letter-spacing:.04em;
+  margin:clamp(2.25rem,4vw,3rem) 0 1rem;
+  padding-bottom:.75rem;
+  border-bottom:1px solid var(--cream-dim);
+}
+.legal h3{ font-size:.98rem; font-weight:400; margin:1.75rem 0 .6rem; }
+.legal p,.legal li{ font-size:.92rem; line-height:2; color:var(--on-light-mute); }
+.legal ul,.legal ol{ margin:.6rem 0 0 1.1rem; }
+.legal li{ list-style:disc; margin-bottom:.35rem; }
+.legal ol li{ list-style:decimal; }
+.legal .updated{
+  font-family:var(--sans); font-size:.78rem;
+  color:var(--on-light-mute); margin-top:2.5rem;
+  padding-top:1.25rem; border-top:1px solid var(--cream-dim);
+}
+
+/* SVG 국기 */
+svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }

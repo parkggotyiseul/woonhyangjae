@@ -18,7 +18,9 @@ window.WHJ_CATALOG =
     "bizNumber": "000-00-00000",
     "mailOrderNumber": "0000-서울-0000",
     "address": "—",
-    "phone": "—"
+    "phone": "—",
+    "heroVideo": "",
+    "heroPoster": ""
   },
 
   "_collectionNote": "진행 중인 장은 status:active, 앞으로의 장은 upcoming. 순서는 order 값으로 정합니다.",

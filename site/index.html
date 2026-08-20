@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
-<link rel="stylesheet" href="/assets/css/style.css?v=20260820f">
+<link rel="stylesheet" href="/assets/css/style.css?v=20260821a">
 
 <script type="application/ld+json">
 {
@@ -65,32 +65,145 @@
       <span class="brand-en">WOONHYANGJAE</span>
     </a>
     <nav class="nav" id="nav" aria-label="주요 메뉴">
-      <a href="/philosophy.html">철학</a>
-      <a href="/collection.html">컬렉션</a>
-      <a href="/craft.html">품질</a>
-      <a href="/spaces.html">공간</a>
-      <a href="/contact.html">문의</a>
+      <div class="nav-item">
+        <a href="/philosophy.html" data-i18n="nav.philosophy">철학</a>
+        <div class="nav-panel">
+        <a href="/philosophy.html#invisible" data-i18n="nav.philosophy.1">보이지 않는 건축</a>
+        <a href="/philosophy.html#name" data-i18n="nav.philosophy.2">이름의 두 해석</a>
+        <a href="/philosophy.html#method" data-i18n="nav.philosophy.3">요소 탐구 방법론</a>
+        <a href="/philosophy.html#heritage" data-i18n="nav.philosophy.4">한국의 미</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="/collection.html" data-i18n="nav.collection">컬렉션</a>
+        <div class="nav-panel">
+        <a href="/collection.html#chapters" data-i18n="nav.collection.1">일곱 개의 장</a>
+        <a href="/collection.html#wood" data-i18n="nav.collection.2">컬렉션 01 — 木</a>
+        <a href="/collection.html#coming" data-i18n="nav.collection.3">앞으로의 장</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="/craft.html" data-i18n="nav.craft">품질</a>
+        <div class="nav-panel">
+        <a href="/craft.html#load" data-i18n="nav.craft.1">부향률 20%</a>
+        <a href="/craft.html#makers" data-i18n="nav.craft.2">전문가 그룹</a>
+        <a href="/craft.html#verify" data-i18n="nav.craft.3">검증 체계</a>
+        <a href="/craft.html#package" data-i18n="nav.craft.4">패키지</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="/spaces.html" data-i18n="nav.spaces">공간</a>
+        <div class="nav-panel">
+        <a href="/spaces.html#find" data-i18n="nav.spaces.1">어떤 향이 맞을까요</a>
+        <a href="/spaces.html#find" data-i18n="nav.spaces.2">공간으로 찾기</a>
+        <a href="/spaces.html#b2b" data-i18n="nav.spaces.3">공간 제안 (B2B)</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="/contact.html" data-i18n="nav.contact">문의</a>
+        <div class="nav-panel">
+        <a href="/contact.html#ask" data-i18n="nav.contact.1">문의하기</a>
+        <a href="/contact.html#faq" data-i18n="nav.contact.2">자주 묻는 질문</a>
+        <a href="/contact.html#policy" data-i18n="nav.contact.3">교환 · 반품</a>
+        <a href="/contact.html#biz" data-i18n="nav.contact.4">사업자 정보</a>
+        </div>
+      </div>
     </nav>
     <div class="header-util">
-      <a href="/shop.html">SHOP</a>
-      <a href="/cart.html" aria-label="장바구니">CART<span class="cart-dot" aria-hidden="true"></span></a>
+      <a href="/shop.html" data-i18n="nav.shop">SHOP</a>
+      <a href="/cart.html" aria-label="장바구니"><span data-i18n="nav.cart">CART</span><span class="cart-dot" aria-hidden="true"></span></a>
+      <div data-lang-switch></div>
     </div>
     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav" aria-label="메뉴 열기">
       <span></span><span></span>
     </button>
   </div>
 </header>
-
 <main id="main">
 
-  <!-- S1 · 히어로 ─────────────────────────────────── -->
+  <!-- S1 · 히어로 — 화면을 가득 채우는 첫 장면 ───────
+       영상 파일이 등록되면 아래 <video> 가 살아나고, 없으면
+       한국의 옛 정경을 그린 SVG 가 그 자리를 지킨다.
+       교체 방법은 assets/js/hero.js 위쪽 주석에 적어 두었다. -->
   <section class="hero" id="top">
-    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-media" id="heroMedia" aria-hidden="true">
+      <svg class="hero-art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img"
+           aria-label="달빛 아래 겹쳐진 산과 창살">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#0F0E0C"/>
+            <stop offset="46%"  stop-color="#241E18"/>
+            <stop offset="78%"  stop-color="#3A2C20"/>
+            <stop offset="100%" stop-color="#1A1613"/>
+          </linearGradient>
+          <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#F7F3EE" stop-opacity=".30"/>
+            <stop offset="55%"  stop-color="#B8946A" stop-opacity=".10"/>
+            <stop offset="100%" stop-color="#B8946A" stop-opacity="0"/>
+          </radialGradient>
+          <!-- 한지에 스민 먹처럼, 아래로 갈수록 짙어진다 -->
+          <linearGradient id="ink1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#54412F"/><stop offset="100%" stop-color="#2C231B"/>
+          </linearGradient>
+          <linearGradient id="ink2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3B2E22"/><stop offset="100%" stop-color="#211A14"/>
+          </linearGradient>
+          <linearGradient id="ink3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#241C16"/><stop offset="100%" stop-color="#14100D"/>
+          </linearGradient>
+          <!-- 창호지 살 — 전통 문살을 아주 옅게 겹친다 -->
+          <pattern id="lattice" width="86" height="86" patternUnits="userSpaceOnUse">
+            <rect width="86" height="86" fill="none"/>
+            <path d="M0 43 H86 M43 0 V86" stroke="#B8946A" stroke-opacity=".07" stroke-width="1"/>
+            <path d="M0 0 H86 M0 0 V86" stroke="#B8946A" stroke-opacity=".05" stroke-width="1"/>
+          </pattern>
+          <!-- 한지 결 -->
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="n"/>
+            <feColorMatrix in="n" type="saturate" values="0"/>
+            <feComponentTransfer><feFuncA type="linear" slope=".055"/></feComponentTransfer>
+          </filter>
+        </defs>
+
+        <rect width="1600" height="900" fill="url(#sky)"/>
+        <circle cx="1180" cy="215" r="330" fill="url(#moonGlow)"/>
+        <circle cx="1180" cy="215" r="74" fill="#EFE7DA" opacity=".82"/>
+        <circle cx="1180" cy="215" r="74" fill="url(#lattice)" opacity=".5"/>
+
+        <!-- 먼 산 -->
+        <path d="M0 556 C 150 500 250 528 360 494 C 470 460 545 505 660 480
+                 C 790 452 880 500 1010 474 C 1140 448 1250 492 1360 470
+                 C 1470 448 1540 480 1600 466 L1600 900 L0 900 Z"
+              fill="url(#ink3)" opacity=".92"/>
+        <!-- 중간 산 -->
+        <path d="M0 648 C 120 604 232 636 344 604 C 470 568 560 620 690 596
+                 C 830 570 918 616 1052 592 C 1190 568 1300 608 1414 590
+                 C 1500 576 1556 596 1600 588 L1600 900 L0 900 Z"
+              fill="url(#ink2)"/>
+        <!-- 앞 산 -->
+        <path d="M0 742 C 140 706 268 736 400 712 C 540 686 640 726 780 706
+                 C 930 684 1040 720 1188 702 C 1320 686 1450 712 1600 696
+                 L1600 900 L0 900 Z"
+              fill="url(#ink1)"/>
+
+        <!-- 물가에 비친 달빛 -->
+        <g opacity=".16">
+          <path d="M1090 838 H1270" stroke="#EFE7DA" stroke-width="2"/>
+          <path d="M1112 862 H1248" stroke="#EFE7DA" stroke-width="1.5"/>
+          <path d="M1136 884 H1224" stroke="#EFE7DA" stroke-width="1"/>
+        </g>
+
+        <rect width="1600" height="900" fill="url(#lattice)" opacity=".55"/>
+        <rect width="1600" height="900" filter="url(#grain)" opacity=".9"/>
+      </svg>
+    </div>
+    <div class="hero-veil" aria-hidden="true"></div>
+
     <div class="shell hero-inner">
       <h1 class="hero-hanja reveal">운향재</h1>
-      <p class="hero-title reveal d3">자연의 요소를 향으로 옮기다</p>
+      <p class="hero-title reveal d3" data-i18n="home.tagline">자연의 요소를 향으로 옮기다</p>
       <p class="hero-en reveal d5">ELEMENTS TRANSLATED INTO SCENT</p>
-      <p class="hero-meta reveal d6">서울향료 조향 · 부향률 20% · Made in Korea</p>
+      <p class="hero-meta reveal d6" data-i18n="home.meta">서울향료 조향 · 부향률 20% · Made in Korea</p>
     </div>
     <div class="scroll-cue" aria-hidden="true"></div>
   </section>
@@ -269,27 +382,37 @@
       <div class="foot-brand">
         <span class="brand-ko">운향재</span>
         <span class="brand-en">WOONHYANGJAE</span>
-        <p>자연의 요소를 향으로 옮기다</p>
+        <p data-i18n="foot.tagline">자연의 요소를 향으로 옮기다</p>
       </div>
       <nav class="foot-nav" aria-label="푸터 메뉴">
-        <a href="/philosophy.html">철학</a>
-        <a href="/collection.html">컬렉션</a>
-        <a href="/craft.html">품질</a>
-        <a href="/spaces.html">공간</a>
-        <a href="/contact.html">문의</a>
-        <a href="/shop.html">SHOP</a>
+        <a href="/philosophy.html" data-i18n="nav.philosophy">철학</a>
+        <a href="/collection.html" data-i18n="nav.collection">컬렉션</a>
+        <a href="/craft.html" data-i18n="nav.craft">품질</a>
+        <a href="/spaces.html" data-i18n="nav.spaces">공간</a>
+        <a href="/contact.html" data-i18n="nav.contact">문의</a>
+        <a href="/shop.html" data-i18n="nav.shop">SHOP</a>
       </nav>
-      <a class="foot-admin" href="/admin/">관리자 모드</a>
     </div>
     <div class="foot-legal">
+      <nav class="foot-legal-nav" aria-label="약관 및 정책">
+        <a href="/terms.html" data-i18n="foot.terms">이용약관</a>
+        <a href="/privacy.html" class="is-strong" data-i18n="foot.privacy">개인정보처리방침</a>
+        <a href="/copyright.html" data-i18n="foot.copyright">저작권 안내</a>
+        <a href="/contact.html#biz" data-i18n="foot.business">사업자 정보</a>
+      </nav>
       <p id="bizline"></p>
-      <p>&copy; <span id="year">2026</span> WOONHYANGJAE. All rights reserved.</p>
+      <p class="foot-copy">
+        &copy; <span id="year">2026</span> <strong>YYY컴퍼니</strong> · WOONHYANGJAE.
+        <span data-i18n="foot.rights">All rights reserved. 이 사이트의 모든 문구와 이미지, 향의 서사는 YYY컴퍼니의 저작물이며 저작권법의 보호를 받습니다. 무단 복제 · 재배포 및 인공지능 학습 목적의 사용을 금합니다.</span>
+      </p>
+      <a class="foot-admin" href="/admin/" data-i18n="foot.admin">관리</a>
     </div>
   </div>
 </footer>
-
-<script src="/assets/data/catalog.js?v=20260820f"></script>
-<script src="/assets/js/main.js?v=20260820f" defer></script>
-<script src="/assets/js/track.js?v=20260820f" defer></script>
+<script src="/assets/data/catalog.js?v=20260821a"></script>
+<script src="/assets/js/main.js?v=20260821a" defer></script>
+<script src="/assets/js/i18n.js?v=20260821a" defer></script>
+<script src="/assets/js/hero.js?v=20260821a" defer></script>
+<script src="/assets/js/track.js?v=20260821a" defer></script>
 </body>
 </html>

@@ -44,18 +44,73 @@ window.WHJ.ready(function () {
      2단계에서 이 핸들러만 API 호출로 교체하면 된다. */
   var form = document.getElementById('contactForm');
   var status = document.getElementById('formStatus');
+  /* 어느 칸이 비었는지 그 칸 아래에 바로 알려 준다.
+     예전에는 안내 문구가 폼 맨 아래에만 떠서, 화면 밖에 있으면
+     눌러도 아무 일이 없는 것처럼 보였다. */
+  function mark(name, message) {
+    var input = form.elements[name];
+    if (!input) return null;
+    var box = input.closest('.field') || input.parentNode;
+    box.classList.add('has-error');
+    input.setAttribute('aria-invalid', 'true');
+    var msg = box.querySelector('.field-msg');
+    if (!msg) {
+      msg = document.createElement('p');
+      msg.className = 'field-msg';
+      box.appendChild(msg);
+    }
+    msg.textContent = message;
+    return input;
+  }
+  function clearMarks() {
+    form.querySelectorAll('.has-error').forEach(function (b) { b.classList.remove('has-error'); });
+    form.querySelectorAll('[aria-invalid]').forEach(function (i) { i.removeAttribute('aria-invalid'); });
+  }
+  /* 다시 입력하기 시작하면 그 칸의 경고를 지운다 */
+  form.addEventListener('input', function (e) {
+    var box = e.target.closest && e.target.closest('.has-error');
+    if (box) {
+      box.classList.remove('has-error');
+      var i = box.querySelector('[aria-invalid]');
+      if (i) i.removeAttribute('aria-invalid');
+    }
+  });
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+    clearMarks();
+    status.textContent = '';
+
     var bad = null;
-    [['name', '성함'], ['email', '이메일'], ['message', '내용']].forEach(function (f) {
-      var el = form.elements[f[0]];
-      var ok = el.value.trim() !== '' &&
-        (f[0] !== 'email' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()));
-      el.setAttribute('aria-invalid', String(!ok));
-      if (!ok && !bad) bad = el;
+    var checks = [
+      ['name', '성함을 입력해 주세요.', function (v) { return v !== ''; }],
+      ['email', '연락받으실 이메일 주소를 정확히 입력해 주세요.',
+        function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }],
+      ['message', '문의하실 내용을 입력해 주세요.', function (v) { return v !== ''; }]
+    ];
+    checks.forEach(function (c) {
+      var v = (form.elements[c[0]].value || '').trim();
+      if (!c[2](v)) {
+        var el = mark(c[0], c[1]);
+        if (!bad) bad = el;
+      }
     });
-    if (bad) { status.textContent = '성함 · 이메일 · 내용을 확인해 주세요.'; bad.focus(); return; }
-    if (!form.elements.agree.checked) { status.textContent = '개인정보 수집 및 이용에 동의해 주세요.'; return; }
+
+    if (!form.elements.agree.checked) {
+      var agreeBox = form.elements.agree.closest('.check');
+      if (agreeBox) agreeBox.classList.add('has-error');
+      if (!bad) bad = form.elements.agree;
+    }
+
+    if (bad) {
+      status.textContent = form.elements.agree.checked
+        ? '입력하지 않은 칸이 있습니다.'
+        : '입력 내용과 개인정보 동의를 확인해 주세요.';
+      /* 문제가 있는 칸으로 화면을 옮겨 준다 */
+      bad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(function () { try { bad.focus({ preventScroll: true }); } catch (err) { bad.focus(); } }, 320);
+      return;
+    }
 
     /* 문의는 서버로 접수된다. 관리자 화면의 문의 탭에서 바로 확인할 수 있다. */
     var payload = {
@@ -77,6 +132,7 @@ window.WHJ.ready(function () {
 
     W.api('/inquiries', { method: 'POST', body: payload })
       .then(function () {
+        clearMarks();
         form.reset();
         b2b.hidden = true;
         status.textContent = '문의가 접수되었습니다. 영업일 기준 2일 내에 회신드리겠습니다.';

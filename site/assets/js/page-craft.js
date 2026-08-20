@@ -3,7 +3,7 @@
 window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
-  var host = document.getElementById('makers');
+  var host = document.getElementById('makersGrid');
   if (!host) return;
 
   var list = W.catalog.partners || [];

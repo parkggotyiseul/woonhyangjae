@@ -92,7 +92,7 @@ window.WHJ.ready(function () {
     '</form>' +
 
     /* 주문 요약 */
-    '<div class="summary">' +
+    '<div class="summary is-sticky">' +
       '<h3>주문 요약</h3>' +
       t.lines.map(function (l) {
         return '<div class="summary-row"><span>' + W.esc(l.product.nameKo) +

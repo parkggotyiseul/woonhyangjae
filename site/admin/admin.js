@@ -624,6 +624,15 @@
           f('도매 · 제휴 이메일', '<input id="s-b2b" value="' + esc(b.b2bEmail) + '">') +
         '</div>' +
         '<div class="btn-row"><button class="b" data-act="saveBrand">저장</button></div>' +
+        '<h3 class="mt-2">첫 화면 영상</h3>' +
+        '<p class="note mb-1">사이트에 처음 들어왔을 때 화면을 가득 채우는 영상입니다. ' +
+        '비워 두면 지금처럼 그림이 대신 나옵니다. <strong>사진</strong> 탭에 올린 뒤 주소를 복사해 넣으세요. ' +
+        '소리 없이 8~15초 정도 도는 영상이 좋고, 파일은 8MB 이내를 권합니다.</p>' +
+        '<div class="frow">' +
+          f('랜딩 영상 주소', '<input id="s-hero" value="' + esc(b.heroVideo || '') + '" placeholder="/uploads/… 또는 https://…">') +
+          f('영상 첫 화면 이미지 (선택)', '<input id="s-heroposter" value="' + esc(b.heroPoster || '') + '" placeholder="/uploads/…">') +
+        '</div>' +
+        '<div class="btn-row"><button class="b" data-act="saveHero">영상 저장</button></div>' +
         '<div class="note warn mt-1">사업자등록번호 · 통신판매업 신고번호 · 주소는 법으로 표기가 의무입니다. 판매 시작 전에 반드시 실제 값으로 채워 주세요.</div>' +
       '</div>' +
 
@@ -871,6 +880,14 @@
       S.catalog.shipping.freeThreshold = Number(el('s-free').value) || 0;
       S.catalog.shipping.notice = el('s-notice').value.trim();
       saveCatalog('배송 정책을 저장했습니다.');
+    },
+
+    saveHero: function () {
+      var b = S.catalog.brand = S.catalog.brand || {};
+      b.heroVideo = el('s-hero').value.trim();
+      b.heroPoster = el('s-heroposter').value.trim();
+      saveCatalog(b.heroVideo ? '영상을 저장했습니다. 사이트 첫 화면에 반영됩니다.'
+                              : '영상을 비웠습니다. 기본 그림이 나옵니다.');
     },
 
     saveBrand: function () {

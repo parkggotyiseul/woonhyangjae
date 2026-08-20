@@ -43,7 +43,7 @@ window.WHJ.ready(function () {
       '</div>' +
       '</div>' +
 
-      '<div class="summary">' +
+      '<div class="summary is-sticky">' +
         '<h3>주문 요약</h3>' +
         '<div class="summary-row"><span>상품 금액</span><span>' + W.won(t.goods) + '</span></div>' +
         '<div class="summary-row"><span>배송비</span><span>' + (t.ship === 0 ? '무료' : W.won(t.ship)) + '</span></div>' +
