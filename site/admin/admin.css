@@ -147,3 +147,25 @@ button.b[disabled]{ opacity:.4; cursor:not-allowed; }
 .bar i{ display:block; height:100%; background:var(--oak); }
 
 .empty-row{ text-align:center; color:var(--mute); padding:2.5rem 1rem; font-size:.85rem; }
+
+/* ── 유틸리티 ─────────────────────────────────────────
+   CSP(style-src 'self')를 지키기 위해 인라인 스타일을 쓰지 않는다. */
+.mt-xs{ margin-top:.35rem; }
+.mt-sm{ margin-top:.5rem; }
+.mt-sm2{ margin-top:.75rem; }
+.mt-1{ margin-top:1rem; }
+.mt-2{ margin-top:1.5rem; }
+.mb-1{ margin-bottom:1rem; }
+.mb-2{ margin-bottom:1.25rem; }
+.mb-3{ margin-bottom:1.5rem; }
+.muted-xs{ color:var(--mute); font-size:.78rem; }
+.muted-sm{ color:var(--mute); font-size:.84rem; margin-top:.5rem; }
+.muted-n{ color:var(--mute); font-weight:400; }
+.big-num{ font-size:1.8rem; font-weight:500; }
+.big-num-unit{ font-size:.9rem; color:var(--mute); }
+.seo-block{ padding-bottom:1.25rem; margin-bottom:1.25rem; border-bottom:1px solid var(--line-2); }
+.gift-row{ background:#FBFAF8; color:var(--mute); font-size:.8rem; }
+.sel-sm{ padding:.35rem; border:1px solid var(--line); }
+.slot-in{ margin-top:.5rem; width:100%; padding:.4rem; border:1px solid var(--line); font-size:.76rem; }
+.slot-in2{ margin-top:.35rem; width:100%; padding:.4rem; border:1px solid var(--line); font-size:.76rem; }
+.color-in{ height:2.6rem; padding:.2rem; }

@@ -18,25 +18,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
 <link rel="stylesheet" href="/assets/css/style.css">
-<style>
-  .choices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
-            background:var(--cream-dim); border:1px solid var(--cream-dim); }
-  .choice{ background:var(--cream); border:0; padding:1.5rem 1rem; cursor:pointer;
-           font-family:var(--serif); font-size:1rem; letter-spacing:.05em; color:var(--on-light);
-           transition:background .3s var(--ease); text-align:center; }
-  .choice:hover{ background:#FBF8F3; }
-  .choice.is-picked{ background:var(--ink); color:var(--cream); }
-  .choice small{ display:block; font-family:var(--sans); font-size:.72rem;
-                 color:var(--on-light-mute); margin-top:.4rem; }
-  .choice.is-picked small{ color:var(--on-dark-mute); }
-  .q-step{ margin-bottom:2.5rem; }
-  .q-label{ font-family:var(--sans); font-size:.76rem; letter-spacing:.18em;
-            color:var(--oak); margin-bottom:.9rem; }
-  .q-title{ font-size:1.15rem; font-weight:300; margin-bottom:1.25rem; }
-  .result{ border:1px solid var(--cream-dim); padding:clamp(1.75rem,4vw,2.75rem);
-           display:grid; grid-template-columns:150px 1fr; gap:2rem; align-items:center; }
-  @media (max-width:640px){ .result{ grid-template-columns:1fr; } }
-</style>
 </head>
 <body>
 
@@ -65,7 +46,7 @@
   </div>
 </header>
 
-<main id="main" style="padding-top:4.5rem">
+<main id="main" class="page-top">
 
   <section class="section">
     <div class="shell">
@@ -82,7 +63,7 @@
   </section>
 
   <!-- 3문항 인터랙션 -->
-  <section class="section section-warm" style="padding-top:0">
+  <section class="section section-warm pt-0">
     <div class="shell shell-narrow">
       <div class="q-step reveal">
         <p class="q-label">QUESTION 01</p>
@@ -183,86 +164,6 @@
 
 <script src="/assets/data/catalog.js"></script>
 <script src="/assets/js/main.js" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  var W = window.WHJ;
-  if (!W) return;
-  var cur = (W.catalog.curation) || { spaces: [], moods: [] };
-  var pick = { space: null, mood: null, company: null };
-
-  function name(slug) { var p = W.product(slug); return p ? p.nameKo : slug; }
-
-  /* Q1 · Q2 는 카탈로그에서 생성된다 — 제품이 늘어도 그대로 동작한다 */
-  document.getElementById('q1').innerHTML = cur.spaces.map(function (s) {
-    return '<button class="choice" type="button" data-v="' + W.esc(s.id) + '">' + W.esc(s.ko) +
-      '<small>' + W.esc(s.en) + '</small></button>';
-  }).join('');
-  document.getElementById('q2').innerHTML = cur.moods.map(function (m) {
-    return '<button class="choice" type="button" data-v="' + W.esc(m.id) + '">' + W.esc(m.ko) + '</button>';
-  }).join('');
-
-  function wire(id, key) {
-    var box = document.getElementById(id);
-    box.addEventListener('click', function (e) {
-      var btn = e.target.closest('.choice');
-      if (!btn) return;
-      box.querySelectorAll('.choice').forEach(function (b) { b.classList.remove('is-picked'); });
-      btn.classList.add('is-picked');
-      pick[key] = btn.getAttribute('data-v');
-      render();
-    });
-  }
-  wire('q1', 'space'); wire('q2', 'mood'); wire('q3', 'company');
-
-  function render() {
-    var host = document.getElementById('result');
-    if (!pick.space || !pick.mood || !pick.company) {
-      host.innerHTML = '';
-      return;
-    }
-    /* 세 답의 추천이 겹치는 제품을 고른다. 겹치지 않으면 공간 추천을 우선한다. */
-    var score = {};
-    function add(list, w) { (list || []).forEach(function (s) { score[s] = (score[s] || 0) + w; }); }
-    var sp = cur.spaces.filter(function (s) { return s.id === pick.space; })[0];
-    var md = cur.moods.filter(function (m) { return m.id === pick.mood; })[0];
-    add(sp && sp.recommend, 2);
-    add(md && md.recommend, 1.5);
-    add(pick.company === 'alone' ? ['neuru'] : ['mukhyanghun'], 1);
-
-    var best = null, bestScore = -1;
-    Object.keys(score).forEach(function (k) { if (score[k] > bestScore) { bestScore = score[k]; best = k; } });
-    var p = W.product(best);
-    if (!p) { host.innerHTML = ''; return; }
-
-    var reason = sp ? sp.desc : '';
-    host.innerHTML = '<div class="result">' +
-      '<div>' + W.bottle(p) + '</div>' +
-      '<div>' +
-        '<p class="detail-num">' + W.esc(p.number) + '</p>' +
-        '<h3 class="detail-name" style="margin-top:.5rem">' + W.esc(p.nameKo) +
-          (p.nameHanja ? '<span class="hanja">' + W.esc(p.nameHanja) + '</span>' : '') + '</h3>' +
-        '<p class="detail-sig">' + W.esc(p.signature) + '</p>' +
-        '<p style="font-size:.9rem;color:var(--on-light-mute);line-height:1.9">' + W.esc(reason) + '</p>' +
-        '<div class="link-row" style="margin-top:1.5rem">' +
-          '<a class="link-line" href="/product.html?p=' + encodeURIComponent(p.slug) + '">자세히 보기 →</a>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* 공간별 · 무드별 목록 */
-  document.getElementById('by-space').innerHTML = cur.spaces.map(function (s) {
-    return '<li><h4>' + W.esc(s.ko) + ' · ' + W.esc(s.en) + '</h4><p>' + W.esc(s.desc) +
-      '<br><span style="color:var(--mahogany)">추천 — ' +
-      W.esc(s.recommend.map(name).join(' · ')) + '</span></p></li>';
-  }).join('');
-
-  document.getElementById('by-mood').innerHTML = cur.moods.map(function (m) {
-    return '<li><h4>' + W.esc(m.ko) + '</h4><p>' + W.esc(m.desc) +
-      '<br><span style="color:var(--mahogany)">추천 — ' +
-      W.esc(m.recommend.map(name).join(' · ')) + '</span></p></li>';
-  }).join('');
-});
-</script>
+<script src="/assets/js/page-spaces.js" defer></script>
 </body>
 </html>

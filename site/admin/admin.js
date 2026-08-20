@@ -107,10 +107,10 @@
           todoBtn('미답변 문의', p.ask, '#customers') +
           todoBtn('재고 경고', p.low, '#products') +
         '</div>' +
-        (p.total === 0 ? '<p class="note" style="margin-top:1rem">처리할 항목이 없습니다.</p>' : '') +
+        (p.total === 0 ? '<p class="note mt-1">처리할 항목이 없습니다.</p>' : '') +
       '</div>' +
 
-      '<div class="grid grid-4" style="margin-bottom:1.5rem">' +
+      '<div class="grid grid-4 mb-3">' +
         stat('오늘 매출', won(t.revenue)) +
         stat('오늘 주문', t.count + '건') +
         stat('이번 달 누적', won(monthSum)) +
@@ -127,19 +127,19 @@
             }).join('') +
           '</tbody></table></div>'
           : '<p class="empty-row">아직 판매 데이터가 없습니다.</p>') +
-          '<p class="note" style="margin-top:1rem">어떤 제품이 안 팔리는지가 아니라, <strong>조회는 되는데 안 팔리는 제품</strong>을 봐야 합니다. GA4 연동 후 조회 대비 구매율이 이 표에 추가됩니다.</p>' +
+          '<p class="note mt-1">어떤 제품이 안 팔리는지가 아니라, <strong>조회는 되는데 안 팔리는 제품</strong>을 봐야 합니다. GA4 연동 후 조회 대비 구매율이 이 표에 추가됩니다.</p>' +
         '</div>' +
 
         '<div class="panel"><h2>알림 신청 현황</h2>' +
-          '<p style="font-size:1.8rem;font-weight:500">' + notify.length + '<span style="font-size:.9rem;color:var(--mute)">명</span></p>' +
-          '<p style="color:var(--mute);font-size:.84rem;margin-top:.5rem">003 · 세 번째 향 출시 알림 신청자</p>' +
-          '<p class="note" style="margin-top:1rem">이 명단이 출시 시점의 첫 매출을 만듭니다. 신청자가 일정 규모를 넘으면 출시 타이밍을 판단할 근거가 됩니다.</p>' +
+          '<p class="big-num">' + notify.length + '<span class="big-num-unit">명</span></p>' +
+          '<p class="muted-sm">003 · 세 번째 향 출시 알림 신청자</p>' +
+          '<p class="note mt-1">이 명단이 출시 시점의 첫 매출을 만듭니다. 신청자가 일정 규모를 넘으면 출시 타이밍을 판단할 근거가 됩니다.</p>' +
         '</div>' +
       '</div>';
   };
 
   function todoBtn(label, n, href) {
-    return '<button type="button" onclick="location.hash=\'' + href + '\'">' +
+    return '<button type="button" data-go="' + href + '">' +
       (n > 0 ? '<span class="dot"></span>' : '') + esc(label) +
       '<strong>' + n + '</strong></button>';
   }
@@ -151,18 +151,18 @@
   /* ── 상품 관리 ────────────────────────────────────── */
   views.products = function () {
     return head('상품 관리', '컬렉션 · 제품 · 재고를 등록하고 수정합니다.',
-        '<button class="b ghost" onclick="WHJADMIN.exportCatalog()">카탈로그 내보내기</button>') +
+        '<button class="b ghost" data-act="exportCatalog">카탈로그 내보내기</button>') +
 
       '<div class="panel"><h2>컬렉션 — 八章</h2>' +
-        '<p class="note" style="margin-bottom:1rem">상태를 <strong>진행중</strong>으로 바꾸면 사이트의 八章 글자가 자동으로 밝아지고 컬렉션 페이지에 섹션이 생깁니다. 코드 수정은 필요 없습니다.</p>' +
+        '<p class="note mb-1">상태를 <strong>진행중</strong>으로 바꾸면 사이트의 八章 글자가 자동으로 밝아지고 컬렉션 페이지에 섹션이 생깁니다. 코드 수정은 필요 없습니다.</p>' +
         '<div class="table-wrap"><table><thead><tr><th>순서</th><th>요소</th><th>부제</th><th>제품 수</th><th>상태</th></tr></thead><tbody>' +
         (C.collections || []).map(function (c) {
           var n = (C.products || []).filter(function (p) { return p.collectionId === c.id; }).length;
           return '<tr><td>' + esc(c.code) + '</td>' +
-            '<td><strong>' + esc(c.hanja) + ' ' + esc(c.ko) + '</strong><br><span style="color:var(--mute);font-size:.78rem">' + esc(c.en) + '</span></td>' +
+            '<td><strong>' + esc(c.hanja) + ' ' + esc(c.ko) + '</strong><br><span class="muted-xs">' + esc(c.en) + '</span></td>' +
             '<td>' + esc(c.subtitle || '') + '</td>' +
             '<td class="num">' + n + '</td>' +
-            '<td><select data-col="' + esc(c.id) + '" style="padding:.35rem;border:1px solid var(--line)">' +
+            '<td><select data-col="' + esc(c.id) + '" class="sel-sm">' +
               ['active:진행중', 'upcoming:예정', 'done:완료'].map(function (o) {
                 var v = o.split(':')[0], t = o.split(':')[1];
                 return '<option value="' + v + '"' + (c.status === v ? ' selected' : '') + '>' + t + '</option>';
@@ -178,15 +178,15 @@
           var v = (p.variants || [])[0];
           return '<tr><td>' + esc(p.number) + '</td>' +
             '<td><strong>' + esc(p.nameKo || '(미정)') + '</strong>' + (p.nameHanja ? ' ' + esc(p.nameHanja) : '') +
-              '<br><span style="color:var(--mute);font-size:.78rem">' + esc(p.signature) + '</span></td>' +
+              '<br><span class="muted-xs">' + esc(p.signature) + '</span></td>' +
             '<td>' + esc([p.species, p.layer].filter(Boolean).join(' · ')) + '</td>' +
             '<td class="num">' + (v ? won(v.price) : '—') + '</td>' +
             '<td class="num">' + (v ? (v.stock <= 5 ? '<span class="tag warn">' + v.stock + '</span>' : v.stock) : '—') + '</td>' +
             '<td>' + statusTag(p.status, p.statusLabel) + '</td>' +
-            '<td><button class="b sm ghost" onclick="WHJADMIN.edit(\'' + esc(p.slug) + '\')">편집</button></td></tr>';
+            '<td><button class="b sm ghost" data-act="edit" data-a="' + esc(p.slug) + '">편집</button></td></tr>';
         }).join('') +
         '</tbody></table></div>' +
-        '<div class="btn-row"><button class="b ghost" onclick="WHJADMIN.newProduct()">+ 새 제품 등록</button></div>' +
+        '<div class="btn-row"><button class="b ghost" data-act="newProduct">+ 새 제품 등록</button></div>' +
       '</div>' +
 
       '<div id="editor"></div>';
@@ -226,7 +226,7 @@
         f('층위', input('e-layer', p.layer)) +
       '</div>' +
 
-      '<h3 style="margin-top:1.5rem">브랜드 텍스트</h3>' +
+      '<h3 class="mt-2">브랜드 텍스트</h3>' +
       '<div class="f" id="sigWrap">' +
         '<label>시그니처 카피 <span class="count" id="sigCount"></span></label>' +
         '<input id="e-signature" value="' + esc(p.signature) + '" maxlength="30">' +
@@ -235,7 +235,7 @@
       f('스토리 (한 줄에 한 문장)', '<textarea id="e-story" rows="5">' + esc((p.story || []).join('\n')) + '</textarea>') +
       f('마지막 강조 문장', input('e-storyLast', p.storyLast)) +
 
-      '<h3 style="margin-top:1.5rem">향 정보</h3>' +
+      '<h3 class="mt-2">향 정보</h3>' +
       '<div class="frow-3">' +
         f('TOP', input('e-top', p.notes && p.notes.top)) +
         f('HEART', input('e-heart', p.notes && p.notes.heart)) +
@@ -245,23 +245,23 @@
         f('무드 키워드', input('e-mood', p.mood)) +
         f('추천 공간 (쉼표 구분)', input('e-spaces', (p.spaces || []).join(', '))) +
       '</div>' +
-      f('무드 컬러 (우드 캡 · 라벨 액센트)', '<input type="color" id="e-accent" value="' + esc(p.accent || '#6B4A2F') + '" style="height:2.6rem;padding:.2rem">') +
+      f('무드 컬러 (우드 캡 · 라벨 액센트)', '<input type="color" id="e-accent" value="' + esc(p.accent || '#6B4A2F') + '" class="color-in">') +
 
-      '<h3 style="margin-top:1.5rem">포토 스팟 5칸 (고정 슬롯)</h3>' +
+      '<h3 class="mt-2">포토 스팟 5칸 (고정 슬롯)</h3>' +
       '<div class="slots">' +
         ['요소 클로즈업', '제품 단독', '공간 배치', '디테일 매크로', '언박싱'].map(function (role, i) {
           var ps = (p.photoSpots || [])[i] || { slot: pad(i + 1), role: role, src: '', alt: '' };
           return '<div class="slot' + (ps.src ? ' filled' : '') + '">' +
             '<span>PS-' + pad(i + 1) + '</span>' +
             '<p>' + esc(ps.role || role) + '</p>' +
-            '<input id="e-ps' + i + '" placeholder="이미지 경로" value="' + esc(ps.src) + '" style="margin-top:.5rem;width:100%;padding:.4rem;border:1px solid var(--line);font-size:.76rem">' +
-            '<input id="e-psalt' + i + '" placeholder="대체 텍스트" value="' + esc(ps.alt) + '" style="margin-top:.35rem;width:100%;padding:.4rem;border:1px solid var(--line);font-size:.76rem">' +
+            '<input id="e-ps' + i + '" placeholder="이미지 경로" value="' + esc(ps.src) + '" class="slot-in">' +
+            '<input id="e-psalt' + i + '" placeholder="대체 텍스트" value="' + esc(ps.alt) + '" class="slot-in2">' +
           '</div>';
         }).join('') +
       '</div>' +
-      '<p class="note" style="margin-top:.75rem">슬롯이 고정이라 어느 제품이든 같은 구조로 채워지고, 빈 칸은 프론트에서 자동 생략됩니다. 이미지 업로드는 백엔드 연결 후 지원됩니다. 지금은 경로를 직접 입력합니다.</p>' +
+      '<p class="note mt-sm2">슬롯이 고정이라 어느 제품이든 같은 구조로 채워지고, 빈 칸은 프론트에서 자동 생략됩니다. 이미지 업로드는 백엔드 연결 후 지원됩니다. 지금은 경로를 직접 입력합니다.</p>' +
 
-      '<h3 style="margin-top:1.5rem">판매 정보</h3>' +
+      '<h3 class="mt-2">판매 정보</h3>' +
       '<div class="frow-3">' +
         f('용량 · 옵션명', input('e-vname', v.name)) +
         f('SKU', input('e-sku', v.sku)) +
@@ -272,14 +272,14 @@
         f('URL slug', input('e-slug', p.slug)) +
       '</div>' +
 
-      '<div class="note" style="margin-top:1rem">' +
+      '<div class="note mt-1">' +
         '판매 상태를 <strong>Coming Soon</strong>으로 두면 프론트가 자동으로 다르게 렌더링됩니다. ' +
         '제품명 · 향 노트 · 가격은 숨겨지고 번호와 층위 힌트만 노출되며, 구매 버튼 자리에 알림 신청이 들어갑니다.' +
       '</div>' +
 
       '<div class="btn-row">' +
-        '<button class="b" onclick="WHJADMIN.save(\'' + esc(p.slug) + '\')">저장</button>' +
-        '<button class="b ghost" onclick="WHJADMIN.closeEditor()">닫기</button>' +
+        '<button class="b" data-act="save" data-a="' + esc(p.slug) + '">저장</button>' +
+        '<button class="b ghost" data-act="closeEditor">닫기</button>' +
       '</div>' +
     '</div>';
   }
@@ -300,7 +300,7 @@
     return head('주문 관리', '주문 확인부터 배송 완료까지.') +
       '<div class="tabs">' +
         Object.keys(STATUS).map(function (k) {
-          return '<button class="' + (orderTab === k ? 'is-on' : '') + '" onclick="WHJADMIN.orderTab(\'' + k + '\')">' +
+          return '<button class="' + (orderTab === k ? 'is-on' : '') + '" data-act="orderTab" data-a="' + k + '">' +
             STATUS[k] + ' (' + counts[k] + ')</button>';
         }).join('') +
       '</div>' +
@@ -314,7 +314,7 @@
           return '<tr>' +
             '<td>' + esc(o.id) + '</td>' +
             '<td>' + esc(dstr(o.at)) + '</td>' +
-            '<td>' + esc(o.buyer.name) + '<br><span style="color:var(--mute);font-size:.78rem">' + esc(o.buyer.phone) + '</span></td>' +
+            '<td>' + esc(o.buyer.name) + '<br><span class="muted-xs">' + esc(o.buyer.phone) + '</span></td>' +
             '<td>' + o.lines.map(function (l) { return esc(l.name) + ' × ' + l.qty; }).join('<br>') + '</td>' +
             '<td class="num">' + won(o.totals.total) + '</td>' +
             '<td>' + (o.gift ? '<span class="tag soft">기프트</span>' : '—') + '</td>' +
@@ -322,7 +322,7 @@
             '<td>' + nextAction(o) + '</td>' +
           '</tr>' +
           (o.gift && o.gift.message ?
-            '<tr><td colspan="8" style="background:#FBFAF8;color:var(--mute);font-size:.8rem">메시지 카드 — “' +
+            '<tr><td colspan="8" class="gift-row">메시지 카드 — “' +
               esc(o.gift.message) + '”' + (o.gift.hidePrice ? ' · 가격 미표기 명세서' : '') + '</td></tr>' : '');
         }).join('') +
         '</tbody></table></div>'
@@ -333,14 +333,14 @@
         '<p class="note">발주서를 내려받아 3PL에 전달하고, 송장 엑셀을 업로드하면 자동으로 매칭되어 발송 처리됩니다. ' +
         '지금은 발주서 내보내기까지 동작하며, 송장 자동 매칭은 백엔드 연결 후 지원됩니다.</p>' +
         '<div class="btn-row">' +
-          '<button class="b ghost" onclick="WHJADMIN.exportOrders()">발주서 내보내기 (CSV)</button>' +
+          '<button class="b ghost" data-act="exportOrders">발주서 내보내기 (CSV)</button>' +
         '</div>' +
       '</div>';
   };
 
   function nextAction(o) {
-    if (o.status === 'received') return '<button class="b sm" onclick="WHJADMIN.setOrder(\'' + o.id + '\',\'ready\')">발송 준비</button>';
-    if (o.status === 'ready') return '<button class="b sm" onclick="WHJADMIN.ship(\'' + o.id + '\')">송장 입력</button>';
+    if (o.status === 'received') return '<button class="b sm" data-act="setOrder" data-a="' + o.id + '" data-b="ready">발송 준비</button>';
+    if (o.status === 'ready') return '<button class="b sm" data-act="ship" data-a="' + o.id + '">송장 입력</button>';
     if (o.status === 'shipped') return '<span class="tag on">' + esc(o.invoice || '발송됨') + '</span>';
     return '—';
   }
@@ -354,12 +354,12 @@
         f('S2 · 선언', '<textarea id="c-statement" rows="4">' + esc(home.statement != null ? home.statement :
           '공간은 세 개의 층으로 지어집니다.\n눈으로 보이는 층, 손끝에 닿는 층,\n그리고 코로 먼저 도착하는 층.') + '</textarea>') +
         f('S12 · 전환 문장', input('c-thesis', home.thesis != null ? home.thesis : (C.brand && C.brand.thesis))) +
-        '<div class="btn-row"><button class="b" onclick="WHJADMIN.saveContent()">저장</button></div>' +
-        '<p class="note" style="margin-top:1rem">현재 홈 카피는 HTML에 직접 작성되어 있습니다. 이 화면의 값이 실제로 반영되려면 백엔드와 Content 테이블 연결이 필요합니다. 지금은 문구를 확정·보관하는 용도로 씁니다.</p>' +
+        '<div class="btn-row"><button class="b" data-act="saveContent">저장</button></div>' +
+        '<p class="note mt-1">현재 홈 카피는 HTML에 직접 작성되어 있습니다. 이 화면의 값이 실제로 반영되려면 백엔드와 Content 테이블 연결이 필요합니다. 지금은 문구를 확정·보관하는 용도로 씁니다.</p>' +
       '</div>' +
 
       '<div class="panel"><h2>八章 상태</h2>' +
-        '<p class="note" style="margin-bottom:1rem">상품 관리 탭에서 컬렉션 상태를 바꾸면 여기에도 반영됩니다.</p>' +
+        '<p class="note mb-1">상품 관리 탭에서 컬렉션 상태를 바꾸면 여기에도 반영됩니다.</p>' +
         '<div class="table-wrap"><table><thead><tr><th>요소</th><th>상태</th><th>표시</th></tr></thead><tbody>' +
         (C.collections || []).map(function (c) {
           return '<tr><td>' + esc(c.hanja + ' ' + c.ko) + '</td><td>' + esc(c.statusLabel || c.status) + '</td>' +
@@ -390,7 +390,7 @@
           '<div class="table-wrap"><table><thead><tr><th>이메일</th></tr></thead><tbody>' +
           notify.map(function (e) { return '<tr><td>' + esc(e) + '</td></tr>'; }).join('') +
           '</tbody></table></div>' +
-          '<div class="btn-row"><button class="b ghost" onclick="WHJADMIN.exportNotify()">명단 내보내기 (CSV)</button></div>'
+          '<div class="btn-row"><button class="b ghost" data-act="exportNotify">명단 내보내기 (CSV)</button></div>'
           : '<p class="empty-row">아직 신청자가 없습니다.</p>') +
       '</div>' +
 
@@ -400,7 +400,7 @@
           keys.map(function (k) {
             var b = buyers[k];
             return '<tr><td>' + esc(b.name) + '</td>' +
-              '<td>' + esc(b.email) + '<br><span style="color:var(--mute);font-size:.78rem">' + esc(b.phone) + '</span></td>' +
+              '<td>' + esc(b.email) + '<br><span class="muted-xs">' + esc(b.phone) + '</span></td>' +
               '<td class="num">' + b.count + '</td><td class="num">' + won(b.amount) + '</td>' +
               '<td>' + (b.count > 1 ? '<span class="tag on">재구매</span>' : '') + '</td></tr>';
           }).join('') +
@@ -412,7 +412,7 @@
   /* ── 분석 ─────────────────────────────────────────── */
   views.analytics = function () {
     return head('분석', '어디를 보고, 얼마나 머물고, 어디서 떠나는지.') +
-      '<div class="note warn" style="margin-bottom:1.5rem">' +
+      '<div class="note warn mb-3">' +
         'GA4와 서치콘솔이 아직 연동되지 않았습니다. 아래는 연동 후 이 화면에 채워질 지표의 자리입니다. ' +
         '추적 코드는 오픈 직후부터 데이터가 쌓이도록 <strong>커머스 오픈 전에</strong> 심어야 합니다.' +
       '</div>' +
@@ -423,7 +423,7 @@
           stat('SHOP 진입률', '—', '목표 15% 이상') +
           stat('B2B 문의', '—', '목표 월 3건') +
         '</div>' +
-        '<p class="note" style="margin-top:1rem">이 브랜드의 KPI는 매출 이전에 <strong>체류시간과 스크롤 완료율</strong>입니다. 스토리를 끝까지 읽었다는 뜻이기 때문입니다.</p>' +
+        '<p class="note mt-1">이 브랜드의 KPI는 매출 이전에 <strong>체류시간과 스크롤 완료율</strong>입니다. 스토리를 끝까지 읽었다는 뜻이기 때문입니다.</p>' +
       '</div>' +
       '<div class="panel"><h2>측정 항목</h2>' +
         '<div class="table-wrap"><table><thead><tr><th>지표</th><th>이 숫자로 판단하는 것</th><th>상태</th></tr></thead><tbody>' +
@@ -441,7 +441,7 @@
             '<td><span class="tag">' + esc(r[2]) + '</span></td></tr>';
         }).join('') +
         '</tbody></table></div>' +
-        '<p class="note" style="margin-top:1rem">핵심은 <strong>관리자가 GA4에 따로 들어가지 않아도 되게</strong> 만드는 것입니다. 별도 도구를 열어야 하면 결국 안 보게 됩니다.</p>' +
+        '<p class="note mt-1">핵심은 <strong>관리자가 GA4에 따로 들어가지 않아도 되게</strong> 만드는 것입니다. 별도 도구를 열어야 하면 결국 안 보게 됩니다.</p>' +
       '</div>';
   };
 
@@ -456,13 +456,13 @@
       '<div class="panel"><h2>페이지별 메타</h2>' +
         PAGES.map(function (p) {
           var s = seo[p[0]] || {};
-          return '<div style="padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid var(--line-2)">' +
-            '<h3>' + esc(p[1]) + ' <span style="color:var(--mute);font-weight:400">' + esc(p[0]) + '</span></h3>' +
+          return '<div class="seo-block">' +
+            '<h3>' + esc(p[1]) + ' <span class="muted-n">' + esc(p[0]) + '</span></h3>' +
             f('title', '<input data-seo-title="' + esc(p[0]) + '" value="' + esc(s.title || '') + '" placeholder="현재 HTML에 작성된 값 사용 중">') +
             f('meta description', '<input data-seo-desc="' + esc(p[0]) + '" value="' + esc(s.desc || '') + '" placeholder="현재 HTML에 작성된 값 사용 중">') +
           '</div>';
         }).join('') +
-        '<div class="btn-row"><button class="b" onclick="WHJADMIN.saveSeo()">저장</button></div>' +
+        '<div class="btn-row"><button class="b" data-act="saveSeo">저장</button></div>' +
       '</div>' +
       '<div class="panel"><h2>구조화 데이터</h2>' +
         '<div class="table-wrap"><table><thead><tr><th>유형</th><th>적용 위치</th><th>상태</th></tr></thead><tbody>' +
@@ -471,7 +471,7 @@
           '<tr><td>FAQPage</td><td>홈 · 품질</td><td><span class="tag on">적용됨</span></td></tr>' +
           '<tr><td>Product + Offer</td><td>제품 상세</td><td><span class="tag on">적용됨</span></td></tr>' +
         '</tbody></table></div>' +
-        '<p class="note" style="margin-top:1rem">생성형 검색엔진이 브랜드를 인용할 때 FAQ와 Product 구조화 데이터를 우선 참조합니다. 제품이 추가되면 상세페이지의 구조화 데이터는 자동으로 생성됩니다.</p>' +
+        '<p class="note mt-1">생성형 검색엔진이 브랜드를 인용할 때 FAQ와 Product 구조화 데이터를 우선 참조합니다. 제품이 추가되면 상세페이지의 구조화 데이터는 자동으로 생성됩니다.</p>' +
       '</div>';
   };
 
@@ -505,10 +505,10 @@
           f('B2B 이메일', input('s-b2b', b.b2bEmail)) +
         '</div>' +
         '<div class="btn-row">' +
-          '<button class="b" onclick="WHJADMIN.saveSettings()">저장</button>' +
-          '<button class="b ghost" onclick="WHJADMIN.exportCatalog()">카탈로그 내보내기</button>' +
+          '<button class="b" data-act="saveSettings">저장</button>' +
+          '<button class="b ghost" data-act="exportCatalog">카탈로그 내보내기</button>' +
         '</div>' +
-        '<div class="note warn" style="margin-top:1rem">사업자등록번호 · 통신판매업 신고번호 · 사업장 주소는 <strong>법적 필수 표기</strong>입니다. 커머스 오픈 전 반드시 실제 값으로 채워야 합니다.</div>' +
+        '<div class="note warn mt-1">사업자등록번호 · 통신판매업 신고번호 · 사업장 주소는 <strong>법적 필수 표기</strong>입니다. 커머스 오픈 전 반드시 실제 값으로 채워야 합니다.</div>' +
       '</div>' +
 
       '<div class="panel"><h2>연동</h2>' +
@@ -519,7 +519,7 @@
           '<tr><td>알림톡 · 이메일</td><td>주문 확인 · 출고 · 배송완료</td><td><span class="tag">미연동</span></td></tr>' +
           '<tr><td>GA4 · 서치콘솔</td><td>지표 수집</td><td><span class="tag">미연동</span></td></tr>' +
         '</tbody></table></div>' +
-        '<p class="note" style="margin-top:1rem">재고는 반드시 <strong>자체 시스템을 단일 기준</strong>으로 두어야 합니다. 스마트스토어와 양쪽에서 따로 관리하면 오버셀이 발생합니다.</p>' +
+        '<p class="note mt-1">재고는 반드시 <strong>자체 시스템을 단일 기준</strong>으로 두어야 합니다. 스마트스토어와 양쪽에서 따로 관리하면 오버셀이 발생합니다.</p>' +
       '</div>' +
 
       '<div class="panel"><h2>보안</h2>' +
@@ -535,7 +535,7 @@
   function head(title, desc, right) {
     return '<div class="page-head"><h1>' + esc(title) + '</h1><p>' + esc(desc) + '</p>' +
       (right ? '<div class="right">' + right + '</div>' : '') + '</div>' +
-      '<p class="note" id="flash" hidden style="margin-bottom:1.25rem"></p>';
+      '<p class="note" id="flash" hidden class="mb-2"></p>';
   }
 
   function route() {
@@ -742,6 +742,19 @@
     }).join('\r\n');
     download(name, csv, 'text/csv');
   }
+
+  /* 인라인 onclick 은 CSP(script-src 'self')에 막히므로 위임 처리한다 */
+  document.addEventListener('click', function (e) {
+    var go = e.target.closest('[data-go]');
+    if (go) { location.hash = go.getAttribute('data-go'); return; }
+
+    var btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    var fn = WHJADMIN[btn.getAttribute('data-act')];
+    if (typeof fn !== 'function') return;
+    e.preventDefault();
+    fn(btn.getAttribute('data-a'), btn.getAttribute('data-b'));
+  });
 
   window.addEventListener('hashchange', route);
   route();

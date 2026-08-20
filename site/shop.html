@@ -18,14 +18,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
 <link rel="stylesheet" href="/assets/css/style.css">
-<style>
-  .notify{ position:fixed; inset:0; background:rgba(28,26,23,.6); display:none;
-           place-items:center; z-index:150; padding:1.5rem; }
-  .notify.is-open{ display:grid; }
-  .notify-card{ background:var(--cream); max-width:420px; width:100%; padding:2.25rem; }
-  .notify-card h3{ font-size:1.2rem; margin-bottom:.75rem; }
-  .notify-card p{ font-size:.9rem; color:var(--on-light-mute); margin-bottom:1.5rem; }
-</style>
 </head>
 <body>
 
@@ -54,7 +46,7 @@
   </div>
 </header>
 
-<main id="main" style="padding-top:4.5rem">
+<main id="main" class="page-top">
 
   <section class="section">
     <div class="shell">
@@ -68,12 +60,12 @@
       <div class="product-grid" data-products="wood" data-base="/product.html"></div>
 
       <!-- 세트 -->
-      <div id="sets" style="margin-top:clamp(2.5rem,5vw,3.5rem)"></div>
+      <div id="sets" class="mt-sec-sm"></div>
 
-      <div class="notice reveal" style="margin-top:clamp(2.5rem,5vw,3.5rem)">
+      <div class="notice reveal mt-sec-sm">
         <span id="shipNotice"></span><br>
-        교환 · 반품 정책은 <a href="/contact.html" style="color:var(--mahogany)">문의</a> 페이지에서 확인하실 수 있습니다.<br>
-        공간 단위 납품과 커스텀 에디션은 <a href="/spaces.html" style="color:var(--mahogany)">공간</a> 페이지를 참고해 주세요.
+        교환 · 반품 정책은 <a href="/contact.html" class="accent">문의</a> 페이지에서 확인하실 수 있습니다.<br>
+        공간 단위 납품과 커스텀 에디션은 <a href="/spaces.html" class="accent">공간</a> 페이지를 참고해 주세요.
       </div>
     </div>
   </section>
@@ -125,70 +117,6 @@
 
 <script src="/assets/data/catalog.js"></script>
 <script src="/assets/js/main.js" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  var W = window.WHJ;
-  if (!W) return;
-
-  /* 배송 안내 */
-  var ship = W.catalog.shipping || {};
-  document.getElementById('shipNotice').textContent =
-    (ship.notice || '') + ' ' + W.won(ship.freeThreshold) + ' 이상 구매 시 배송비는 무료입니다.';
-
-  /* 세트 — 할인이 아니라 전용 기프트 박스라는 부가가치로 판다 */
-  var sets = W.sets || [];
-  document.getElementById('sets').innerHTML = sets.length ? (
-    '<h2 class="sec-title reveal" style="font-size:1.15rem;margin-bottom:1.25rem">세트</h2>' +
-    '<div class="product-grid">' + sets.map(function (s) {
-      var v = s.variants[0];
-      var items = s.items.map(function (id) { var p = W.product(id); return p ? p.nameKo : id; });
-      return '<a class="pcard reveal" href="/product.html?p=' + encodeURIComponent(s.slug) + '">' +
-        '<div class="pcard-visual" style="display:flex;gap:.5rem;justify-content:center">' +
-          s.items.map(function (id) { return W.bottle(W.product(id)); }).join('') +
-        '</div>' +
-        '<div class="pcard-body">' +
-          '<p class="pcard-num">SET</p>' +
-          '<h3 class="pcard-name">' + W.esc(s.nameKo) + '</h3>' +
-          '<p class="pcard-sig">' + W.esc(s.signature) + '</p>' +
-          '<p class="pcard-cap">' + W.esc(items.join(' · ')) + '</p>' +
-          '<div class="pcard-foot"><span>자세히 보기 →</span>' +
-            '<span class="pcard-price">' + W.won(v.price) + '</span></div>' +
-        '</div></a>';
-    }).join('') + '</div>'
-  ) : '';
-
-  W.observe(document.querySelectorAll('.reveal'));
-
-  /* Coming Soon 알림 모달 */
-  var modal = document.getElementById('notifyModal');
-  var open = function () { modal.classList.add('is-open'); document.getElementById('n-email').focus(); };
-  var close = function () { modal.classList.remove('is-open'); };
-
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest('a[href="#notify"]');
-    if (a) { e.preventDefault(); open(); }
-  });
-  document.getElementById('notifyClose').addEventListener('click', close);
-  modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-
-  document.getElementById('notifyForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var el = document.getElementById('n-email');
-    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
-    el.setAttribute('aria-invalid', String(!ok));
-    var st = document.getElementById('notifyStatus');
-    if (!ok) { st.textContent = '이메일 주소를 확인해 주세요.'; return; }
-    /* 2단계에서 이 부분만 Subscriber API 호출로 교체한다 */
-    try {
-      var list = JSON.parse(localStorage.getItem('whj_notify') || '[]');
-      if (list.indexOf(el.value.trim()) < 0) list.push(el.value.trim());
-      localStorage.setItem('whj_notify', JSON.stringify(list));
-    } catch (err) {}
-    st.textContent = '신청되었습니다. 준비가 되면 알려드리겠습니다.';
-    el.value = '';
-  });
-});
-</script>
+<script src="/assets/js/page-shop.js" defer></script>
 </body>
 </html>

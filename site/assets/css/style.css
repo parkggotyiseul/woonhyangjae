@@ -736,3 +736,114 @@ li{ list-style:none; }
   font-family:var(--sans); font-size:.72rem;
   line-height:2; color:var(--on-dark-mute);
 }
+
+/* ═══════════════════════════════════════════════════════
+   유틸리티 · 페이지 전용
+   CSP(script-src / style-src 'self')를 지키기 위해 인라인 스타일을
+   쓰지 않는다. 모든 스타일은 클래스로만 적용한다.
+   ═══════════════════════════════════════════════════════ */
+
+.page-top{ padding-top:4.5rem; }
+.page-top-tight{ padding-top:clamp(3rem,6vw,4.5rem); }
+.pt-0{ padding-top:0; }
+.center{ justify-content:center; }
+.no-border{ border-bottom:0; }
+.sticky{ position:sticky; }
+.mt-xs{ margin-top:.5rem; }
+.mt-sm{ margin-top:.75rem; }
+.mt-1{ margin-top:1rem; }
+.mt-2{ margin-top:1.25rem; }
+.mt-3{ margin-top:1.5rem; }
+.mt-4{ margin-top:2rem; }
+.mt-5{ margin-top:2.5rem; }
+.mt-sec{ margin-top:clamp(2.5rem,5vw,4rem); }
+.mt-sec-sm{ margin-top:clamp(2.5rem,5vw,3.5rem); }
+.mb-1{ margin-bottom:1rem; }
+.accent{ color:var(--mahogany); }
+.accent-oak{ color:var(--oak); }
+.hanja-i{ font-family:var(--serif); letter-spacing:.1em; }
+.sub-title{ font-size:1.15rem; margin-bottom:1.25rem; }
+
+/* 리빌 지연 — 인라인 --d 대신 클래스로 */
+.d1{ --d:.06s; } .d2{ --d:.12s; } .d3{ --d:.18s; }
+.d4{ --d:.24s; } .d5{ --d:.3s; }  .d6{ --d:.45s; }
+
+/* 생성 마크업에서 쓰는 조각들 */
+.opt-name{ font-family:var(--sans); font-size:.8rem; color:var(--on-light-mute); }
+.line-amount{ text-align:right; font-family:var(--disp); font-size:1.05rem; }
+.set-visuals{ display:flex; gap:.5rem; justify-content:center; }
+.set-visuals-lg{ display:flex; gap:1rem; justify-content:center; height:100%; }
+.result-reason{ font-size:.9rem; color:var(--on-light-mute); line-height:1.9; }
+.summary-divide{ margin-top:.75rem; padding-top:.75rem; border-top:1px solid var(--cream-dim); }
+
+/* ── 큐레이션 3문항 (공간) ───────────────────────────── */
+.choices{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+  background:var(--cream-dim); border:1px solid var(--cream-dim);
+}
+.choice{
+  background:var(--cream); border:0; padding:1.5rem 1rem; cursor:pointer;
+  font-family:var(--serif); font-size:1rem; letter-spacing:.05em; color:var(--on-light);
+  transition:background .3s var(--ease); text-align:center;
+}
+.choice:hover{ background:#FBF8F3; }
+.choice.is-picked{ background:var(--ink); color:var(--cream); }
+.choice small{ display:block; font-family:var(--sans); font-size:.72rem; color:var(--on-light-mute); margin-top:.4rem; }
+.choice.is-picked small{ color:var(--on-dark-mute); }
+.q-step{ margin-bottom:2.5rem; }
+.q-label{ font-family:var(--sans); font-size:.76rem; letter-spacing:.18em; color:var(--oak); margin-bottom:.9rem; }
+.q-title{ font-size:1.15rem; font-weight:300; margin-bottom:1.25rem; }
+.result{
+  border:1px solid var(--cream-dim); padding:clamp(1.75rem,4vw,2.75rem);
+  display:grid; grid-template-columns:150px 1fr; gap:2rem; align-items:center;
+}
+@media (max-width:640px){ .result{ grid-template-columns:1fr; } }
+
+/* ── 알림 신청 모달 (SHOP) ───────────────────────────── */
+.notify{
+  position:fixed; inset:0; background:rgba(28,26,23,.6);
+  display:none; place-items:center; z-index:150; padding:1.5rem;
+}
+.notify.is-open{ display:grid; }
+.notify-card{ background:var(--cream); max-width:420px; width:100%; padding:2.25rem; }
+.notify-card h3{ font-size:1.2rem; margin-bottom:.75rem; }
+.notify-card p{ font-size:.9rem; color:var(--on-light-mute); margin-bottom:1.5rem; }
+
+/* ── 포토 스팟 슬롯 (상세) ───────────────────────────── */
+.ps-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1px;
+  background:var(--cream-dim); border:1px solid var(--cream-dim);
+}
+.ps-cell{
+  background:var(--cream-warm); aspect-ratio:1; display:grid; place-items:center;
+  text-align:center; padding:1.25rem;
+}
+.ps-cell p{ font-family:var(--sans); font-size:.74rem; color:var(--on-light-mute); line-height:1.7; }
+.ps-cell span{
+  display:block; font-family:var(--disp); font-size:.68rem;
+  letter-spacing:.2em; color:var(--oak); margin-bottom:.5rem;
+}
+
+/* ── 모바일 결제 고정바 (주문서 전용) ────────────────── */
+.mobile-bar{ display:none; }
+@media (max-width:880px){
+  .mobile-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    position:fixed; inset:auto 0 0 0; z-index:90;
+    background:var(--cream); border-top:1px solid var(--cream-dim);
+    padding:.85rem var(--pad) calc(.85rem + env(safe-area-inset-bottom));
+  }
+  .mobile-bar strong{ font-family:var(--disp); font-size:1.2rem; font-weight:400; }
+  .mobile-bar .btn{ width:auto; padding:.85rem 1.75rem; }
+  .has-mobile-bar{ padding-bottom:5.5rem; }
+}
+
+/* ── 404 ─────────────────────────────────────────────── */
+.err-page{ background:var(--ink); color:var(--on-dark); }
+.err{ min-height:100svh; display:grid; place-items:center; text-align:center; padding:2rem; }
+.err-num{
+  font-family:var(--disp); font-size:clamp(4rem,14vw,9rem); font-weight:300;
+  color:var(--oak); line-height:1; margin-bottom:2rem;
+}
+.err h1{ font-size:clamp(1.3rem,3.4vw,1.9rem); font-weight:300; margin-bottom:1.25rem; }
+.err p{ color:var(--on-dark-mute); margin-bottom:2.75rem; }

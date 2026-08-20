@@ -103,7 +103,7 @@
       var coming = p.status === 'coming';
       var price = W.price(p);
       var href = coming ? '#notify' : (opts.base || 'product.html') + '?p=' + encodeURIComponent(p.slug);
-      return '<a class="pcard reveal' + (coming ? ' pcard-coming' : '') + '" style="--d:' + (i * .07) + 's" href="' + href + '">' +
+      return '<a class="pcard reveal" data-i="' + i + '"' + (coming ? ' data-coming="1"' : '') + ' href="' + href + '">' +
         '<div class="pcard-visual">' + W.bottle(p) + '</div>' +
         '<div class="pcard-body">' +
           '<p class="pcard-num">' + esc(p.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
@@ -119,7 +119,18 @@
       '</a>';
     }).join('');
     el.innerHTML = html;
+    // 인라인 style 속성은 CSP 에 막히므로 삽입 후 CSSOM 으로 지연을 준다
+    W.stagger(el.querySelectorAll('.pcard'));
+    el.querySelectorAll('[data-coming]').forEach(function (n) { n.classList.add('pcard-coming'); });
     observe(el.querySelectorAll('.reveal'));
+  };
+
+  /* 스크롤 리빌 지연을 순서대로 부여한다 (CSSOM — CSP 영향 없음) */
+  W.stagger = function (nodes, step) {
+    Array.prototype.forEach.call(nodes || [], function (n, i) {
+      var k = n.getAttribute('data-i');
+      n.style.setProperty('--d', ((k == null ? i : Number(k)) * (step || 0.07)) + 's');
+    });
   };
 
   /* ── 장바구니 ─────────────────────────────────────── */
