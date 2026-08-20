@@ -1,6 +1,6 @@
 /* 운향재 — 제품 상세 페이지
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
   var root = document.getElementById('product-root');
@@ -18,6 +18,14 @@ document.addEventListener('DOMContentLoaded', function () {
   var isSet = !!p.items;
   var v = p.variants[0];
   var qty = 1;
+
+  if (window.WHJTrack) window.WHJTrack.product(p.slug);
+
+  /* 등록된 사진이 있으면 일러스트 대신 실제 사진을 쓴다 */
+  function shot(prod, slot) {
+    var ps = (prod.photoSpots || []).filter(function (x) { return x.slot === slot && x.src; })[0];
+    return ps ? '<img src="' + W.esc(ps.src) + '" alt="' + W.esc(ps.alt || prod.nameKo) + '">' : null;
+  }
 
   document.title = p.nameKo + ' — 운향재 雲香齋';
   var meta = document.querySelector('meta[name="description"]');
@@ -47,8 +55,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var visuals = isSet
     ? '<div class="set-visuals-lg">' +
-        p.items.map(function (id) { return W.bottle(W.product(id)); }).join('') + '</div>'
-    : W.bottle(p);
+        p.items.map(function (id) {
+          var x = W.product(id);
+          return shot(x, '02') || W.bottle(x);
+        }).join('') + '</div>'
+    : (shot(p, '01') || shot(p, '02') || W.bottle(p));
 
   var stockLine = v.stock === 0 ? '다시 준비하고 있습니다'
     : (v.stock <= 5 ? '소량 남음' : '');
@@ -180,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var pr = W.price(x);
     return '<a class="pcard reveal' + (coming ? ' pcard-coming' : '') + '" data-i="' + i + '" href="' +
       (coming ? '/shop.html#notify' : '/product.html?p=' + encodeURIComponent(x.slug)) + '">' +
-      '<div class="pcard-visual">' + W.bottle(x) + '</div>' +
+      '<div class="pcard-visual">' + W.visual(x) + '</div>' +
       '<div class="pcard-body">' +
         '<p class="pcard-num">' + W.esc(x.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
         '<h3 class="pcard-name">' + (coming ? '준비하고 있습니다' : W.esc(x.nameKo)) + '</h3>' +
@@ -201,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function addToCart() {
     W.cart.add(p.slug, v.id, qty, document.getElementById('gift').checked);
+    if (window.WHJTrack) window.WHJTrack.addToCart(p.slug);
   }
   document.getElementById('addcart').addEventListener('click', function () {
     addToCart();

@@ -1,22 +1,27 @@
 /* 운향재 — 주문 완료 페이지
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
   var root = document.getElementById('order-root');
-  var id = new URLSearchParams(location.search).get('id');
-  var order = null;
-  try {
-    var orders = JSON.parse(localStorage.getItem('whj_orders') || '[]');
-    orders.forEach(function (o) { if (o.id === id) order = o; });
-  } catch (e) {}
+  var params = new URLSearchParams(location.search);
+  var id = params.get('id');
+  var name = params.get('name') || '';
 
-  if (!order) {
+  function notFound() {
     root.innerHTML = '<div class="empty"><h1 class="sec-title">주문 내역을 찾을 수 없습니다</h1>' +
-      '<p>주문번호를 다시 확인해 주세요.</p><a class="link-line" href="/shop.html">SHOP으로 →</a></div>';
-    return;
+      '<p>주문번호와 주문자 성함을 다시 확인해 주세요.</p>' +
+      '<a class="link-line" href="/shop.html">SHOP으로 →</a></div>';
   }
 
+  if (!id || !name) { notFound(); return; }
+
+  root.innerHTML = '<p class="sec-lede">주문 내역을 불러오고 있습니다…</p>';
+  W.api('/orders/' + encodeURIComponent(id) + '?name=' + encodeURIComponent(name))
+    .then(function (res) { draw(res.order); })
+    .catch(notFound);
+
+  function draw(order) {
   /* 배송 예정일 — 영업일 3일 기준 */
   var d = new Date(order.at);
   var added = 0;
@@ -53,4 +58,5 @@ document.addEventListener('DOMContentLoaded', function () {
     '</div>';
 
   W.observe(document.querySelectorAll('.reveal'));
+  }
 });

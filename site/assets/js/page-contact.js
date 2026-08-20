@@ -1,6 +1,6 @@
 /* 운향재 — 문의 페이지
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ, b = (W && W.catalog.brand) || {};
 
   /* 자주 묻는 질문 — 카탈로그의 faq 를 그대로 그린다 */
@@ -57,24 +57,35 @@ document.addEventListener('DOMContentLoaded', function () {
     if (bad) { status.textContent = '성함 · 이메일 · 내용을 확인해 주세요.'; bad.focus(); return; }
     if (!form.elements.agree.checked) { status.textContent = '개인정보 수집 및 이용에 동의해 주세요.'; return; }
 
-    var label = type.options[type.selectedIndex].text;
-    var to = (type.value === 'b2b' || type.value === 'wholesale') ? b.b2bEmail : b.email;
-    var body = [
-      '유형: ' + label,
-      '성함: ' + form.elements.name.value.trim(),
-      '연락처: ' + form.elements.phone.value.trim(),
-      '이메일: ' + form.elements.email.value.trim()
-    ];
+    /* 문의는 서버로 접수된다. 관리자 화면의 문의 탭에서 바로 확인할 수 있다. */
+    var payload = {
+      type: type.value,
+      name: form.elements.name.value.trim(),
+      phone: form.elements.phone.value.trim(),
+      email: form.elements.email.value.trim(),
+      message: form.elements.message.value.trim()
+    };
     if (!b2b.hidden) {
-      body.push('회사명·공간명: ' + form.elements.company.value.trim());
-      body.push('공간 유형: ' + form.elements.space.value);
-      body.push('예상 수량: ' + form.elements.quantity.value);
+      payload.company = form.elements.company.value.trim();
+      payload.space = form.elements.space.value;
+      payload.quantity = form.elements.quantity.value;
     }
-    body.push('', form.elements.message.value.trim());
 
-    status.textContent = '메일 작성 창을 엽니다. 열리지 않으면 ' + to + ' 로 보내 주세요.';
-    location.href = 'mailto:' + to +
-      '?subject=' + encodeURIComponent('[운향재 문의] ' + label + ' — ' + form.elements.name.value.trim()) +
-      '&body=' + encodeURIComponent(body.join('\n'));
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    status.textContent = '보내는 중입니다…';
+
+    W.api('/inquiries', { method: 'POST', body: payload })
+      .then(function () {
+        form.reset();
+        b2b.hidden = true;
+        status.textContent = '문의가 접수되었습니다. 영업일 기준 2일 내에 회신드리겠습니다.';
+        if (window.WHJTrack) window.WHJTrack.event('inquiry');
+      })
+      .catch(function (err) {
+        var to = (type.value === 'b2b' || type.value === 'wholesale') ? b.b2bEmail : b.email;
+        status.textContent = '접수하지 못했습니다. ' + to + ' 로 보내 주시면 확인하겠습니다.';
+      })
+      .then(function () { btn.disabled = false; });
   });
 });

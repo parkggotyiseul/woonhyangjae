@@ -1,6 +1,6 @@
 /* 운향재 — 주문서 페이지
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
   var root = document.getElementById('checkout-root');
@@ -175,12 +175,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (!form.elements.agree.checked) { status.textContent = '결제 진행에 동의해 주세요.'; return; }
 
-    /* 2단계에서 이 블록만 PG 결제 요청 + 주문 생성 API 호출로 교체한다.
-       지금은 주문서를 로컬에 적재하고 완료 화면으로 넘긴다. */
+    /* PG 결제가 붙기 전까지는 주문서를 접수만 하고 결제 안내를 따로 드린다.
+       PG 연동 시에는 이 지점에서 결제창을 띄우고, 승인 응답을 받은 뒤
+       아래 주문 생성 호출을 이어서 하면 된다. */
     var order = {
-      id: 'WHJ' + Date.now().toString().slice(-9),
-      at: new Date().toISOString(),
-      channel: 'own',
       buyer: {
         name: form.elements.name.value.trim(),
         phone: form.elements.phone.value.trim(),
@@ -201,18 +199,26 @@ document.addEventListener('DOMContentLoaded', function () {
         return { slug: l.product.slug, name: l.product.nameKo, variant: l.variant.name,
                  qty: l.qty, amount: l.amount, gift: l.gift };
       }),
-      totals: { goods: t.goods, ship: t.ship, total: t.total },
-      status: 'received'
+      totals: { goods: t.goods, ship: t.ship, total: t.total }
     };
-    try {
-      var orders = JSON.parse(localStorage.getItem('whj_orders') || '[]');
-      orders.unshift(order);
-      localStorage.setItem('whj_orders', JSON.stringify(orders));
-      sessionStorage.setItem('whj_last_order', order.id);
-      sessionStorage.removeItem(KEY);
-    } catch (e) {}
-    W.cart.clear();
-    location.href = '/order.html?id=' + encodeURIComponent(order.id);
+
+    var btn = document.getElementById('submitBtn');
+    var mbtn = document.getElementById('mobileSubmit');
+    btn.disabled = mbtn.disabled = true;
+    status.textContent = '주문을 접수하고 있습니다…';
+
+    W.api('/orders', { method: 'POST', body: order, timeout: 20000 })
+      .then(function (res) {
+        try { sessionStorage.removeItem(KEY); } catch (e) {}
+        W.cart.clear();
+        location.href = '/order.html?id=' + encodeURIComponent(res.id) +
+          '&name=' + encodeURIComponent(order.buyer.name);
+      })
+      .catch(function (err) {
+        btn.disabled = mbtn.disabled = false;
+        status.textContent = '주문을 접수하지 못했습니다. ' +
+          (err.message || '잠시 후 다시 시도해 주세요.');
+      });
   }
 
   document.getElementById('submitBtn').addEventListener('click', submit);

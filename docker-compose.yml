@@ -16,6 +16,11 @@ services:
       # 파일이 없는 상태로 컨테이너를 올리면 docker 가 같은 경로에 디렉터리를
       # 만들어버려 인증이 깨지므로, 반드시 파일을 먼저 만들어야 한다.
       - /etc/nginx/.htpasswd-admin:/etc/nginx/.htpasswd-admin:ro
+      # 업로드한 이미지를 정적으로 서빙한다. API 가 쓰고 web 이 읽는다.
+      - api-data:/srv/data:ro
+
+    depends_on:
+      - api
 
     environment:
       TZ: Asia/Seoul
@@ -32,3 +37,39 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  api:
+    build: ./server
+    container_name: woonhyangjae-api
+    restart: unless-stopped
+
+    # 외부에 직접 열지 않는다. web 컨테이너와 호스트 nginx 만 접근한다.
+    expose:
+      - "8090"
+
+    volumes:
+      - api-data:/data
+
+    environment:
+      TZ: Asia/Seoul
+      DATA_DIR: /data
+      PORT: "8090"
+      NODE_ENV: production
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  # 카탈로그 · 주문 · 문의 · 분석 이벤트 · 업로드 이미지가 모두 여기 담긴다.
+  # 백업 대상은 이 볼륨 하나면 된다.
+  api-data:

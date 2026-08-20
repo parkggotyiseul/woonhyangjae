@@ -1,6 +1,6 @@
 /* 운향재 — 공간 페이지
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
   var cur = (W.catalog.curation) || { spaces: [], moods: [] };
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var reason = sp ? sp.desc : '';
     host.innerHTML = '<div class="result">' +
-      '<div>' + W.bottle(p) + '</div>' +
+      '<div>' + W.visual(p) + '</div>' +
       '<div>' +
         '<p class="detail-num">' + W.esc(p.number) + '</p>' +
         '<h3 class="detail-name mt-xs">' + W.esc(p.nameKo) +

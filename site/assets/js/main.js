@@ -7,11 +7,17 @@
   var C = window.WHJ_CATALOG || {};
   var W = window.WHJ = {};
 
-  /* ── 조회 헬퍼 ────────────────────────────────────── */
-  W.catalog = C;
-  W.products = C.products || [];
-  W.collections = (C.collections || []).slice().sort(function (a, b) { return a.order - b.order; });
-  W.sets = C.sets || [];
+  /* ── 조회 헬퍼 ──────────────────────────────────────
+     catalog.js 는 즉시 그릴 수 있는 기본값이고, 실제 운영 데이터는
+     /api/catalog 에서 온다. API 가 죽어도 사이트는 기본값으로 계속 뜬다. */
+  function bind(data) {
+    C = data || {};
+    W.catalog = C;
+    W.products = C.products || [];
+    W.collections = (C.collections || []).slice().sort(function (a, b) { return a.order - b.order; });
+    W.sets = C.sets || [];
+  }
+  bind(C);
 
   W.product = function (slug) {
     var all = W.products.concat(W.sets);
@@ -81,6 +87,18 @@
   }
   W.esc = esc;
 
+  /* ── 카드 비주얼 ──────────────────────────────────────
+     등록된 사진이 있으면 사진을, 없으면 병 일러스트를 쓴다.
+     사진을 채워 넣는 동안에도 화면이 비지 않는다. */
+  W.visual = function (p, slot) {
+    var want = slot || '02';
+    var list = (p && p.photoSpots) || [];
+    var ps = list.filter(function (x) { return x.slot === want && x.src; })[0] ||
+             list.filter(function (x) { return x.src; })[0];
+    if (ps) return '<img src="' + esc(ps.src) + '" alt="' + esc(ps.alt || p.nameKo || '') + '" loading="lazy">';
+    return W.bottle(p);
+  };
+
   /* ── 제품 표식 ────────────────────────────────────────
      BEST / DESIGNER'S PICK 처럼 카탈로그의 badges 를 그대로 그린다. */
   W.badges = function (p) {
@@ -138,7 +156,7 @@
       var price = W.price(p);
       var href = coming ? '#notify' : (opts.base || 'product.html') + '?p=' + encodeURIComponent(p.slug);
       return '<a class="pcard reveal" data-i="' + i + '"' + (coming ? ' data-coming="1"' : '') + ' href="' + href + '">' +
-        '<div class="pcard-visual">' + W.bottle(p) + '</div>' +
+        '<div class="pcard-visual">' + W.visual(p) + '</div>' +
         '<div class="pcard-body">' +
           '<p class="pcard-num">' + esc(p.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
           W.badges(p) +
@@ -250,8 +268,40 @@
   }
   W.observe = observe;
 
+  /* ── API ──────────────────────────────────────────── */
+  W.api = function (path, opts) {
+    opts = opts || {};
+    var ctrl = ('AbortController' in window) ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, opts.timeout || 10000) : null;
+    return fetch('/api' + path, {
+      method: opts.method || 'GET',
+      headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      if (timer) clearTimeout(timer);
+      if (!r.ok) return r.json().catch(function () { return {}; })
+        .then(function (j) { throw new Error(j.message || ('HTTP ' + r.status)); });
+      return r.status === 204 ? null : r.json();
+    });
+  };
+
+  /* ── ready ────────────────────────────────────────────
+     페이지 스크립트는 DOMContentLoaded 대신 이걸 쓴다.
+     DOM 준비 + 카탈로그 확정이 모두 끝난 뒤에 실행된다. */
+  var readyQueue = [];
+  var isReady = false;
+  W.ready = function (fn) { isReady ? fn() : readyQueue.push(fn); };
+  function fireReady() {
+    if (isReady) return;
+    isReady = true;
+    readyQueue.forEach(function (f) {
+      try { f(); } catch (e) { console.error('[whj]', e); }
+    });
+  }
+
   /* ── 부팅 ─────────────────────────────────────────── */
-  document.addEventListener('DOMContentLoaded', function () {
+  function boot() {
     observe(document.querySelectorAll('.reveal'));
     W.cart.paint();
 
@@ -305,5 +355,24 @@
         ' · 사업자등록번호 ' + C.brand.bizNumber +
         ' · 통신판매업 신고 ' + C.brand.mailOrderNumber;
     }
+  }
+
+  /* 운영 데이터를 먼저 받아본 뒤 그린다.
+     API 가 느리거나 죽어 있으면 catalog.js 기본값으로 즉시 그린다. */
+  document.addEventListener('DOMContentLoaded', function () {
+    var done = false;
+    var go = function () {
+      if (done) return;
+      done = true;
+      boot();
+      fireReady();
+    };
+    if (!('fetch' in window)) { go(); return; }
+    W.api('/catalog', { timeout: 2500 })
+      .then(function (data) { if (data && data.products) bind(data); })
+      .catch(function () { /* 기본값 유지 */ })
+      .then(go);
+    // API 가 끝내 응답하지 않아도 3초 뒤에는 그린다
+    setTimeout(go, 3000);
   });
 })();

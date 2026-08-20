@@ -1,6 +1,6 @@
 /* 운향재 — 장바구니 페이지
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
   var root = document.getElementById('cart-root');
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     root.innerHTML = '<div class="cart-layout">' +
       '<div>' + t.lines.map(function (l, i) {
         return '<div class="cart-line">' +
-          '<div class="cart-line-visual">' + W.bottle(l.product) + '</div>' +
+          '<div class="cart-line-visual">' + W.visual(l.product) + '</div>' +
           '<div>' +
             '<h4>' + W.esc(l.product.nameKo) + '</h4>' +
             '<p class="opt">' + W.esc(l.variant.name) + (l.gift ? ' · 기프트 포장' : '') + '</p>' +

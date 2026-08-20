@@ -1,6 +1,6 @@
 /* 운향재 — 품질 페이지
    전문가 그룹(조향 · 충전 · 패키지)을 카탈로그에서 그린다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
   var host = document.getElementById('makers');

@@ -2,7 +2,7 @@
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
 /* 진행 중인 컬렉션을 순서대로 펼친다.
    컬렉션 02 水를 열 때는 catalog.js에서 status를 active로 바꾸고 제품을 등록하면 끝이다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
   var host = document.getElementById('active-collections');
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     /* 제품별 2화면 구조 — 감성 먼저, 정보 나중 */
     var details = onsale.map(function (p) {
       return '<section class="section"><div class="shell"><div class="detail">' +
-        '<div class="detail-visual reveal">' + W.bottle(p) +
+        '<div class="detail-visual reveal">' + W.visual(p) +
           '<p class="ps-caption">PS-01 · ' + W.esc(p.photoSpots[0] ? p.photoSpots[0].role : '') + '</p>' +
         '</div>' +
         '<div class="reveal">' +

@@ -1,6 +1,6 @@
 /* 운향재 — SHOP 페이지
    CSP(script-src 'self')를 지키기 위해 인라인 스크립트를 쓰지 않는다. */
-document.addEventListener('DOMContentLoaded', function () {
+window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
 
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var price = W.price(p);
       var href = coming ? '#notify' : '/product.html?p=' + encodeURIComponent(p.slug);
       return '<a class="pcard reveal' + (coming ? ' pcard-coming' : '') + '" data-i="' + i + '" href="' + href + '">' +
-        '<div class="pcard-visual">' + W.bottle(p) + '</div>' +
+        '<div class="pcard-visual">' + W.visual(p) + '</div>' +
         '<div class="pcard-body">' +
           '<p class="pcard-num">' + W.esc(p.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
           W.badges(p) +
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var items = s.items.map(function (id) { var p = W.product(id); return p ? p.nameKo : id; });
       return '<a class="pcard reveal" href="/product.html?p=' + encodeURIComponent(s.slug) + '">' +
         '<div class="pcard-visual set-visuals">' +
-          s.items.map(function (id) { return W.bottle(W.product(id)); }).join('') +
+          s.items.map(function (id) { return W.visual(W.product(id)); }).join('') +
         '</div>' +
         '<div class="pcard-body">' +
           '<p class="pcard-num">SET</p>' +
@@ -111,13 +111,17 @@ document.addEventListener('DOMContentLoaded', function () {
     el.setAttribute('aria-invalid', String(!ok));
     var st = document.getElementById('notifyStatus');
     if (!ok) { st.textContent = '이메일 주소를 확인해 주세요.'; return; }
-    /* 2단계에서 이 부분만 Subscriber API 호출로 교체한다 */
-    try {
-      var list = JSON.parse(localStorage.getItem('whj_notify') || '[]');
-      if (list.indexOf(el.value.trim()) < 0) list.push(el.value.trim());
-      localStorage.setItem('whj_notify', JSON.stringify(list));
-    } catch (err) {}
-    st.textContent = '신청되었습니다. 준비가 되면 알려드리겠습니다.';
-    el.value = '';
+
+    st.textContent = '신청하고 있습니다…';
+    W.api('/subscribe', {
+      method: 'POST',
+      body: { email: el.value.trim(), target: 'wood-003' }
+    }).then(function () {
+      st.textContent = '신청되었습니다. 준비가 되면 알려드리겠습니다.';
+      el.value = '';
+      if (window.WHJTrack) window.WHJTrack.event('subscribe');
+    }).catch(function (err) {
+      st.textContent = err.message || '신청하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+    });
   });
 });

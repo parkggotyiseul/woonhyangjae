@@ -8,8 +8,8 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="/admin/admin.css?v=20260820d">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="/admin/admin.css?v=20260820e">
 </head>
 <body>
 
@@ -20,22 +20,26 @@
       <span>WOONHYANGJAE ADMIN</span>
     </div>
     <nav id="nav">
-      <a href="#dashboard" class="is-on">대시보드 <span class="badge" id="nav-todo" hidden>0</span></a>
-      <a href="#products">상품 관리</a>
-      <a href="#orders">주문 관리 <span class="badge" id="nav-orders" hidden>0</span></a>
-      <a href="#content">콘텐츠 관리</a>
-      <a href="#customers">고객 관리</a>
+      <a href="#dashboard" class="is-on">오늘 할 일 <span class="badge" id="nav-todo" hidden>0</span></a>
+      <a href="#orders">주문 <span class="badge" id="nav-orders" hidden>0</span></a>
+      <a href="#shipping">배송 <span class="badge" id="nav-ship" hidden>0</span></a>
+      <a href="#products">상품</a>
+      <a href="#photos">사진</a>
+      <a href="#inquiries">문의 <span class="badge" id="nav-ask" hidden>0</span></a>
+      <a href="#customers">고객</a>
       <a href="#analytics">분석</a>
-      <a href="#seo">SEO</a>
       <a href="#settings">설정</a>
       <a href="/" class="side-out">사이트 보기 →</a>
     </nav>
   </aside>
 
-  <main class="main" id="view"></main>
+  <main class="main" id="view">
+    <p class="empty-row">불러오는 중…</p>
+  </main>
 </div>
 
-<script src="/assets/data/catalog.js?v=20260820d"></script>
-<script src="/admin/admin.js?v=20260820d"></script>
+<div class="toast" id="toast" hidden></div>
+
+<script src="/admin/admin.js?v=20260820e"></script>
 </body>
 </html>

@@ -1,0 +1,16 @@
+{
+  "name": "woonhyangjae-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "운향재 운영 API — 카탈로그 · 주문 · 이미지 · 분석",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "4.21.2",
+    "multer": "1.4.5-lts.1"
+  }
+}
