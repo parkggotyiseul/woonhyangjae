@@ -58,19 +58,42 @@ ssh -i ~/woonhyangjae/woonhyangjae.pem ubuntu@ssl.woonhyangjae.com "cd ~/git/woo
 - `docker` 명령에는 반드시 `sudo -n`을 붙인다. ubuntu 계정은 docker 그룹이 아니다.
 - 배포 후 확인: `curl -s -o /dev/null -w "%{http_code}" https://woonhyangjae.com/`
 
-## 자산 캐시 버전
+## 손으로 고치지 않는 것 두 가지 (tools/)
+
+### 1. 머리말 · 꼬리말
+
+메뉴와 푸터는 14장 모두 똑같다. 한 장씩 고치면 반드시 어긋난다.
+**원본은 `tools/shell.header.html` · `tools/shell.footer.html` 뿐이다.**
+고친 뒤 아래를 돌리면 전 페이지에 퍼진다.
+
+```bash
+node tools/sync-shell.js
+```
+
+현재 페이지 표시(`aria-current`)와 첫 화면의 투명 머리말은 스크립트가 알아서 붙인다.
+반영 전에 무엇이 바뀌는지만 보려면 `node tools/sync-shell.js --check`.
+
+### 2. 자산 캐시 버전
 
 Cloudflare가 캐시하므로 CSS/JS를 고치면 **모든 HTML의 `?v=` 값을 같이 올린다.**
-현재 형식: `?v=20260820d` (날짜 + 알파벳). 안 올리면 방문자에게 예전 파일이 계속 보인다.
+안 올리면 방문자에게 예전 파일이 계속 보인다.
+
+```bash
+node tools/bump-assets.js
+```
+
+오늘 날짜 + 알파벳으로 자동 증가한다 (`20260821a` → `20260821b`).
+`site/` 와 `site/admin/` 을 함께 바꾼다.
 
 ## 구조
 
 ```
 site/            정적 사이트 (컨테이너가 그대로 서빙)
-  *.html         페이지 12장
+  *.html         페이지 15장 (404 포함)
   assets/data/catalog.js   ★ 제품·컬렉션 데이터 원본
   assets/js/page-*.js      페이지별 스크립트
   admin/         관리자 화면 (HTTP Basic 인증으로 보호)
+tools/           머리말·꼬리말 동기화, 캐시 번호 올리기 (위 참고)
 nginx/site.conf  컨테이너 내부 nginx (정적 파일 전담)
 deploy/          호스트 nginx 설정 · TLS · Let's Encrypt 스크립트
 docker-compose.yml

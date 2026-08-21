@@ -97,6 +97,21 @@
       'home.curation.p': 'Every room asks for different air. A room you sit alone in cannot be the same as a room where guests arrive.',
       'home.curation.link': 'Find by space →',
       'home.thesis': 'Scent begins<br>where nature keeps things hidden.',
+      'home.m1': '<h4>Choose one</h4><p>We pick a single element of nature. We do not skim widely; we dig deeply.</p>',
+      'home.m2': '<h4>Divide it</h4><p>Root, heartwood, blossom. We find the separate strands inside one element.</p>',
+      'home.m3': '<h4>Translate into scent</h4><p>Each layer’s impression becomes a note, and we decide which space it belongs to.</p>',
+      'home.st1': '<p class="step-num">STEP 1</p><h3>Choose the element</h3><p>木 · 水 · 石 · 土<br>one is chosen</p>',
+      'home.st2': '<p class="step-num">STEP 2</p><h3>Break into layers</h3><p>Root · heartwood · bark<br>find the strands within</p>',
+      'home.st3': '<p class="step-num">STEP 3</p><h3>Compose</h3><p>each layer’s impression<br>becomes a note</p>',
+      'home.st4': '<p class="step-num">STEP 4</p><h3>Match a space</h3><p>we decide where<br>it belongs</p>',
+      'home.st5': '<p class="step-num">STEP 5</p><h3>Complete the chapter</h3><p>three to five scents<br>form one element</p>',
+      'home.cf1': '<p class="figure-num">20%</p><h3>Fragrance load</h3><p>Three times the market norm<br>no compromise on cost</p>',
+      'home.cf2': '<p class="figure-num">Tier 1</p><h3>Fragrance house</h3><p>Seoul Fragrance<br>the highest tier in Korea</p>',
+      'home.cf3': '<p class="figure-num">0</p><h3>Wood staining</h3><p>Safety tested<br>passed our own standard</p>',
+      'home.cu1': '<h4>Living room · Entrance</h4><p>The space that sets the first impression of a home. A warm, welcoming scent suits it.</p>',
+      'home.cu2': '<h4>Study · Gallery</h4><p>Where thought settles. The scent adds density without interrupting it.</p>',
+      'home.cu3': '<h4>Bedroom · Dressing room</h4><p>Where the day closes. It must settle softly, without any sharpness.</p>',
+      'lang.note': 'This page has not been translated yet. The content below is in Korean.',
 
       /* 폼 */
       'form.name': 'Name',
@@ -168,6 +183,21 @@
       'home.curation.p': '每个空间需要不同的空气。独处的房间，与迎客的房间，不会相同。',
       'home.curation.link': '按空间寻找 →',
       'home.thesis': '香，始于<br>自然所隐藏之处。',
+      'home.m1': '<h4>先择其一</h4><p>从构成自然的元素中选定一个。不求其广，只求其深。</p>',
+      'home.m2': '<h4>再分其内</h4><p>根、心材、花。在同一元素之中寻找彼此不同的层次。</p>',
+      'home.m3': '<h4>译为香气</h4><p>将每一层的印象译成香调，并决定它属于哪一个空间。</p>',
+      'home.st1': '<p class="step-num">STEP 1</p><h3>选定元素</h3><p>木 · 水 · 石 · 土<br>择其一</p>',
+      'home.st2': '<p class="step-num">STEP 2</p><h3>分解层次</h3><p>根 · 心材 · 树皮<br>于内寻其分支</p>',
+      'home.st3': '<p class="step-num">STEP 3</p><h3>调香转译</h3><p>将每层印象<br>译为香调</p>',
+      'home.st4': '<p class="step-num">STEP 4</p><h3>匹配空间</h3><p>确定它<br>属于何处</p>',
+      'home.st5': '<p class="step-num">STEP 5</p><h3>完成系列</h3><p>三至五款<br>合成一个元素</p>',
+      'home.cf1': '<p class="figure-num">20%</p><h3>加香率</h3><p>市售扩香的三倍<br>成本绝不妥协</p>',
+      'home.cf2': '<p class="figure-num">一线</p><h3>调香伙伴</h3><p>首尔香料<br>韩国最高水准</p>',
+      'home.cf3': '<p class="figure-num">0</p><h3>原木染色</h3><p>安全性试验<br>通过自有标准</p>',
+      'home.cu1': '<h4>客厅 · 玄关</h4><p>决定住宅第一印象的空间。适合温暖而包容的香气。</p>',
+      'home.cu2': '<h4>书房 · 画廊</h4><p>思绪停留之处。香气不打扰思考，却提升空间的密度。</p>',
+      'home.cu3': '<h4>卧室 · 衣帽间</h4><p>结束一天的空间。须无刺激，柔和沉降。</p>',
+      'lang.note': '本页尚未翻译，以下内容为韩文。',
 
       'form.name': '姓名',
       'form.email': '邮箱',
@@ -237,6 +267,21 @@
       'home.curation.p': 'Mỗi không gian cần một bầu không khí khác nhau. Căn phòng ta ở một mình không thể giống căn phòng đón khách.',
       'home.curation.link': 'Tìm theo không gian →',
       'home.thesis': 'Hương bắt đầu từ nơi<br>tự nhiên còn giấu kín.',
+      'home.m1': '<h4>Chọn một nguyên tố</h4><p>Chúng tôi chọn một nguyên tố của tự nhiên. Không lướt qua bề rộng, mà đào đến tận cùng.</p>',
+      'home.m2': '<h4>Chia nhỏ bên trong</h4><p>Rễ, lõi gỗ và hoa. Chúng tôi tìm những nhánh khác nhau bên trong một nguyên tố.</p>',
+      'home.m3': '<h4>Chuyển thành hương</h4><p>Ấn tượng của từng lớp được dịch thành nốt hương, rồi định vị không gian mà nó thuộc về.</p>',
+      'home.st1': '<p class="step-num">STEP 1</p><h3>Chọn nguyên tố</h3><p>木 · 水 · 石 · 土<br>chọn lấy một</p>',
+      'home.st2': '<p class="step-num">STEP 2</p><h3>Phân tách lớp</h3><p>Rễ · lõi · vỏ cây<br>tìm nhánh bên trong</p>',
+      'home.st3': '<p class="step-num">STEP 3</p><h3>Phối hương</h3><p>ấn tượng mỗi lớp<br>thành nốt hương</p>',
+      'home.st4': '<p class="step-num">STEP 4</p><h3>Ghép không gian</h3><p>xác định nơi<br>nó thuộc về</p>',
+      'home.st5': '<p class="step-num">STEP 5</p><h3>Hoàn tất bộ sưu tập</h3><p>ba đến năm hương<br>tạo nên một nguyên tố</p>',
+      'home.cf1': '<p class="figure-num">20%</p><h3>Nồng độ hương</h3><p>Gấp ba mức phổ biến<br>không thỏa hiệp chi phí</p>',
+      'home.cf2': '<p class="figure-num">Hạng 1</p><h3>Đối tác điều hương</h3><p>Seoul Fragrance<br>đẳng cấp cao nhất Hàn Quốc</p>',
+      'home.cf3': '<p class="figure-num">0</p><h3>Gỗ bị ố màu</h3><p>Kiểm định an toàn<br>đạt chuẩn riêng của chúng tôi</p>',
+      'home.cu1': '<h4>Phòng khách · Lối vào</h4><p>Nơi định hình ấn tượng đầu tiên về ngôi nhà. Hợp với hương ấm áp, bao dung.</p>',
+      'home.cu2': '<h4>Phòng đọc · Phòng tranh</h4><p>Nơi suy nghĩ lắng lại. Hương làm dày không gian mà không cắt ngang dòng nghĩ.</p>',
+      'home.cu3': '<h4>Phòng ngủ · Phòng thay đồ</h4><p>Nơi khép lại một ngày. Hương phải lắng xuống dịu dàng, không gây kích ứng.</p>',
+      'lang.note': 'Trang này chưa được dịch. Nội dung bên dưới là tiếng Hàn.',
 
       'form.name': 'Họ tên',
       'form.email': 'Email',
@@ -284,6 +329,20 @@
       var v = t(key);
       n.setAttribute(attr, v == null ? n.getAttribute('data-ko-' + attr) : v);
     });
+
+    /* 이 페이지 본문에 번역이 하나도 없으면 머리말 아래에 한 줄로 알린다.
+       메뉴만 영어로 바뀌고 본문은 한국어인 상태를 그대로 두면 오해를 산다. */
+    var note = document.getElementById('langNote');
+    if (note) {
+      var done = 0;
+      document.querySelectorAll('#main [data-i18n]').forEach(function (n) {
+        if (t(n.getAttribute('data-i18n')) != null) done++;
+      });
+      var show = current !== 'ko' && done === 0;
+      note.hidden = !show;
+      note.classList.toggle('is-on', show);
+      if (show) note.textContent = t('lang.note') || '';
+    }
 
     var meta = LANGS.filter(function (l) { return l.code === current; })[0];
     var flag = document.querySelector('.lang-btn .lang-flag');
