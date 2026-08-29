@@ -357,7 +357,7 @@ li{ list-style:none; }
   border:1px solid var(--cream-dim);
 }
 .step{ background:var(--cream); padding:2rem 1.5rem 2.25rem; }
-.step-num{
+.step .step-num{
   font-family:var(--disp); font-size:.66rem;
   letter-spacing:.22em; color:var(--oak);
 }
@@ -550,11 +550,12 @@ li{ list-style:none; }
   gap:1px; background:var(--ink-line); border:1px solid var(--ink-line);
 }
 .figure{ background:var(--ink); padding:2.5rem 1.75rem; text-align:center; }
-.figure-num{
+.figure .figure-num{
   font-family:var(--disp); font-weight:300;
   font-size:clamp(2.5rem,6vw,3.5rem);
   color:var(--oak); line-height:1;
 }
+.figure h2,
 .figure h3{ font-size:.95rem; letter-spacing:.1em; margin:1rem 0 .5rem; }
 .figure p{ font-size:.82rem; color:var(--on-dark-mute); font-family:var(--sans); }
 
@@ -589,6 +590,8 @@ li{ list-style:none; }
 .section-dark .list-rows li{ border-top-color:var(--ink-line); }
 .list-rows li:last-child{ border-bottom:1px solid var(--cream-dim); }
 .section-dark .list-rows li:last-child{ border-bottom-color:var(--ink-line); }
+.list-rows h2,
+.list-rows h3,
 .list-rows h4{ font-size:1rem; letter-spacing:.06em; margin-bottom:.5rem; }
 .list-rows p{ font-size:.88rem; color:var(--on-light-mute); line-height:1.85; }
 .section-dark .list-rows p{ color:var(--on-dark-mute); }
@@ -606,6 +609,7 @@ li{ list-style:none; }
   border-bottom:1px solid var(--cream-dim);
 }
 .cart-line-visual{ background:var(--cream-warm); aspect-ratio:1; display:grid; place-items:center; padding:.6rem; }
+.cart-line h3,
 .cart-line h4{ font-size:1rem; letter-spacing:.05em; }
 .cart-line .opt{ font-family:var(--sans); font-size:.78rem; color:var(--on-light-mute); margin-top:.3rem; }
 .cart-line .rm{
@@ -655,6 +659,7 @@ li{ list-style:none; }
   padding-bottom:2rem; margin-bottom:2rem;
   border-bottom:1px solid var(--cream-dim);
 }
+.checkout-block h2,
 .checkout-block h3{
   font-family:var(--sans); font-weight:400;
   font-size:.78rem; letter-spacing:.2em;
@@ -859,9 +864,21 @@ li{ list-style:none; }
 }
 .tabbar button:hover{ color:var(--on-light); }
 .tabbar button.is-on{ color:var(--ink); border-bottom-color:var(--ink); }
+/* 좁은 화면에서는 탭을 옆으로 밀어 감췄더니, 마지막 탭이 있는 줄 모르고
+   지나치는 경우가 생겼다. 가로 스크롤 대신 두 칸씩 격자로 접어 전부 보이게 한다.
+   줄이 나뉘므로 밑줄은 탭바가 아니라 각 탭이 직접 갖는다. */
 @media (max-width:560px){
-  .tabbar{ overflow-x:auto; flex-wrap:nowrap; }
-  .tabbar button{ padding:.8rem 1rem; font-size:.8rem; }
+  .tabbar{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));
+    gap:0; border-bottom:0; overflow:visible;
+  }
+  .tabbar button{
+    margin-bottom:0;
+    border-bottom:1px solid var(--cream-dim);
+    padding:.85rem .7rem; font-size:.8rem;
+    white-space:normal;
+  }
+  .tabbar button.is-on{ border-bottom-color:var(--ink); }
 }
 
 /* ── 제품 표식 ───────────────────────────────────────── */
@@ -903,6 +920,7 @@ li{ list-style:none; }
   background:var(--cream); padding:1.5rem 1.6rem;
   display:flex; flex-direction:column; gap:.5rem;
 }
+.pick h3,
 .pick h4{ font-size:1.02rem; letter-spacing:.04em; }
 .pick p{ font-size:.86rem; color:var(--on-light-mute); line-height:1.8; }
 .pick .rec{
@@ -964,22 +982,26 @@ li{ list-style:none; }
 }
 .hero-inner{ position:relative; z-index:2; padding-block:9rem 7rem; }
 
-/* ── 상단 드롭다운 ───────────────────────────────────── */
+/* ── 상단 드롭다운 ───────────────────────────────────────
+   글자 두세 자짜리 메뉴(품질·공간·문의) 아래 200px 짜리 패널이 열린다.
+   가운데 정렬하면 패널이 앞 항목 위까지 넓게 걸쳐 어느 메뉴에 딸린 것인지
+   흐려진다. 누른 글자의 왼쪽 끝에 맞춰 아래로만 펼친다. */
 .nav-item{ position:relative; }
 .nav-panel{
-  position:absolute; top:100%; left:50%; transform:translateX(-50%);
-  min-width:190px;
+  position:absolute; top:100%; left:0;
+  min-width:200px;
   background:rgba(247,243,238,.98);
   backdrop-filter:saturate(120%) blur(12px);
   -webkit-backdrop-filter:saturate(120%) blur(12px);
   border:1px solid var(--cream-dim);
   padding:.5rem 0;
   opacity:0; visibility:hidden;
-  transition:opacity .25s var(--ease), visibility .25s;
+  transform:translateY(-4px);
+  transition:opacity .2s var(--ease), transform .2s var(--ease), visibility .2s;
   z-index:110;
 }
 .nav-item:hover .nav-panel,
-.nav-item:focus-within .nav-panel{ opacity:1; visibility:visible; }
+.nav-item:focus-within .nav-panel{ opacity:1; visibility:visible; transform:translateY(0); }
 .nav-panel a{
   display:block;
   padding:.6rem 1.25rem;
@@ -1234,3 +1256,25 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
   .foot-nav a,
   .foot-legal-nav a{ min-height:36px; display:inline-flex; align-items:center; }
 }
+
+/* ── 밝은 바탕의 작은 라벨 색 ─────────────────────────────
+   오크(#B8946A)는 먹색 바탕에서 쓰라고 만든 밝은 톤이다.
+   크림 바탕에 그대로 얹으면 명도 대비가 2.5:1 까지 떨어져,
+   11~12px 짜리 작은 머리표가 흐릿하게 뭉개진다.
+   밝은 바탕에서는 같은 계열의 짙은 색(마호가니, 5.0:1)으로 내린다.
+   어두운 섹션 안에서는 원래대로 오크를 쓴다. */
+.sec-num,
+.step .step-num,
+.detail-num,
+.q-label,
+.pcard-num,
+.site-header.is-stuck .brand-en{ color:var(--mahogany); }
+
+.section-dark .sec-num,
+.section-dark .step .step-num,
+.section-dark .detail-num,
+.section-dark .q-label,
+.section-dark .pcard-num,
+.statement .sec-num,
+.pull-quote .sec-num,
+.pcard-coming .pcard-num{ color:var(--oak); }

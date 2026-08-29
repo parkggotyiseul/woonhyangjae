@@ -77,7 +77,7 @@ window.WHJ.ready(function () {
   function cards(list, titleFn) {
     return list.map(function (x) {
       return '<div class="pick">' +
-        '<h4>' + titleFn(x) + '</h4>' +
+        '<h3>' + titleFn(x) + '</h3>' +
         '<p>' + W.esc(x.desc) + '</p>' +
         '<p class="rec">추천 — ' + recLinks(x.recommend) + '</p>' +
       '</div>';

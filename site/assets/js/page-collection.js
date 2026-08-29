@@ -11,14 +11,14 @@ window.WHJ.ready(function () {
   function productBlock(p) {
     if (p.status === 'coming') {
       return '<div class="pick">' +
-        '<h4>' + W.esc(p.number) + ' · 준비하고 있습니다</h4>' +
+        '<h3>' + W.esc(p.number) + ' · 준비하고 있습니다</h3>' +
         '<p>' + W.esc(p.signature) + '<br>' + W.esc(p.layer) + '</p>' +
         '<p class="rec"><a href="/shop.html#notify">출시 소식 받기 →</a></p>' +
       '</div>';
     }
     return '<div class="pick">' +
-      '<h4>' + W.esc(p.number) + ' · ' + W.esc(p.nameKo) +
-        (p.nameHanja ? ' <span class="opt-name">' + W.esc(p.nameHanja) + '</span>' : '') + '</h4>' +
+      '<h3>' + W.esc(p.number) + ' · ' + W.esc(p.nameKo) +
+        (p.nameHanja ? ' <span class="opt-name">' + W.esc(p.nameHanja) + '</span>' : '') + '</h3>' +
       '<p>' + W.esc(p.signature) + '<br>' +
         W.esc(p.caption + ' · ' + p.species + ' · ' + p.layer) + '</p>' +
       '<p class="rec"><a href="/product.html?p=' + encodeURIComponent(p.slug) + '">자세히 보기 →</a></p>' +

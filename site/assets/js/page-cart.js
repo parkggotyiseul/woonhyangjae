@@ -24,7 +24,7 @@ window.WHJ.ready(function () {
         return '<div class="cart-line">' +
           '<div class="cart-line-visual">' + W.visual(l.product) + '</div>' +
           '<div>' +
-            '<h4>' + W.esc(l.product.nameKo) + '</h4>' +
+            '<h3>' + W.esc(l.product.nameKo) + '</h3>' +
             '<p class="opt">' + W.esc(l.variant.name) + (l.gift ? ' · 기프트 포장' : '') + '</p>' +
             '<div class="qty mt-sm">' +
               '<button type="button" data-act="dec" data-i="' + i + '" aria-label="수량 줄이기">−</button>' +

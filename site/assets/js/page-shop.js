@@ -33,8 +33,8 @@ window.WHJ.ready(function () {
         '<div class="pcard-body">' +
           '<p class="pcard-num">' + W.esc(p.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
           W.badges(p) +
-          '<h3 class="pcard-name">' + (coming ? '준비하고 있습니다' : W.esc(p.nameKo) +
-            (p.nameHanja ? '<span class="hanja">' + W.esc(p.nameHanja) + '</span>' : '')) + '</h3>' +
+          '<h2 class="pcard-name">' + (coming ? '준비하고 있습니다' : W.esc(p.nameKo) +
+            (p.nameHanja ? '<span class="hanja">' + W.esc(p.nameHanja) + '</span>' : '')) + '</h2>' +
           '<p class="pcard-sig">' + W.esc(p.signature) + '</p>' +
           '<p class="pcard-cap">' + W.esc(coming ? p.layer : p.caption + ' · ' + p.species + ' · ' + p.layer) + '</p>' +
           '<div class="pcard-foot">' +
@@ -80,7 +80,7 @@ window.WHJ.ready(function () {
         '<div class="pcard-body">' +
           '<p class="pcard-num">SET</p>' +
           W.badges(s) +
-          '<h3 class="pcard-name">' + W.esc(s.nameKo) + '</h3>' +
+          '<h2 class="pcard-name">' + W.esc(s.nameKo) + '</h2>' +
           '<p class="pcard-sig">' + W.esc(s.signature) + '</p>' +
           '<p class="pcard-cap">' + W.esc(items.join(' · ')) + '</p>' +
           '<div class="pcard-foot"><span>자세히 보기 →</span>' +

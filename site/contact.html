@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+KR:wght@200;300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap">
-<link rel="stylesheet" href="/assets/css/style.css?v=20260821b">
+<link rel="stylesheet" href="/assets/css/style.css?v=20260829a">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -127,7 +127,7 @@
       <div class="cart-layout">
         <form class="reveal" id="contactForm" novalidate>
           <div class="checkout-block">
-            <h3>문의 유형</h3>
+            <h2>문의 유형</h2>
             <div class="field">
               <label for="f-type">유형 선택</label>
               <select id="f-type" name="type">
@@ -141,26 +141,26 @@
           </div>
 
           <div class="checkout-block">
-            <h3>연락처</h3>
+            <h2>연락처</h2>
             <div class="field-row">
               <div class="field">
-                <label for="f-name" data-i18n="form.name">성함</label>
+                <label for="f-name">성함</label>
                 <input id="f-name" name="name" type="text" autocomplete="name" required>
               </div>
               <div class="field">
-                <label for="f-phone" data-i18n="form.phone">연락처</label>
+                <label for="f-phone">연락처</label>
                 <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="numeric">
               </div>
             </div>
             <div class="field">
-              <label for="f-email" data-i18n="form.email">이메일</label>
+              <label for="f-email">이메일</label>
               <input id="f-email" name="email" type="email" autocomplete="email" required>
             </div>
           </div>
 
           <!-- B2B 선택 시에만 노출되는 항목 -->
           <div class="checkout-block" id="b2bBlock" hidden>
-            <h3>공간 정보</h3>
+            <h2>공간 정보</h2>
             <div class="field">
               <label for="f-company">회사명 · 공간명</label>
               <input id="f-company" name="company" type="text">
@@ -184,23 +184,23 @@
           </div>
 
           <div class="checkout-block no-border">
-            <h3>문의 내용</h3>
+            <h2>문의 내용</h2>
             <div class="field">
-              <label for="f-msg" data-i18n="form.message">내용</label>
+              <label for="f-msg">내용</label>
               <textarea id="f-msg" name="message" rows="6" required></textarea>
             </div>
             <label class="check">
               <input type="checkbox" id="f-agree" name="agree">
-              <span data-i18n="form.agree">개인정보 수집 및 이용에 동의합니다. 문의 응대 목적으로만 사용하며, 처리 완료 후 파기합니다.</span>
+              <span>개인정보 수집 및 이용에 동의합니다. 문의 응대 목적으로만 사용하며, 처리 완료 후 파기합니다.</span>
             </label>
-            <button type="submit" class="btn" data-i18n="form.send">문의 보내기</button>
+            <button type="submit" class="btn">문의 보내기</button>
             <p class="buybox-note" id="formStatus" role="status" aria-live="polite"></p>
           </div>
         </form>
 
         <div class="reveal d2">
           <div class="summary">
-            <h3>직접 연락</h3>
+            <h2>직접 연락</h2>
             <div class="summary-row"><span>일반 문의</span><a href="mailto:hello@woonhyangjae.com">hello@woonhyangjae.com</a></div>
             <div class="summary-row"><span>도매 · 제휴</span><a href="mailto:partner@woonhyangjae.com">partner@woonhyangjae.com</a></div>
             <div class="summary-row"><span>회신</span><span>영업일 2일 내</span></div>
@@ -225,10 +225,10 @@
       <div data-panel="policy" id="policy" hidden>
         <p class="sec-lede reveal">주문하신 뒤 마음이 바뀌셨거나 문제가 있을 때의 처리 기준입니다.</p>
         <ul class="list-rows reveal">
-          <li><h4>단순 변심 — 7일 이내</h4><p>미개봉 상품에 한합니다. 왕복 배송비는 고객 부담이며, 향 제품 특성상 개봉 후에는 반품이 어렵습니다.</p></li>
-          <li><h4>파손 · 불량 — 즉시 교환</h4><p>사진을 보내주시면 확인 후 바로 재발송해 드립니다. 회수는 그 다음입니다. 기다리시게 하지 않습니다.</p></li>
-          <li><h4>향이 맞지 않는 경우</h4><p>정책상 반품 대상은 아니지만, 개별적으로 판단해 대응합니다. 문의를 남겨 주세요.</p></li>
-          <li><h4>배송 · 출고</h4><p>영업일 기준 2~3일 내 출고되며, 출고 시 송장번호를 안내드립니다.</p></li>
+          <li><h3>단순 변심 — 7일 이내</h3><p>미개봉 상품에 한합니다. 왕복 배송비는 고객 부담이며, 향 제품 특성상 개봉 후에는 반품이 어렵습니다.</p></li>
+          <li><h3>파손 · 불량 — 즉시 교환</h3><p>사진을 보내주시면 확인 후 바로 재발송해 드립니다. 회수는 그 다음입니다. 기다리시게 하지 않습니다.</p></li>
+          <li><h3>향이 맞지 않는 경우</h3><p>정책상 반품 대상은 아니지만, 개별적으로 판단해 대응합니다. 문의를 남겨 주세요.</p></li>
+          <li><h3>배송 · 출고</h3><p>영업일 기준 2~3일 내 출고되며, 출고 시 송장번호를 안내드립니다.</p></li>
         </ul>
       </div>
 
@@ -278,10 +278,10 @@
     </div>
   </div>
 </footer>
-<script src="/assets/data/catalog.js?v=20260821b"></script>
-<script src="/assets/js/main.js?v=20260821b" defer></script>
-<script src="/assets/js/i18n.js?v=20260821b" defer></script>
-<script src="/assets/js/track.js?v=20260821b" defer></script>
-<script src="/assets/js/page-contact.js?v=20260821b" defer></script>
+<script src="/assets/data/catalog.js?v=20260829a"></script>
+<script src="/assets/js/main.js?v=20260829a" defer></script>
+<script src="/assets/js/i18n.js?v=20260829a" defer></script>
+<script src="/assets/js/track.js?v=20260829a" defer></script>
+<script src="/assets/js/page-contact.js?v=20260829a" defer></script>
 </body>
 </html>

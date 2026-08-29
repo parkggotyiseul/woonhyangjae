@@ -160,8 +160,8 @@
         '<div class="pcard-body">' +
           '<p class="pcard-num">' + esc(p.number) + (coming ? ' · COMING SOON' : '') + '</p>' +
           W.badges(p) +
-          '<h3 class="pcard-name">' + (coming ? '준비하고 있습니다' : esc(p.nameKo) +
-            (p.nameHanja ? '<span class="hanja">' + esc(p.nameHanja) + '</span>' : '')) + '</h3>' +
+          '<h2 class="pcard-name">' + (coming ? '준비하고 있습니다' : esc(p.nameKo) +
+            (p.nameHanja ? '<span class="hanja">' + esc(p.nameHanja) + '</span>' : '')) + '</h2>' +
           '<p class="pcard-sig">' + esc(p.signature) + '</p>' +
           '<p class="pcard-cap">' + esc(coming ? p.layer : p.caption + ' · ' + p.species + ' · ' + p.layer) + '</p>' +
           '<div class="pcard-foot">' +
