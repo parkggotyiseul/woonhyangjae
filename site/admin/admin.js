@@ -1,6 +1,9 @@
 /* 운향재 관리자
    운영자가 매일 실제로 하는 일 순서로 화면을 짰다.
-   오늘 할 일 → 주문 → 배송 → 상품 · 사진 → 문의 → 고객 → 분석 → 설정
+   오늘 → 주문 → 배송 → 영업 → 고객 → 분석 → 상품 · 사진 → 설정
+
+   숫자는 혼자 있으면 판단에 쓰이지 못한다. 어제보다, 지난달보다, 직전 기간보다
+   어떤지를 항상 옆에 붙인다.
 
    데이터는 전부 서버(/api/admin/*)에 있다. 브라우저를 바꿔도, 다른 사람이 봐도
    같은 화면이 뜬다. 인증은 nginx Basic 인증이 앞단에서 처리한다. */
@@ -56,7 +59,10 @@
   var S = {
     catalog: null, orders: [], inquiries: [], subscribers: [],
     uploads: [], summary: null, analytics: null,
-    orderTab: 'received', analyticsDays: 30, pickTarget: null
+    orderTab: 'received', analyticsDays: 30, pickTarget: null,
+    orderDays: 0,          // 0 = 전체 기간
+    custSeg: 'all',        // 고객 세그먼트
+    dealStage: 'all'       // 영업 단계
   };
 
   var ORDER_STATUS = {
@@ -66,28 +72,55 @@
   /* ── 뷰 ───────────────────────────────────────────── */
   var views = {};
 
-  /* 1. 오늘 할 일 ─────────────────────────────────────── */
+  /* 1. 오늘 ───────────────────────────────────────────
+     아침에 이 화면만 보고 하루를 시작할 수 있어야 한다.
+     처리할 일 → 오늘의 숫자 → 최근 흐름 순서다. */
   views.dashboard = function () {
     var s = S.summary || {};
     var p = s.pending || {};
+    var t = s.today || {}, y = s.yesterday || {};
+    var m = s.month || {}, lm = s.lastMonth || {};
+    var tr = s.trend || [];
 
-    return head('오늘 할 일', '아침에 이 화면만 보시면 됩니다.') +
-      '<div class="panel"><h2>지금 처리해야 할 것</h2>' +
+    function pct(now, was) {
+      if (!was) return now ? null : 0;
+      return +(((now - was) / was) * 100).toFixed(1);
+    }
+
+    var jobs = (p.newOrders || 0) + (p.toShip || 0) + (p.openInquiries || 0) +
+               (p.openDeals || 0) + (p.lowStock || 0);
+
+    return head('오늘', new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' }) +
+        ' · 아침에 이 화면만 보시면 됩니다.') +
+
+      '<div class="panel"><h2>지금 처리해야 할 것' +
+        (jobs ? ' <span class="count">' + jobs + '</span>' : '') + '</h2>' +
         '<div class="todo">' +
           todo('새로 들어온 주문', p.newOrders, '#orders', '확인하고 발송 준비로 넘기세요') +
           todo('발송해야 할 주문', p.toShip, '#shipping', '송장번호를 넣으면 완료됩니다') +
           todo('답변 안 한 문의', p.openInquiries, '#inquiries', '영업일 2일 안에 답장') +
+          todo('진행 중인 영업', p.openDeals, '#deals', '공간 제안 · 도매 상담') +
           todo('재고 부족', p.lowStock, '#products', '5개 이하로 남은 상품') +
         '</div>' +
-        (!p.newOrders && !p.toShip && !p.openInquiries && !p.lowStock
-          ? '<p class="note mt-1">지금은 처리할 일이 없습니다.</p>' : '') +
+        (!jobs ? '<p class="note mt-1">지금은 처리할 일이 없습니다.</p>' : '') +
       '</div>' +
 
       '<div class="grid grid-4 mb-3">' +
-        stat('오늘 매출', won((s.today || {}).revenue), (s.today || {}).orders + '건') +
-        stat('이번 달 매출', won((s.month || {}).revenue), (s.month || {}).orders + '건') +
-        stat('출시 알림 신청', (s.subscribers || 0) + '명', '세 번째 향 대기자') +
-        stat('전체 주문', S.orders.length + '건', '누적') +
+        stat('오늘 매출', won(t.revenue), '어제 ' + won(y.revenue), pct(t.revenue, y.revenue)) +
+        stat('오늘 주문', (t.orders || 0) + '건', '어제 ' + (y.orders || 0) + '건', pct(t.orders, y.orders)) +
+        stat('이번 달 매출', won(m.revenue), '지난달 ' + won(lm.revenue), pct(m.revenue, lm.revenue)) +
+        stat('출시 알림 대기', (s.subscribers || 0) + '명', '세 번째 향을 기다리는 분') +
+      '</div>' +
+
+      '<div class="panel"><h2>최근 2주 매출</h2>' +
+        (tr.some(function (d) { return d.revenue; })
+          ? spark(tr.map(function (d) { return d.revenue; }),
+                  tr.map(function (d) { return d.date.slice(5) + ' · ' + won(d.revenue); })) +
+            '<div class="chart-x"><span>' + (tr[0] ? tr[0].date.slice(5) : '') + '</span>' +
+              '<span>합계 ' + won(tr.reduce(function (n, d) { return n + d.revenue; }, 0)) + '</span>' +
+              '<span>' + (tr.length ? tr[tr.length - 1].date.slice(5) : '') + '</span></div>'
+          : blank('아직 매출이 없습니다.',
+              '결제를 연결하고 첫 주문이 들어오면 이 자리에 2주치 흐름이 그려집니다.')) +
       '</div>' +
 
       '<div class="grid grid-2">' +
@@ -96,11 +129,11 @@
             ? '<div class="table-wrap"><table><thead><tr><th>주문</th><th>주문자</th><th class="num">금액</th><th>상태</th></tr></thead><tbody>' +
               s.recentOrders.map(function (o) {
                 return '<tr><td>' + esc(o.id) + '<br><span class="muted-xs">' + dstr(o.at) + '</span></td>' +
-                  '<td>' + esc(o.buyer.name) + '</td>' +
-                  '<td class="num">' + won(o.totals.total) + '</td>' +
+                  '<td>' + esc(by(o).name) + '</td>' +
+                  '<td class="num">' + won(((o.totals || {}).total || 0)) + '</td>' +
                   '<td>' + statusTag(o.status) + '</td></tr>';
               }).join('') + '</tbody></table></div>'
-            : '<p class="empty-row">아직 주문이 없습니다.</p>') +
+            : blank('아직 주문이 없습니다.')) +
           '<div class="btn-row"><button class="b ghost" data-go="#orders">주문 전체 보기</button></div>' +
         '</div>' +
 
@@ -111,7 +144,8 @@
                 return '<tr><td>' + esc(x.name) + '</td><td>' + esc(x.option) + '</td>' +
                   '<td class="num"><span class="tag warn">' + x.stock + '</span></td></tr>';
               }).join('') + '</tbody></table></div>'
-            : '<p class="empty-row">재고가 넉넉합니다.</p>') +
+            : blank('재고가 넉넉합니다.')) +
+          '<div class="btn-row"><button class="b ghost" data-go="#products">재고 고치기</button></div>' +
         '</div>' +
       '</div>';
   };
@@ -123,10 +157,41 @@
       '<strong>' + n + '</strong>' +
       '<span class="muted-xs">' + esc(hint) + '</span></button>';
   }
-  function stat(label, val, sub) {
-    return '<div class="stat"><span>' + esc(label) + '</span><strong>' + esc(val) + '</strong>' +
-      (sub ? '<em>' + esc(sub) + '</em>' : '') + '</div>';
+  /* 늘었는지 줄었는지를 한 눈에. 직전 기간이 0 이면 비교하지 않는다. */
+  function trend(pct, invert) {
+    if (pct == null) return '<span class="trend flat">비교 불가</span>';
+    if (!pct) return '<span class="trend flat">변화 없음</span>';
+    var up = pct > 0;
+    var good = invert ? !up : up;
+    return '<span class="trend ' + (good ? 'up' : 'down') + '">' +
+      (up ? '▲' : '▼') + ' ' + Math.abs(pct) + '%</span>';
   }
+
+  /* 작은 막대 그래프. 값의 배열만 주면 된다. */
+  function spark(values, labels) {
+    var max = Math.max.apply(null, values.concat([1]));
+    return '<div class="spark">' + values.map(function (v, i) {
+      return '<div title="' + esc((labels && labels[i]) || '') + '"><i data-h="' +
+        Math.round(v / max * 100) + '"></i></div>';
+    }).join('') + '</div>';
+  }
+
+  /* 아직 데이터가 없을 때, 무엇을 하면 채워지는지까지 알려 준다. */
+  function blank(msg, hint) {
+    return '<div class="blank"><p>' + esc(msg) + '</p>' +
+      (hint ? '<p class="hint">' + hint + '</p>' : '') + '</div>';
+  }
+
+  function stat(label, val, sub, pct, invert) {
+    return '<div class="stat"><span>' + esc(label) + '</span><strong>' + val + '</strong>' +
+      (sub || pct != null
+        ? '<em>' + (pct !== undefined ? trend(pct, invert) + ' ' : '') + esc(sub || '') + '</em>'
+        : '') + '</div>';
+  }
+  /* 주문 한 건에 배송 정보가 비어 있어도 화면 전체가 죽지 않게 한다. */
+  function sh(o) { return (o && o.shipping) || {}; }
+  function by(o) { return (o && o.buyer) || {}; }
+
   function statusTag(s) {
     var cls = s === 'received' ? 'warn' : (s === 'shipped' ? 'on' : (s === 'ready' ? 'soft' : ''));
     return '<span class="tag ' + cls + '">' + esc(ORDER_STATUS[s] || s) + '</span>';
@@ -139,6 +204,11 @@
       counts[k] = S.orders.filter(function (o) { return o.status === k; }).length;
     });
     var list = S.orders.filter(function (o) { return o.status === S.orderTab; });
+    if (S.orderDays) {
+      var since = new Date();
+      since.setDate(since.getDate() - S.orderDays);
+      list = list.filter(function (o) { return new Date(o.at) >= since; });
+    }
 
     return head('주문', '주문 확인 → 발송 준비 → 송장 입력 순으로 처리합니다.',
         '<button class="b ghost" data-act="exportOrders">엑셀로 내보내기</button>') +
@@ -152,6 +222,12 @@
 
       '<div class="filters">' +
         '<input id="orderSearch" placeholder="주문번호 · 이름 · 연락처로 찾기">' +
+        '<div class="range">' +
+          [[0, '전체'], [7, '최근 7일'], [30, '최근 30일']].map(function (o) {
+            return '<button data-act="orderDays" data-a="' + o[0] + '"' +
+              (S.orderDays === o[0] ? ' class="is-on"' : '') + '>' + o[1] + '</button>';
+          }).join('') +
+        '</div>' +
       '</div>' +
 
       '<div id="orderList">' + orderCards(list) + '</div>';
@@ -163,22 +239,22 @@
       var items = (o.lines || []).map(function (l) { return l.name + ' × ' + l.qty; }).join(', ');
       return '<div class="order-card" data-order="' + esc(o.id) + '">' +
         '<div class="order-head" data-act="toggleOrder" data-a="' + esc(o.id) + '">' +
-          '<div><span class="who">' + esc(o.buyer.name) + '</span>' +
+          '<div><span class="who">' + esc(by(o).name) + '</span>' +
             (o.gift ? ' <span class="tag soft">선물</span>' : '') +
             '<div class="sub">' + esc(o.id) + ' · ' + dstr(o.at) + '</div></div>' +
           '<div><div>' + esc(items) + '</div>' +
-            '<div class="sub">' + esc(o.shipping.addr || '') + '</div></div>' +
-          '<div class="order-amt"><strong>' + won(o.totals.total) + '</strong><br>' + statusTag(o.status) + '</div>' +
+            '<div class="sub">' + esc(sh(o).addr || '') + '</div></div>' +
+          '<div class="order-amt"><strong>' + won(((o.totals || {}).total || 0)) + '</strong><br>' + statusTag(o.status) + '</div>' +
         '</div>' +
         '<div class="order-body" hidden>' +
           '<dl class="kv">' +
-            '<dt>연락처</dt><dd><span class="copyable" data-act="copy" data-a="' + esc(o.buyer.phone) + '">' + esc(o.buyer.phone) + '</span></dd>' +
-            '<dt>이메일</dt><dd>' + esc(o.buyer.email) + '</dd>' +
-            '<dt>받는 분</dt><dd>' + esc(o.shipping.receiver || '') + '</dd>' +
+            '<dt>연락처</dt><dd><span class="copyable" data-act="copy" data-a="' + esc(by(o).phone) + '">' + esc(by(o).phone) + '</span></dd>' +
+            '<dt>이메일</dt><dd>' + esc(by(o).email) + '</dd>' +
+            '<dt>받는 분</dt><dd>' + esc(sh(o).receiver || '') + '</dd>' +
             '<dt>주소</dt><dd><span class="copyable" data-act="copy" data-a="' +
-              esc('(' + (o.shipping.zip || '') + ') ' + (o.shipping.addr || '')) + '">(' +
-              esc(o.shipping.zip || '') + ') ' + esc(o.shipping.addr || '') + '</span></dd>' +
-            '<dt>요청사항</dt><dd>' + esc(o.shipping.memo || '—') + '</dd>' +
+              esc('(' + (sh(o).zip || '') + ') ' + (sh(o).addr || '')) + '">(' +
+              esc(sh(o).zip || '') + ') ' + esc(sh(o).addr || '') + '</span></dd>' +
+            '<dt>요청사항</dt><dd>' + esc(sh(o).memo || '—') + '</dd>' +
             (o.gift ? '<dt>선물 메시지</dt><dd>' + esc(o.gift.message || '(없음)') +
               (o.gift.hidePrice ? ' · 가격 미표기 명세서' : '') + '</dd>' : '') +
             '<dt>결제 수단</dt><dd>' + esc(o.pay || '—') + '</dd>' +
@@ -212,9 +288,9 @@
             ready.map(function (o) {
               return '<tr>' +
                 '<td class="nowrap">' + esc(o.id) + '</td>' +
-                '<td class="nowrap">' + esc(o.shipping.receiver || o.buyer.name) + '<br><span class="muted-xs">' + esc(o.buyer.phone) + '</span></td>' +
-                '<td>(' + esc(o.shipping.zip || '') + ') ' + esc(o.shipping.addr || '') +
-                  (o.shipping.memo ? '<br><span class="muted-xs">' + esc(o.shipping.memo) + '</span>' : '') + '</td>' +
+                '<td class="nowrap">' + esc(sh(o).receiver || by(o).name) + '<br><span class="muted-xs">' + esc(by(o).phone) + '</span></td>' +
+                '<td>(' + esc(sh(o).zip || '') + ') ' + esc(sh(o).addr || '') +
+                  (sh(o).memo ? '<br><span class="muted-xs">' + esc(sh(o).memo) + '</span>' : '') + '</td>' +
                 '<td class="nowrap">' + (o.lines || []).map(function (l) { return esc(l.name) + ' × ' + l.qty; }).join('<br>') +
                   (o.gift ? '<br><span class="tag soft">선물포장</span>' : '') + '</td>' +
                 '<td><input class="sel-sm" data-courier="' + esc(o.id) + '" placeholder="CJ대한통운" value="' + esc(o.courier || '') + '"></td>' +
@@ -241,7 +317,7 @@
         (shipped.length
           ? '<div class="table-wrap"><table><thead><tr><th>주문번호</th><th>받는 분</th><th>택배사</th><th>송장번호</th><th>발송일</th></tr></thead><tbody>' +
             shipped.map(function (o) {
-              return '<tr><td>' + esc(o.id) + '</td><td>' + esc(o.shipping.receiver || o.buyer.name) + '</td>' +
+              return '<tr><td>' + esc(o.id) + '</td><td>' + esc(sh(o).receiver || by(o).name) + '</td>' +
                 '<td>' + esc(o.courier || '—') + '</td><td>' + esc(o.invoice || '—') + '</td>' +
                 '<td>' + dstr(o.updatedAt || o.at) + '</td></tr>';
             }).join('') + '</tbody></table></div>'
@@ -426,10 +502,14 @@
     wholesale: '도매 · 입점', etc: '기타'
   };
   views.inquiries = function () {
-    var open = S.inquiries.filter(function (q) { return q.status === 'open'; });
-    var done = S.inquiries.filter(function (q) { return q.status !== 'open'; });
+    /* 공간 제안과 도매는 상담이 길게 이어지므로 영업 화면에서 따로 본다. */
+    var mine = S.inquiries.filter(function (q) { return q.type !== 'b2b' && q.type !== 'wholesale'; });
+    var open = mine.filter(function (q) { return q.status === 'open'; });
+    var done = mine.filter(function (q) { return q.status !== 'open'; });
+    var deals = S.inquiries.length - mine.length;
 
-    return head('문의', '영업일 기준 2일 안에 답장하는 것이 원칙입니다.') +
+    return head('문의', '영업일 기준 2일 안에 답장하는 것이 원칙입니다.',
+        deals ? '<button class="b ghost" data-go="#deals">공간 · 도매 ' + deals + '건 →</button>' : '') +
       '<div class="panel"><h2>답변 대기 ' + open.length + '건</h2>' + inqTable(open, true) + '</div>' +
       '<div class="panel"><h2>처리 완료 ' + done.length + '건</h2>' + inqTable(done.slice(0, 30), false) + '</div>';
   };
@@ -454,148 +534,349 @@
       }).join('') + '</tbody></table></div>';
   }
 
-  /* 7. 고객 ───────────────────────────────────────────── */
-  views.customers = function () {
-    var buyers = {};
-    S.orders.forEach(function (o) {
-      var k = o.buyer.email || o.buyer.phone;
-      buyers[k] = buyers[k] || { name: o.buyer.name, email: o.buyer.email, phone: o.buyer.phone, count: 0, amount: 0, last: o.at };
-      buyers[k].count++;
-      buyers[k].amount += o.totals.total || 0;
-      if (o.at > buyers[k].last) buyers[k].last = o.at;
+  /* 7. 영업 — 공간 제안 · 도매 ────────────────────────
+     문의함에 섞여 있으면 상담이 어디까지 갔는지 알 수 없다.
+     한 건이 계약까지 가는 동안 거치는 칸을 그대로 화면에 둔다. */
+  var DEAL_STAGE = {
+    new: '새 문의', talking: '상담 중', quoted: '견적 보냄', won: '성사', lost: '보류 · 무산'
+  };
+  var DEAL_ORDER = ['new', 'talking', 'quoted', 'won', 'lost'];
+
+  function stageOf(q) { return q.stage || (q.status === 'open' ? 'new' : 'won'); }
+
+  views.deals = function () {
+    var deals = S.inquiries.filter(function (q) { return q.type === 'b2b' || q.type === 'wholesale'; });
+    var counts = {};
+    DEAL_ORDER.forEach(function (k) {
+      counts[k] = deals.filter(function (q) { return stageOf(q) === k; }).length;
     });
-    var keys = Object.keys(buyers).sort(function (a, b) { return buyers[b].amount - buyers[a].amount; });
+    var list = S.dealStage === 'all' ? deals
+      : deals.filter(function (q) { return stageOf(q) === S.dealStage; });
+    list = list.slice().sort(function (x, y) { return (y.at || '').localeCompare(x.at || ''); });
 
-    return head('고객', '구매하신 분과 출시를 기다리는 분을 모아 봅니다.',
-        '<button class="b ghost" data-act="exportSubscribers">알림 신청자 내보내기</button>') +
+    var live = deals.filter(function (q) { return ['new', 'talking', 'quoted'].indexOf(stageOf(q)) >= 0; });
 
-      '<div class="panel"><h2>구매 고객 ' + keys.length + '명</h2>' +
-        (keys.length
-          ? '<div class="table-wrap"><table><thead><tr><th>이름</th><th>연락처</th>' +
-            '<th class="num">주문 수</th><th class="num">누적 구매액</th><th>마지막 주문</th><th></th></tr></thead><tbody>' +
-            keys.map(function (k) {
-              var b = buyers[k];
-              return '<tr><td>' + esc(b.name) + '</td>' +
-                '<td>' + esc(b.email) + '<br><span class="muted-xs">' + esc(b.phone) + '</span></td>' +
-                '<td class="num">' + b.count + '</td><td class="num">' + won(b.amount) + '</td>' +
-                '<td>' + dstr(b.last) + '</td>' +
-                '<td>' + (b.count > 1 ? '<span class="tag on">재구매</span>' : '') + '</td></tr>';
-            }).join('') + '</tbody></table></div>'
-          : '<p class="empty-row">아직 주문이 없습니다.</p>') +
+    return head('영업', '공간 제안과 도매 문의를 계약까지 따라갑니다.',
+        '<button class="b ghost" data-act="exportDeals">명단 내려받기</button>') +
+
+      '<div class="grid grid-4 mb-3">' +
+        stat('진행 중', live.length + '건', '상담이 살아 있는 건') +
+        stat('견적 보냄', counts.quoted + '건', '답을 기다리는 중') +
+        stat('성사', counts.won + '건', '계약까지 간 건') +
+        stat('전체', deals.length + '건', '누적 문의') +
       '</div>' +
 
-      '<div class="panel"><h2>출시 알림 신청 ' + S.subscribers.length + '명</h2>' +
-        '<p class="note mb-1">세 번째 향이 나오면 이분들께 가장 먼저 알리시면 됩니다. 첫 매출이 여기서 나옵니다.</p>' +
+      '<div class="tabs">' +
+        '<button class="' + (S.dealStage === 'all' ? 'is-on' : '') + '" data-act="dealStage" data-a="all">전체 ' + deals.length + '</button>' +
+        DEAL_ORDER.map(function (k) {
+          return '<button class="' + (S.dealStage === k ? 'is-on' : '') + '" data-act="dealStage" data-a="' + k + '">' +
+            DEAL_STAGE[k] + ' ' + counts[k] + '</button>';
+        }).join('') +
+      '</div>' +
+
+      (list.length
+        ? '<div class="deal-list">' + list.map(function (q) {
+            var st = stageOf(q);
+            return '<div class="deal">' +
+              '<div class="deal-top">' +
+                '<div>' +
+                  '<strong>' + esc(q.company || q.name) + '</strong>' +
+                  '<span class="tag soft ml-xs">' + esc(TYPE_LABEL[q.type] || q.type) + '</span>' +
+                  '<div class="sub">' + esc(q.name) + ' · ' + esc(q.phone || '연락처 없음') + ' · ' + dstr(q.at) + '</div>' +
+                '</div>' +
+                '<div class="deal-meta">' +
+                  (q.space ? '<span class="tag">' + esc(q.space) + '</span> ' : '') +
+                  (q.quantity ? '<span class="tag">' + esc(q.quantity) + '</span>' : '') +
+                '</div>' +
+              '</div>' +
+              '<p class="deal-msg">' + esc(q.message).replace(/\n/g, '<br>') + '</p>' +
+              (q.memo ? '<p class="deal-memo">메모 · ' + esc(q.memo) + '</p>' : '') +
+              '<div class="deal-foot">' +
+                '<div class="stage-pick">' +
+                  DEAL_ORDER.map(function (k) {
+                    return '<button class="' + (st === k ? 'is-on' : '') + '" data-act="setStage" ' +
+                      'data-a="' + esc(q.id) + '" data-b="' + k + '">' + DEAL_STAGE[k] + '</button>';
+                  }).join('') +
+                '</div>' +
+                '<div class="btn-row">' +
+                  '<button class="b sm ghost" data-act="dealMemo" data-a="' + esc(q.id) + '">메모</button>' +
+                  '<a class="b sm ghost" href="mailto:' + esc(q.email) + '?subject=' +
+                    encodeURIComponent('[운향재] ' + (q.company || q.name) + '님 문의 답변드립니다') + '">메일 쓰기</a>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('') + '</div>'
+        : blank('해당하는 건이 없습니다.',
+            '공간 페이지의 B2B 문의와 도매 문의가 여기로 모입니다.')) ;
+  };
+
+  /* 8. 고객 ───────────────────────────────────────────
+     이름만 나열하면 쓸 데가 없다. 누구에게 무엇을 보낼지가 보여야 한다. */
+  var SEGMENTS = {
+    all: '전체', vip: 'VIP', repeat: '재구매', once: '한 번 구매', sleep: '휴면'
+  };
+
+  function buyerList() {
+    var buyers = {};
+    S.orders.forEach(function (o) {
+      if (o.status === 'canceled') return;
+      var k = by(o).email || by(o).phone;
+      if (!k) return;
+      buyers[k] = buyers[k] || {
+        name: by(o).name, email: by(o).email, phone: by(o).phone,
+        count: 0, amount: 0, last: o.at
+      };
+      buyers[k].count++;
+      buyers[k].amount += (o.totals && ((o.totals || {}).total || 0)) || 0;
+      if (o.at > buyers[k].last) buyers[k].last = o.at;
+    });
+    var now = Date.now();
+    return Object.keys(buyers).map(function (k) {
+      var x = buyers[k];
+      x.days = Math.floor((now - new Date(x.last)) / 86400000);
+      /* 한 사람이 여러 칸에 들어갈 수 있다. 화면에는 가장 중요한 것 하나만 띄운다. */
+      x.segs = [];
+      if (x.amount >= 500000) x.segs.push('vip');
+      if (x.count > 1) x.segs.push('repeat'); else x.segs.push('once');
+      if (x.days > 180) x.segs.push('sleep');
+      return x;
+    }).sort(function (m, n) { return n.amount - m.amount; });
+  }
+
+  views.customers = function () {
+    var all = buyerList();
+    var counts = { all: all.length };
+    Object.keys(SEGMENTS).forEach(function (k) {
+      if (k === 'all') return;
+      counts[k] = all.filter(function (x) { return x.segs.indexOf(k) >= 0; }).length;
+    });
+    var list = S.custSeg === 'all' ? all
+      : all.filter(function (x) { return x.segs.indexOf(S.custSeg) >= 0; });
+
+    var totalAmount = all.reduce(function (n, x) { return n + x.amount; }, 0);
+    var avg = all.length ? Math.round(totalAmount / all.length) : 0;
+
+    return head('고객', '누구에게 무엇을 보낼지 정하는 화면입니다.',
+        '<button class="b ghost" data-act="copyEmails">보이는 이메일 모두 복사</button>' +
+        '<button class="b ghost" data-act="exportCustomers">명단 내려받기</button>') +
+
+      '<div class="grid grid-4 mb-3">' +
+        stat('구매 고객', all.length + '명', '취소 건 제외') +
+        stat('1인 평균 구매액', won(avg), '누적 ' + won(totalAmount)) +
+        stat('재구매 고객', (counts.repeat || 0) + '명',
+          all.length ? Math.round((counts.repeat || 0) / all.length * 100) + '%' : '—') +
+        stat('출시 알림 대기', S.subscribers.length + '명', '아직 사지 않은 분') +
+      '</div>' +
+
+      '<div class="tabs">' +
+        Object.keys(SEGMENTS).map(function (k) {
+          return '<button class="' + (S.custSeg === k ? 'is-on' : '') + '" data-act="custSeg" data-a="' + k + '">' +
+            SEGMENTS[k] + ' ' + (counts[k] || 0) + '</button>';
+        }).join('') +
+      '</div>' +
+      '<p class="note mb-1">' + esc(SEG_HINT[S.custSeg] || '') + '</p>' +
+
+      '<div class="filters"><input id="custSearch" placeholder="이름 · 이메일 · 연락처로 찾기"></div>' +
+
+      '<div id="custList">' + custTable(list) + '</div>' +
+
+      '<div class="panel mt-3"><h2>출시 알림 신청 ' + S.subscribers.length + '명</h2>' +
+        '<p class="note mb-1">아직 사지 않았지만 기다리고 있는 분들입니다. ' +
+          '세 번째 향이 나오면 여기가 첫 매출입니다.</p>' +
         (S.subscribers.length
-          ? '<div class="table-wrap"><table><thead><tr><th>이메일</th><th>신청일</th></tr></thead><tbody>' +
-            S.subscribers.map(function (s) {
-              return '<tr><td>' + esc(s.email) + '</td><td>' + dstr(s.at) + '</td></tr>';
+          ? '<div class="btn-row mb-1">' +
+              '<button class="b ghost" data-act="copySubs">이메일 모두 복사</button>' +
+              '<button class="b ghost" data-act="exportSubscribers">내려받기</button>' +
+            '</div>' +
+            '<div class="table-wrap"><table><thead><tr><th>이메일</th><th>신청일</th></tr></thead><tbody>' +
+            S.subscribers.map(function (x) {
+              return '<tr><td>' + esc(x.email) + '</td><td>' + dstr(x.at) + '</td></tr>';
             }).join('') + '</tbody></table></div>'
-          : '<p class="empty-row">아직 신청자가 없습니다.</p>') +
+          : blank('아직 신청자가 없습니다.',
+              'SHOP 의 세 번째 향 카드에서 신청을 받습니다.')) +
       '</div>';
   };
 
-  /* 8. 분석 ───────────────────────────────────────────── */
+  var SEG_HINT = {
+    all: '구매하신 모든 분입니다.',
+    vip: '누적 50만원 이상 사신 분들. 새 장이 열릴 때 가장 먼저 알려야 할 분들입니다.',
+    repeat: '두 번 이상 사신 분들. 이 비율이 브랜드가 살아 있는지를 말해 줍니다.',
+    once: '한 번만 사신 분들. 두 번째 구매로 넘어가게 하는 것이 다음 과제입니다.',
+    sleep: '마지막 구매가 6개월을 넘긴 분들. 안부와 함께 새 소식을 보내 보세요.'
+  };
+
+  function custTable(list) {
+    if (!list.length) return blank('해당하는 고객이 없습니다.');
+    return '<div class="table-wrap"><table><thead><tr><th>이름</th><th>연락처</th>' +
+      '<th class="num">주문</th><th class="num">누적 구매액</th><th>마지막 주문</th><th>구분</th></tr></thead><tbody>' +
+      list.map(function (x) {
+        var tags = x.segs.filter(function (k) { return k !== 'once'; })
+          .map(function (k) {
+            return '<span class="tag ' + (k === 'vip' ? 'on' : (k === 'sleep' ? 'warn' : 'soft')) + '">' +
+              SEGMENTS[k] + '</span>';
+          }).join(' ');
+        return '<tr><td>' + esc(x.name) + '</td>' +
+          '<td><span class="copyable" data-act="copy" data-a="' + esc(x.email) + '">' + esc(x.email) + '</span>' +
+            '<br><span class="muted-xs">' + esc(x.phone) + '</span></td>' +
+          '<td class="num">' + x.count + '</td><td class="num">' + won(x.amount) + '</td>' +
+          '<td>' + dstr(x.last) + '<br><span class="muted-xs">' + x.days + '일 전</span></td>' +
+          '<td>' + tags + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  /* 9. 분석 ───────────────────────────────────────────
+     모든 숫자에 직전 같은 기간을 붙인다. 30일을 보고 있으면 그 앞 30일이
+     비교 대상이다. "늘었다 / 줄었다"가 없으면 숫자는 판단에 쓰이지 못한다. */
   views.analytics = function () {
     var a = S.analytics;
     if (!a) return head('분석', '불러오는 중…') + '<p class="empty-row">잠시만 기다려 주세요.</p>';
 
-    var t = a.totals;
-    var maxDaily = Math.max.apply(null, a.daily.map(function (d) { return d.sessions; }).concat([1]));
+    var t = a.totals, d = a.delta || {}, pv = a.prev || {};
+    var maxSess = Math.max.apply(null, a.daily.map(function (x) { return x.sessions; }).concat([1]));
+    var maxRev = Math.max.apply(null, a.daily.map(function (x) { return x.revenue; }).concat([1]));
     var maxHour = Math.max.apply(null, a.hours.map(function (h) { return h.count; }).concat([1]));
+    var hasRevenue = a.daily.some(function (x) { return x.revenue; });
 
-    return head('분석', '마케팅 판단에 쓰는 숫자만 모았습니다.',
+    return head('분석', a.range.from + ' ~ ' + a.range.to +
+        ' · 직전 같은 기간(' + a.prevRange.from + ' ~ ' + a.prevRange.to + ')과 견줍니다.',
         '<div class="range">' +
-          [7, 30, 90].map(function (d) {
-            return '<button data-act="setDays" data-a="' + d + '"' +
-              (S.analyticsDays === d ? ' class="is-on"' : '') + '>' + d + '일</button>';
+          [7, 30, 90].map(function (n) {
+            return '<button data-act="setDays" data-a="' + n + '"' +
+              (S.analyticsDays === n ? ' class="is-on"' : '') + '>' + n + '일</button>';
           }).join('') +
-        '</div>') +
+        '</div>' +
+        '<button class="b ghost" data-act="exportAnalytics">숫자 내려받기</button>') +
 
       '<div class="grid grid-4 mb-3">' +
-        stat('방문자', t.sessions.toLocaleString('ko-KR') + '명', a.range.from + ' ~ ' + a.range.to) +
-        stat('페이지 조회', t.pageViews.toLocaleString('ko-KR') + '회', '') +
-        stat('주문', t.orders + '건', won(t.revenue)) +
-        stat('구매 전환율', t.conversion + '%', '방문자 대비 주문') +
+        stat('매출', won(t.revenue), '직전 ' + won(pv.revenue), d.revenue) +
+        stat('주문', t.orders + '건', '직전 ' + (pv.orders || 0) + '건', d.orders) +
+        stat('객단가', won(t.aov), '주문 한 건당', d.aov) +
+        stat('방문자', t.sessions.toLocaleString('ko-KR') + '명', '직전 ' + (pv.sessions || 0) + '명', d.sessions) +
       '</div>' +
 
-      '<div class="panel"><h2>날짜별 방문자</h2>' +
-        '<div class="chart">' + a.daily.map(function (d) {
-          return '<div title="' + d.date + ' · ' + d.sessions + '명"><i data-h="' +
-            Math.round(d.sessions / maxDaily * 100) + '"></i></div>';
-        }).join('') + '</div>' +
-        '<div class="chart-x"><span>' + a.daily[0].date.slice(5) + '</span>' +
-          '<span>' + a.daily[a.daily.length - 1].date.slice(5) + '</span></div>' +
+      '<div class="grid grid-2 mb-3">' +
+        '<div class="panel"><h2>날짜별 매출</h2>' +
+          (hasRevenue
+            ? '<div class="chart">' + a.daily.map(function (x) {
+                return '<div title="' + x.date + ' · ' + won(x.revenue) + ' · ' + x.orders + '건">' +
+                  '<i data-h="' + Math.round(x.revenue / maxRev * 100) + '"></i></div>';
+              }).join('') + '</div>' +
+              '<div class="chart-x"><span>' + a.daily[0].date.slice(5) + '</span>' +
+                '<span>가장 많은 날 ' + won(maxRev) + '</span>' +
+                '<span>' + a.daily[a.daily.length - 1].date.slice(5) + '</span></div>'
+            : blank('아직 매출이 없습니다.', '결제를 연결하면 여기부터 채워집니다.')) +
+        '</div>' +
+
+        '<div class="panel"><h2>날짜별 방문자</h2>' +
+          '<div class="chart alt">' + a.daily.map(function (x) {
+            return '<div title="' + x.date + ' · ' + x.sessions + '명">' +
+              '<i data-h="' + Math.round(x.sessions / maxSess * 100) + '"></i></div>';
+          }).join('') + '</div>' +
+          '<div class="chart-x"><span>' + a.daily[0].date.slice(5) + '</span>' +
+            '<span>구매 전환 ' + t.conversion + '%</span>' +
+            '<span>' + a.daily[a.daily.length - 1].date.slice(5) + '</span></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="panel"><h2>어디서 들어와서 얼마를 사 갔나</h2>' +
+        '<p class="note mb-1">방문 수가 많은 경로가 아니라 <strong>실제로 사 가는 경로</strong>에 돈을 쓰세요. ' +
+          '전환율이 높은데 방문이 적은 경로가 가장 키울 만한 곳입니다.</p>' +
+        (a.sources.length
+          ? '<div class="table-wrap"><table><thead><tr><th>유입 경로</th><th class="num">방문</th>' +
+            '<th class="num">주문</th><th class="num">구매 전환</th><th class="num">매출</th><th>비중</th>' +
+            '</tr></thead><tbody>' +
+            a.sources.map(function (x) {
+              var share = t.sessions ? Math.round(x.sessions / t.sessions * 100) : 0;
+              return '<tr><td>' + esc(x.name) + '</td>' +
+                '<td class="num">' + x.sessions + '</td>' +
+                '<td class="num">' + x.orders + '</td>' +
+                '<td class="num">' + (x.conversion ? '<strong>' + x.conversion + '%</strong>' : '—') + '</td>' +
+                '<td class="num">' + (x.revenue ? won(x.revenue) : '—') + '</td>' +
+                '<td><span class="bar sm"><i data-w="' + share + '"></i></span></td></tr>';
+            }).join('') + '</tbody></table></div>'
+          : blank('아직 유입 데이터가 없습니다.',
+              '인스타그램 프로필이나 스마트스토어에 링크를 걸면 경로별로 잡히기 시작합니다.')) +
       '</div>' +
 
       '<div class="grid grid-2">' +
         '<div class="panel"><h2>구매까지 가는 길</h2>' +
-          '<p class="note mb-1">어느 단계에서 가장 많이 빠지는지 보세요. 그 화면부터 고치면 됩니다.</p>' +
-          '<div class="funnel">' + a.funnel.map(function (s) {
-            return '<div class="funnel-row"><span>' + esc(s.label) + '</span>' +
-              '<span class="funnel-bar"><i data-w="' + s.rate + '"></i></span>' +
-              '<span class="n">' + s.sessions + '명 · ' + s.rate + '%</span></div>';
+          '<p class="note mb-1">가장 많이 빠지는 칸이 지금 고쳐야 할 화면입니다.</p>' +
+          '<div class="funnel">' + a.funnel.map(function (x, i) {
+            var prevStep = i ? a.funnel[i - 1].sessions : 0;
+            var drop = i && prevStep ? Math.round((1 - x.sessions / prevStep) * 100) : 0;
+            return '<div class="funnel-row"><span>' + esc(x.label) + '</span>' +
+              '<span class="funnel-bar"><i data-w="' + x.rate + '"></i></span>' +
+              '<span class="n">' + x.sessions + '명' +
+                (i && drop > 0 ? ' <em class="drop">−' + drop + '%</em>' : '') + '</span></div>';
           }).join('') + '</div>' +
         '</div>' +
 
-        '<div class="panel"><h2>어디서 들어오나</h2>' +
-          (a.sources.length
-            ? a.sources.map(function (s) {
-                var pct = Math.round(s.count / a.sources[0].count * 100);
-                return '<div class="meter"><span>' + esc(s.name) + '</span>' +
-                  '<span class="bar"><i data-w="' + pct + '"></i></span>' +
-                  '<span class="v">' + s.count + '</span></div>';
-              }).join('')
-            : '<p class="empty-row">아직 데이터가 없습니다.</p>') +
+        '<div class="panel"><h2>처음 사는 분과 다시 오는 분</h2>' +
+          '<p class="note mb-1">다시 오는 비율이 오르면 향과 경험이 맞았다는 뜻입니다. 광고보다 먼저 봐야 할 숫자입니다.</p>' +
+          (t.orders
+            ? '<div class="split-bar">' +
+                '<span class="a" data-w="' + Math.round(a.buyers.first / t.orders * 100) + '">첫 구매 ' + a.buyers.first + '</span>' +
+                '<span class="b2" data-w="' + Math.round(a.buyers.repeat / t.orders * 100) + '">재구매 ' + a.buyers.repeat + '</span>' +
+              '</div>' +
+              '<p class="big-num">' + a.buyers.repeatRate + '<span>% 재구매</span></p>'
+            : blank('아직 주문이 없습니다.')) +
           '<h3 class="mt-2">기기</h3>' +
-          a.devices.map(function (d) {
-            var total = a.devices.reduce(function (n, x) { return n + x.count; }, 0) || 1;
-            return '<div class="meter"><span>' + esc(d.name) + '</span>' +
-              '<span class="bar"><i data-w="' + Math.round(d.count / total * 100) + '"></i></span>' +
-              '<span class="v">' + Math.round(d.count / total * 100) + '%</span></div>';
+          a.devices.map(function (x) {
+            var total = a.devices.reduce(function (n, y) { return n + y.count; }, 0) || 1;
+            return '<div class="meter"><span>' + esc(x.name) + '</span>' +
+              '<span class="bar"><i data-w="' + Math.round(x.count / total * 100) + '"></i></span>' +
+              '<span class="v">' + Math.round(x.count / total * 100) + '%</span></div>';
           }).join('') +
         '</div>' +
       '</div>' +
 
       '<div class="panel"><h2>상품별 성과</h2>' +
-        '<p class="note mb-1">안 팔리는 상품이 아니라 <strong>많이 봤는데 안 사는 상품</strong>을 찾으세요. 사진이나 설명을 고쳐야 한다는 뜻입니다.</p>' +
+        '<p class="note mb-1">안 팔리는 상품이 아니라 <strong>많이 봤는데 안 사는 상품</strong>을 찾으세요. ' +
+          '사진이나 설명을 고쳐야 한다는 뜻입니다.</p>' +
         (a.products.length
           ? '<div class="table-wrap"><table><thead><tr><th>상품</th><th class="num">조회</th>' +
             '<th class="num">담기</th><th class="num">구매</th><th class="num">담기 전환</th>' +
-            '<th class="num">구매 전환</th><th class="num">매출</th></tr></thead><tbody>' +
-            a.products.map(function (p) {
+            '<th class="num">구매 전환</th><th class="num">매출</th><th>진단</th></tr></thead><tbody>' +
+            a.products.map(function (x) {
               var prod = (S.catalog.products || []).concat(S.catalog.sets || [])
-                .filter(function (x) { return x.slug === p.slug; })[0];
-              return '<tr><td>' + esc(prod ? prod.nameKo : p.slug) + '</td>' +
-                '<td class="num">' + p.views + '</td><td class="num">' + p.carts + '</td>' +
-                '<td class="num">' + p.purchased + '</td>' +
-                '<td class="num">' + p.cartRate + '%</td>' +
-                '<td class="num">' + p.buyRate + '%</td>' +
-                '<td class="num">' + won(p.revenue) + '</td></tr>';
+                .filter(function (y) { return y.slug === x.slug; })[0];
+              var hint = '';
+              if (x.views >= 20 && x.buyRate < 1) hint = '<span class="tag warn">상세를 고쳐 보세요</span>';
+              else if (x.cartRate >= 10 && x.buyRate < x.cartRate / 3) hint = '<span class="tag warn">주문서에서 빠집니다</span>';
+              else if (x.buyRate >= 3) hint = '<span class="tag on">잘 팔립니다</span>';
+              return '<tr><td>' + esc(prod ? prod.nameKo : x.slug) + '</td>' +
+                '<td class="num">' + x.views + '</td><td class="num">' + x.carts + '</td>' +
+                '<td class="num">' + x.purchased + '</td>' +
+                '<td class="num">' + x.cartRate + '%</td>' +
+                '<td class="num">' + x.buyRate + '%</td>' +
+                '<td class="num">' + won(x.revenue) + '</td>' +
+                '<td>' + hint + '</td></tr>';
             }).join('') + '</tbody></table></div>'
-          : '<p class="empty-row">아직 데이터가 없습니다.</p>') +
+          : blank('아직 상품 조회 데이터가 없습니다.')) +
       '</div>' +
 
       '<div class="grid grid-2">' +
         '<div class="panel"><h2>어느 화면을 보나</h2>' +
           (a.pages.length
             ? '<div class="table-wrap"><table><thead><tr><th>화면</th><th class="num">조회</th><th class="num">머문 시간</th></tr></thead><tbody>' +
-              a.pages.map(function (p) {
-                return '<tr><td>' + esc(p.path) + '</td><td class="num">' + p.views + '</td>' +
-                  '<td class="num">' + (p.avgDwell ? p.avgDwell + '초' : '—') + '</td></tr>';
+              a.pages.map(function (x) {
+                return '<tr><td>' + esc(x.path) + '</td><td class="num">' + x.views + '</td>' +
+                  '<td class="num">' + (x.avgDwell ? x.avgDwell + '초' : '—') + '</td></tr>';
               }).join('') + '</tbody></table></div>'
-            : '<p class="empty-row">아직 데이터가 없습니다.</p>') +
+            : blank('아직 데이터가 없습니다.')) +
         '</div>' +
 
         '<div class="panel"><h2>얼마나 읽고 가나</h2>' +
-          '<p class="note mb-1">아래로 끝까지 내려간 비율입니다. 이야기를 끝까지 읽었다는 뜻이라 이 브랜드에서는 매출보다 먼저 보는 숫자입니다.</p>' +
-          a.scroll.map(function (s) {
-            return '<div class="meter"><span>' + s.depth + '%</span>' +
-              '<span class="bar"><i data-w="' + s.rate + '"></i></span>' +
-              '<span class="v">' + s.rate + '%</span></div>';
+          '<p class="note mb-1">아래로 끝까지 내려간 비율입니다. 이야기를 끝까지 읽었다는 뜻이라 ' +
+            '이 브랜드에서는 매출보다 먼저 보는 숫자입니다.</p>' +
+          a.scroll.map(function (x) {
+            return '<div class="meter"><span>' + x.depth + '%</span>' +
+              '<span class="bar"><i data-w="' + x.rate + '"></i></span>' +
+              '<span class="v">' + x.rate + '%</span></div>';
           }).join('') +
           '<h3 class="mt-2">시간대별 방문</h3>' +
-          '<div class="chart">' + a.hours.map(function (h) {
+          '<p class="note mb-1">가장 높은 시간대에 글을 올리시면 됩니다.</p>' +
+          '<div class="chart short">' + a.hours.map(function (h) {
             return '<div title="' + h.hour + '시 · ' + h.count + '"><i data-h="' +
               Math.round(h.count / maxHour * 100) + '"></i></div>';
           }).join('') + '</div>' +
@@ -604,7 +885,7 @@
       '</div>';
   };
 
-  /* 9. 설정 ───────────────────────────────────────────── */
+  /* 10. 설정 ───────────────────────────────────────────── */
   views.settings = function () {
     var b = S.catalog.brand || {};
     return head('설정', '사업자 정보와 연락처를 관리합니다.') +
@@ -666,7 +947,17 @@
     var hash = (location.hash || '#dashboard').slice(1);
     if (!views[hash]) hash = 'dashboard';
     var view = el('view');
-    view.innerHTML = views[hash]();
+    /* 자료 한 건이 이상해도 화면 전체가 하얗게 되지 않도록 감싼다.
+       비개발자가 혼자 쓰는 화면이라, 멈추더라도 무엇이 문제인지는 보여야 한다. */
+    try {
+      view.innerHTML = views[hash]();
+    } catch (err) {
+      view.innerHTML =
+        '<div class="page-head"><h1>이 화면을 그리지 못했습니다</h1></div>' +
+        '<div class="note warn">자료 한 건이 예상과 달라 화면을 만들지 못했습니다.<br>' +
+        '다른 메뉴는 정상입니다. 아래 내용을 개발자에게 그대로 전해 주세요.<br><br>' +
+        '<code>' + esc(hash + ' · ' + (err && err.message)) + '</code></div>';
+    }
     document.querySelectorAll('#nav a').forEach(function (a) {
       a.classList.toggle('is-on', a.getAttribute('href') === '#' + hash);
     });
@@ -679,10 +970,12 @@
   function paintBadges() {
     var p = (S.summary && S.summary.pending) || {};
     var pairs = [
-      ['nav-todo', (p.newOrders || 0) + (p.toShip || 0) + (p.openInquiries || 0) + (p.lowStock || 0)],
+      ['nav-todo', (p.newOrders || 0) + (p.toShip || 0) + (p.openInquiries || 0) +
+        (p.openDeals || 0) + (p.lowStock || 0)],
       ['nav-orders', p.newOrders || 0],
       ['nav-ship', p.toShip || 0],
-      ['nav-ask', p.openInquiries || 0]
+      ['nav-ask', p.openInquiries || 0],
+      ['nav-deal', p.openDeals || 0]
     ];
     pairs.forEach(function (x) {
       var n = el(x[0]);
@@ -709,6 +1002,23 @@
         });
       });
     }
+    if (hash === 'customers') {
+      var cs = el('custSearch');
+      if (cs) {
+        cs.addEventListener('input', function () {
+          var q = cs.value.trim().toLowerCase();
+          var all = buyerList();
+          var list = S.custSeg === 'all' ? all
+            : all.filter(function (x) { return x.segs.indexOf(S.custSeg) >= 0; });
+          if (q) {
+            list = list.filter(function (x) {
+              return ((x.name || '') + ' ' + (x.email || '') + ' ' + (x.phone || '')).toLowerCase().indexOf(q) >= 0;
+            });
+          }
+          el('custList').innerHTML = custTable(list);
+        });
+      }
+    }
     if (hash === 'photos') setupDrop();
     if (hash === 'orders') {
       var search = el('orderSearch');
@@ -718,7 +1028,7 @@
           var list = S.orders.filter(function (o) { return o.status === S.orderTab; });
           if (q) {
             list = list.filter(function (o) {
-              return (o.id + ' ' + o.buyer.name + ' ' + o.buyer.phone).toLowerCase().indexOf(q) >= 0;
+              return (o.id + ' ' + by(o).name + ' ' + by(o).phone).toLowerCase().indexOf(q) >= 0;
             });
           }
           el('orderList').innerHTML = orderCards(list);
@@ -795,9 +1105,106 @@
     }).join('\r\n'), 'text/csv');
   }
 
+  /* 복사는 https 에서만 되는 API 라 안 되는 환경을 위한 대비를 둔다. */
+  function copyText(text, msg) {
+    if (!text) { toast('복사할 것이 없습니다.', true); return; }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.className = 'offscreen';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); toast(msg); }
+      catch (e) { toast('복사하지 못했습니다. 직접 선택해 주세요.', true); }
+      ta.remove();
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { toast(msg); }, fallback);
+    } else fallback();
+  }
+
   /* ── 동작 ─────────────────────────────────────────── */
   var actions = {
     orderTab: function (k) { S.orderTab = k; render(); },
+    orderDays: function (n) { S.orderDays = Number(n); render(); },
+    custSeg: function (k) { S.custSeg = k; render(); },
+    dealStage: function (k) { S.dealStage = k; render(); },
+
+    /* 영업 단계를 옮긴다. 성사·보류로 가면 문의함에서도 처리 완료로 본다. */
+    setStage: function (id, stage) {
+      var done = stage === 'won' || stage === 'lost';
+      api('/inquiries/' + id, { method: 'PATCH', body: { stage: stage, status: done ? 'done' : 'open' } })
+        .then(function () { return refreshInquiries(); })
+        .then(function () { return refreshSummary(); })
+        .then(function () { toast('단계를 옮겼습니다.'); render(); })
+        .catch(function (e) { toast(e.message, true); });
+    },
+
+    dealMemo: function (id) {
+      var q = S.inquiries.filter(function (x) { return x.id === id; })[0] || {};
+      var memo = prompt('상담 메모 (통화 내용, 다음에 할 일)', q.memo || '');
+      if (memo === null) return;
+      api('/inquiries/' + id, { method: 'PATCH', body: { memo: memo } })
+        .then(function () { return refreshInquiries(); })
+        .then(function () { toast('메모를 남겼습니다.'); render(); })
+        .catch(function (e) { toast(e.message, true); });
+    },
+
+    /* 뉴스레터를 보내려면 결국 이메일 목록이 필요하다. 화면에 보이는 것만 담는다. */
+    copyEmails: function () {
+      var mails = [];
+      document.querySelectorAll('#custList .copyable').forEach(function (n) {
+        var v = n.getAttribute('data-a');
+        if (v && mails.indexOf(v) < 0) mails.push(v);
+      });
+      copyText(mails.join(', '), mails.length + '명의 이메일을 복사했습니다.');
+    },
+    copySubs: function () {
+      var mails = S.subscribers.map(function (x) { return x.email; });
+      copyText(mails.join(', '), mails.length + '명의 이메일을 복사했습니다.');
+    },
+
+    exportCustomers: function () {
+      var rows = [['이름', '이메일', '연락처', '주문 수', '누적 구매액', '마지막 주문', '구분']];
+      buyerList().forEach(function (x) {
+        rows.push([x.name, x.email, x.phone, x.count, x.amount, (x.last || '').slice(0, 10),
+          x.segs.map(function (k) { return SEGMENTS[k]; }).join(' ')]);
+      });
+      csv('운향재_고객_' + today() + '.csv', rows);
+    },
+
+    exportDeals: function () {
+      var rows = [['받은 날', '유형', '회사 · 공간', '담당자', '연락처', '이메일', '공간 유형', '예상 수량', '단계', '메모', '내용']];
+      S.inquiries.filter(function (q) { return q.type === 'b2b' || q.type === 'wholesale'; })
+        .forEach(function (q) {
+          rows.push([(q.at || '').slice(0, 10), TYPE_LABEL[q.type] || q.type, q.company || '',
+            q.name, q.phone || '', q.email, q.space || '', q.quantity || '',
+            DEAL_STAGE[stageOf(q)], q.memo || '', q.message]);
+        });
+      csv('운향재_영업_' + today() + '.csv', rows);
+    },
+
+    exportAnalytics: function () {
+      var a = S.analytics;
+      if (!a) { toast('아직 불러오지 못했습니다.', true); return; }
+      var rows = [['구간', a.range.from + ' ~ ' + a.range.to, '직전', a.prevRange.from + ' ~ ' + a.prevRange.to]];
+      rows.push([]);
+      rows.push(['항목', '이번 구간', '직전 구간', '증감(%)']);
+      rows.push(['매출', a.totals.revenue, a.prev.revenue, a.delta.revenue]);
+      rows.push(['주문', a.totals.orders, a.prev.orders, a.delta.orders]);
+      rows.push(['객단가', a.totals.aov, a.prev.aov, a.delta.aov]);
+      rows.push(['방문자', a.totals.sessions, a.prev.sessions, a.delta.sessions]);
+      rows.push(['구매 전환율(%)', a.totals.conversion, a.prev.conversion, a.delta.conversion]);
+      rows.push([]);
+      rows.push(['날짜', '방문자', '주문', '매출']);
+      a.daily.forEach(function (d) { rows.push([d.date, d.sessions, d.orders, d.revenue]); });
+      rows.push([]);
+      rows.push(['유입 경로', '방문', '주문', '구매 전환(%)', '매출']);
+      a.sources.forEach(function (x) { rows.push([x.name, x.sessions, x.orders, x.conversion, x.revenue]); });
+      csv('운향재_분석_' + today() + '.csv', rows);
+    },
+
 
     toggleOrder: function (id) {
       var card = document.querySelector('[data-order="' + id + '"] .order-body');
@@ -846,8 +1253,8 @@
       var rows = [['주문번호', '받는분', '연락처', '우편번호', '주소', '상품', '수량', '배송메시지', '선물포장']];
       ready.forEach(function (o) {
         (o.lines || []).forEach(function (l) {
-          rows.push([o.id, o.shipping.receiver || o.buyer.name, o.buyer.phone,
-            o.shipping.zip, o.shipping.addr, l.name, l.qty, o.shipping.memo,
+          rows.push([o.id, sh(o).receiver || by(o).name, by(o).phone,
+            sh(o).zip, sh(o).addr, l.name, l.qty, sh(o).memo,
             o.gift ? 'O' : '']);
         });
       });
@@ -861,8 +1268,8 @@
       S.orders.forEach(function (o) {
         (o.lines || []).forEach(function (l) {
           rows.push([o.id, o.at, ORDER_STATUS[o.status] || o.status,
-            o.buyer.name, o.buyer.phone, o.buyer.email,
-            o.shipping.receiver, o.shipping.zip, o.shipping.addr, o.shipping.memo,
+            by(o).name, by(o).phone, by(o).email,
+            sh(o).receiver, sh(o).zip, sh(o).addr, sh(o).memo,
             l.name, l.qty, l.amount, o.pay, o.courier, o.invoice,
             o.gift ? o.gift.message : '']);
         });

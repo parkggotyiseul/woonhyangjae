@@ -161,24 +161,52 @@ app.get('/api/admin/summary', (req, res) => {
     }
   }
 
+  /* 취소·환불 건은 매출에서 뺀다 */
+  const live = orders.filter((o) => o.status !== 'canceled');
+  const sum = (list) => list.reduce((a, o) => a + ((o.totals && o.totals.total) || 0), 0);
+  const onDay = (d) => live.filter((o) => (o.at || '').slice(0, 10) === d);
+  const onMonth = (m) => live.filter((o) => (o.at || '').slice(0, 7) === m);
+
+  const shift = (n) => {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    return d.toISOString().slice(0, 10);
+  };
+  const prevMonth = (() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    return d.toISOString().slice(0, 7);
+  })();
+
+  /* 최근 14일 매출 — 대시보드의 작은 막대 그래프에 쓴다 */
+  const trend = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = shift(i);
+    const list = onDay(d);
+    trend.push({ date: d, revenue: sum(list), orders: list.length });
+  }
+
+  /* 영업 파이프라인 — 공간 제안과 도매 문의만 따로 센다 */
+  const deals = inquiries.filter((q) => q.type === 'b2b' || q.type === 'wholesale');
+  const stageOf = (q) => q.stage || (q.status === 'open' ? 'new' : 'closed');
+  const dealStages = {};
+  for (const q of deals) dealStages[stageOf(q)] = (dealStages[stageOf(q)] || 0) + 1;
+
   res.json({
     pending: {
       newOrders: orders.filter((o) => o.status === 'received').length,
       toShip: orders.filter((o) => o.status === 'ready').length,
       openInquiries: inquiries.filter((q) => q.status === 'open').length,
+      openDeals: deals.filter((q) => stageOf(q) !== 'closed' && stageOf(q) !== 'won').length,
       lowStock: lowStock.length
     },
     lowStock,
-    today: {
-      revenue: orders.filter((o) => o.at.slice(0, 10) === today)
-        .reduce((a, o) => a + (o.totals.total || 0), 0),
-      orders: orders.filter((o) => o.at.slice(0, 10) === today).length
-    },
-    month: {
-      revenue: orders.filter((o) => o.at.slice(0, 7) === month)
-        .reduce((a, o) => a + (o.totals.total || 0), 0),
-      orders: orders.filter((o) => o.at.slice(0, 7) === month).length
-    },
+    today: { revenue: sum(onDay(today)), orders: onDay(today).length },
+    yesterday: { revenue: sum(onDay(shift(1))), orders: onDay(shift(1)).length },
+    month: { revenue: sum(onMonth(month)), orders: onMonth(month).length },
+    lastMonth: { revenue: sum(onMonth(prevMonth)), orders: onMonth(prevMonth).length },
+    trend,
+    deals: { total: deals.length, stages: dealStages },
     subscribers: store.getSubscribers().length,
     recentOrders: orders.slice(0, 5)
   });
@@ -221,8 +249,15 @@ app.post('/api/admin/orders/invoices', (req, res) => {
 });
 
 app.get('/api/admin/inquiries', (req, res) => res.json(store.getInquiries()));
+/* status 는 답장했는지 여부, stage 는 영업이 어디까지 갔는지다.
+   memo 는 통화 내용처럼 다음에 볼 때 필요한 한 줄을 남기는 자리다. */
 app.patch('/api/admin/inquiries/:id', (req, res) => {
-  const q = store.updateInquiry(req.params.id, { status: String((req.body || {}).status || 'open') });
+  const b = req.body || {};
+  const patch = {};
+  if ('status' in b) patch.status = String(b.status || 'open');
+  if ('stage' in b) patch.stage = String(b.stage || 'new').slice(0, 20);
+  if ('memo' in b) patch.memo = String(b.memo || '').slice(0, 2000);
+  const q = store.updateInquiry(req.params.id, patch);
   if (!q) return res.status(404).json({ ok: false });
   res.json({ ok: true, inquiry: q });
 });
