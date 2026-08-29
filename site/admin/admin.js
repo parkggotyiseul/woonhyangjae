@@ -57,7 +57,7 @@
 
   /* ── 상태 ─────────────────────────────────────────── */
   var S = {
-    catalog: null, orders: [], inquiries: [], subscribers: [],
+    catalog: null, orders: [], inquiries: [], subscribers: [], users: [], resets: [],
     uploads: [], summary: null, analytics: null,
     orderTab: 'received', analyticsDays: 30, pickTarget: null,
     orderDays: 0,          // 0 = 전체 기간
@@ -613,8 +613,17 @@
   /* 8. 고객 ───────────────────────────────────────────
      이름만 나열하면 쓸 데가 없다. 누구에게 무엇을 보낼지가 보여야 한다. */
   var SEGMENTS = {
-    all: '전체', vip: 'VIP', repeat: '재구매', once: '한 번 구매', sleep: '휴면'
+    all: '전체', vip: 'VIP', repeat: '재구매', once: '한 번 구매', sleep: '휴면',
+    member: '회원', guest: '비회원'
   };
+
+  /* 이 이메일이 회원인가. 주문에는 회원 번호가 남지만 옛 주문에는 없어서
+     이메일로도 한 번 더 본다. */
+  function memberOf(email) {
+    if (!email) return null;
+    var e = String(email).toLowerCase();
+    return S.users.filter(function (u) { return u.email === e; })[0] || null;
+  }
 
   function buyerList() {
     var buyers = {};
@@ -639,6 +648,10 @@
       if (x.amount >= 500000) x.segs.push('vip');
       if (x.count > 1) x.segs.push('repeat'); else x.segs.push('once');
       if (x.days > 180) x.segs.push('sleep');
+      var m = memberOf(x.email);
+      x.member = !!m;
+      x.marketing = !!(m && m.marketing);
+      x.segs.push(m ? 'member' : 'guest');
       return x;
     }).sort(function (m, n) { return n.amount - m.amount; });
   }
@@ -665,7 +678,8 @@
         stat('1인 평균 구매액', won(avg), '누적 ' + won(totalAmount)) +
         stat('재구매 고객', (counts.repeat || 0) + '명',
           all.length ? Math.round((counts.repeat || 0) / all.length * 100) + '%' : '—') +
-        stat('출시 알림 대기', S.subscribers.length + '명', '아직 사지 않은 분') +
+        stat('회원', S.users.length + '명',
+          (counts.member || 0) + '명이 구매까지 하셨습니다') +
       '</div>' +
 
       '<div class="tabs">' +
@@ -679,6 +693,8 @@
       '<div class="filters"><input id="custSearch" placeholder="이름 · 이메일 · 연락처로 찾기"></div>' +
 
       '<div id="custList">' + custTable(list) + '</div>' +
+
+      resetPanel() +
 
       '<div class="panel mt-3"><h2>출시 알림 신청 ' + S.subscribers.length + '명</h2>' +
         '<p class="note mb-1">아직 사지 않았지만 기다리고 있는 분들입니다. ' +
@@ -702,19 +718,38 @@
     vip: '누적 50만원 이상 사신 분들. 새 장이 열릴 때 가장 먼저 알려야 할 분들입니다.',
     repeat: '두 번 이상 사신 분들. 이 비율이 브랜드가 살아 있는지를 말해 줍니다.',
     once: '한 번만 사신 분들. 두 번째 구매로 넘어가게 하는 것이 다음 과제입니다.',
-    sleep: '마지막 구매가 6개월을 넘긴 분들. 안부와 함께 새 소식을 보내 보세요.'
+    sleep: '마지막 구매가 6개월을 넘긴 분들. 안부와 함께 새 소식을 보내 보세요.',
+    member: '계정을 만드신 분들. 다시 오실 때 주소를 다시 적지 않으셔도 됩니다.',
+    guest: '계정 없이 주문하신 분들. 다음 주문 때 가입을 권해 볼 수 있습니다.'
   };
+
+  /* 비밀번호를 잊은 분에게 보낼 링크.
+     메일 발송이 아직 없어서, 운영자가 복사해 직접 보내야 한다. */
+  function resetPanel() {
+    if (!S.resets.length) return '';
+    return '<div class="panel mt-3"><h2>보내야 할 비밀번호 재설정 링크 ' + S.resets.length + '건</h2>' +
+      '<p class="note mb-1">비밀번호를 잊으신 분이 요청한 링크입니다. ' +
+        '<strong>메일 자동 발송이 아직 연결되지 않아</strong> 아래 주소를 복사해 직접 보내 주셔야 합니다. ' +
+        '30분이 지나면 쓸 수 없습니다.</p>' +
+      '<div class="table-wrap"><table><thead><tr><th>회원</th><th>요청 시각</th><th>만료</th><th>링크</th></tr></thead><tbody>' +
+      S.resets.map(function (r) {
+        return '<tr><td>' + esc(r.name || '—') + '<br><span class="muted-xs">' + esc(r.email) + '</span></td>' +
+          '<td>' + dstr(r.at) + '</td><td>' + dstr(r.expires) + '</td>' +
+          '<td><button class="b sm ghost" data-act="copy" data-a="' + esc(r.url) + '">링크 복사</button></td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+  }
 
   function custTable(list) {
     if (!list.length) return blank('해당하는 고객이 없습니다.');
     return '<div class="table-wrap"><table><thead><tr><th>이름</th><th>연락처</th>' +
       '<th class="num">주문</th><th class="num">누적 구매액</th><th>마지막 주문</th><th>구분</th></tr></thead><tbody>' +
       list.map(function (x) {
-        var tags = x.segs.filter(function (k) { return k !== 'once'; })
+        var tags = x.segs.filter(function (k) { return k !== 'once' && k !== 'guest'; })
           .map(function (k) {
             return '<span class="tag ' + (k === 'vip' ? 'on' : (k === 'sleep' ? 'warn' : 'soft')) + '">' +
               SEGMENTS[k] + '</span>';
-          }).join(' ');
+          }).join(' ') +
+          (x.marketing ? ' <span class="tag">소식 수신</span>' : '');
         return '<tr><td>' + esc(x.name) + '</td>' +
           '<td><span class="copyable" data-act="copy" data-a="' + esc(x.email) + '">' + esc(x.email) + '</span>' +
             '<br><span class="muted-xs">' + esc(x.phone) + '</span></td>' +
@@ -1512,6 +1547,8 @@
     api('/orders').then(function (d) { S.orders = d; }),
     api('/inquiries').then(function (d) { S.inquiries = d; }),
     api('/subscribers').then(function (d) { S.subscribers = d; }),
+    api('/users').then(function (d) { S.users = d; }),
+    api('/resets').then(function (d) { S.resets = d; }),
     api('/uploads').then(function (d) { S.uploads = d; }),
     api('/summary').then(function (d) { S.summary = d; })
   ]).then(function () {

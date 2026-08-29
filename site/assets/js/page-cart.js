@@ -24,7 +24,7 @@ window.WHJ.ready(function () {
         return '<div class="cart-line">' +
           '<div class="cart-line-visual">' + W.visual(l.product) + '</div>' +
           '<div>' +
-            '<h3>' + W.esc(l.product.nameKo) + '</h3>' +
+            '<h2>' + W.esc(l.product.nameKo) + '</h2>' +
             '<p class="opt">' + W.esc(l.variant.name) + (l.gift ? ' · 기프트 포장' : '') + '</p>' +
             '<div class="qty mt-sm">' +
               '<button type="button" data-act="dec" data-i="' + i + '" aria-label="수량 줄이기">−</button>' +
@@ -44,7 +44,7 @@ window.WHJ.ready(function () {
       '</div>' +
 
       '<div class="summary is-sticky">' +
-        '<h3>주문 요약</h3>' +
+        '<h2>주문 요약</h2>' +
         '<div class="summary-row"><span>상품 금액</span><span>' + W.won(t.goods) + '</span></div>' +
         '<div class="summary-row"><span>배송비</span><span>' + (t.ship === 0 ? '무료' : W.won(t.ship)) + '</span></div>' +
         '<div class="summary-total"><span>총 결제금액</span><strong>' + W.won(t.total) + '</strong></div>' +

@@ -10,11 +10,16 @@ const path = require('path');
 const crypto = require('crypto');
 
 const store = require('./store');
+const auth = require('./auth');
 const analytics = require('./analytics');
 
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
+
+/* 쿠키가 있을 때만 로그인 상태를 찾아 붙인다. 손님에게는 파일을 읽지 않는다.
+   주문 라우트보다 앞에 있어야 주문에 회원 번호가 남는다. */
+app.use(auth.attachUser);
 
 const PORT = Number(process.env.PORT || 8090);
 
@@ -87,6 +92,8 @@ app.post('/api/orders', (req, res) => {
     id: 'WHJ' + Date.now().toString().slice(-9),
     at: new Date().toISOString(),
     channel: 'own',
+    /* 로그인 상태로 주문했다면 회원 번호를 남긴다. 비회원 주문은 빈 값이다. */
+    userId: (req.user && req.user.id) || '',
     status: 'received',
     buyer: b.buyer,
     shipping: b.shipping || {},
@@ -143,6 +150,196 @@ app.post('/api/inquiries', (req, res) => {
   };
   store.addInquiry(item);
   res.json({ ok: true, id: item.id });
+});
+
+/* ═══ 회원 ═════════════════════════════════════════════
+
+   비회원 주문은 그대로 둔다. 계정은 "다음에 또 살 때 편하려고" 만드는 것이지,
+   물건을 사기 위한 관문이 아니다. 주문서에서 회원이면 정보가 채워질 뿐이다.
+
+   같은 사람에게 어떤 이메일이 가입돼 있는지 알려 주지 않는다. 로그인 실패와
+   비밀번호 찾기 응답이 늘 같은 이유다.                                    */
+
+function clientKey(req) {
+  return (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
+}
+
+/* 가입 */
+app.post('/api/auth/join', (req, res) => {
+  const b = req.body || {};
+  const email = auth.normEmail(b.email);
+  const name = String(b.name || '').trim().slice(0, 40);
+  const phone = auth.normPhone(b.phone);
+  const pw = String(b.password || '');
+
+  if (!name) return res.status(400).json({ ok: false, field: 'name', message: '성함을 입력해 주세요.' });
+  if (!auth.validEmail(email)) return res.status(400).json({ ok: false, field: 'email', message: '이메일 주소를 확인해 주세요.' });
+  if (phone && phone.length < 10) return res.status(400).json({ ok: false, field: 'phone', message: '연락처를 확인해 주세요.' });
+  const bad = auth.checkPassword(pw);
+  if (bad) return res.status(400).json({ ok: false, field: 'password', message: bad });
+  if (!b.agreeTerms || !b.agreePrivacy) {
+    return res.status(400).json({ ok: false, field: 'agree', message: '필수 약관에 동의해 주세요.' });
+  }
+  if (store.findUserByEmail(email)) {
+    return res.status(409).json({ ok: false, field: 'email', message: '이미 가입된 이메일입니다. 로그인해 주세요.' });
+  }
+
+  const now = new Date().toISOString();
+  const user = store.addUser({
+    id: 'U' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    email, name, phone,
+    password: auth.hashPassword(pw),
+    address: null,
+    marketing: !!b.marketing,
+    agreedAt: now,
+    at: now
+  });
+
+  const sess = auth.createSession(user.id, { agent: req.headers['user-agent'] });
+  auth.setCookie(res, sess.token);
+  res.json({ ok: true, user: auth.publicUser(user) });
+});
+
+/* 로그인 */
+app.post('/api/auth/login', (req, res) => {
+  const b = req.body || {};
+  const email = auth.normEmail(b.email);
+  const key = 'login:' + email + ':' + clientKey(req);
+
+  if (auth.tooMany(key)) {
+    return res.status(429).json({ ok: false, message: '시도가 너무 잦습니다. 15분 뒤에 다시 해 주세요.' });
+  }
+
+  const user = store.findUserByEmail(email);
+  const ok = user && auth.verifyPassword(String(b.password || ''), user.password);
+  if (!ok) {
+    auth.noteFail(key);
+    /* 어느 쪽이 틀렸는지 말하지 않는다 */
+    return res.status(401).json({ ok: false, message: '이메일 또는 비밀번호가 맞지 않습니다.' });
+  }
+
+  auth.clearFails(key);
+  const sess = auth.createSession(user.id, { agent: req.headers['user-agent'] });
+  auth.setCookie(res, sess.token);
+  res.json({ ok: true, user: auth.publicUser(user) });
+});
+
+/* 로그아웃 */
+app.post('/api/auth/logout', (req, res) => {
+  if (req.session) auth.dropSession(req.session.token);
+  auth.clearCookie(res);
+  res.json({ ok: true });
+});
+
+/* 지금 누구인가 */
+app.get('/api/auth/me', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: true, user: auth.publicUser(req.user) });
+});
+
+/* 내 정보 고치기 */
+app.patch('/api/auth/me', auth.requireUser, (req, res) => {
+  const b = req.body || {};
+  const patch = {};
+  if ('name' in b) {
+    const name = String(b.name || '').trim().slice(0, 40);
+    if (!name) return res.status(400).json({ ok: false, field: 'name', message: '성함을 입력해 주세요.' });
+    patch.name = name;
+  }
+  if ('phone' in b) {
+    const phone = auth.normPhone(b.phone);
+    if (phone && phone.length < 10) return res.status(400).json({ ok: false, field: 'phone', message: '연락처를 확인해 주세요.' });
+    patch.phone = phone;
+  }
+  if ('marketing' in b) patch.marketing = !!b.marketing;
+  if ('address' in b) {
+    const a = b.address || {};
+    patch.address = a && (a.addr || a.zip) ? {
+      receiver: String(a.receiver || '').slice(0, 40),
+      zip: String(a.zip || '').slice(0, 10),
+      addr: String(a.addr || '').slice(0, 200),
+      memo: String(a.memo || '').slice(0, 200)
+    } : null;
+  }
+  const u = store.updateUser(req.user.id, patch);
+  res.json({ ok: true, user: auth.publicUser(u) });
+});
+
+/* 비밀번호 바꾸기 — 지금 것을 확인한 뒤에만 */
+app.post('/api/auth/password', auth.requireUser, (req, res) => {
+  const b = req.body || {};
+  if (!auth.verifyPassword(String(b.current || ''), req.user.password)) {
+    return res.status(400).json({ ok: false, field: 'current', message: '지금 비밀번호가 맞지 않습니다.' });
+  }
+  const bad = auth.checkPassword(String(b.next || ''));
+  if (bad) return res.status(400).json({ ok: false, field: 'next', message: bad });
+
+  store.updateUser(req.user.id, { password: auth.hashPassword(String(b.next)) });
+  /* 다른 기기에 남아 있던 로그인은 모두 끊고, 지금 이 기기만 다시 열어 준다. */
+  auth.dropAllSessions(req.user.id);
+  const sess = auth.createSession(req.user.id, { agent: req.headers['user-agent'] });
+  auth.setCookie(res, sess.token);
+  res.json({ ok: true, message: '비밀번호를 바꿨습니다. 다른 기기의 로그인은 모두 끊었습니다.' });
+});
+
+/* 탈퇴 */
+app.delete('/api/auth/me', auth.requireUser, (req, res) => {
+  const b = req.body || {};
+  if (!auth.verifyPassword(String(b.password || ''), req.user.password)) {
+    return res.status(400).json({ ok: false, field: 'password', message: '비밀번호가 맞지 않습니다.' });
+  }
+  auth.dropAllSessions(req.user.id);
+  store.removeUser(req.user.id);
+  auth.clearCookie(res);
+  res.json({ ok: true });
+});
+
+/* 비밀번호 재설정 요청 —
+   메일 발송이 아직 연결되지 않았다. 토큰은 만들어 두고 관리자 화면에
+   "보내야 할 재설정 링크"로 띄운다. 운영자가 직접 전해 주면 된다.
+   SMTP 가 붙는 날 이 자리에 발송 한 줄만 넣으면 된다. */
+app.post('/api/auth/forgot', (req, res) => {
+  const email = auth.normEmail((req.body || {}).email);
+  const key = 'forgot:' + clientKey(req);
+  if (auth.tooMany(key)) {
+    return res.status(429).json({ ok: false, message: '시도가 너무 잦습니다. 잠시 뒤에 다시 해 주세요.' });
+  }
+  auth.noteFail(key);
+
+  const user = store.findUserByEmail(email);
+  if (user) auth.createReset(user.id);
+
+  /* 가입 여부와 상관없이 같은 답을 준다 */
+  res.json({ ok: true, message: '재설정 안내를 보내 드립니다. 메일함을 확인해 주세요.' });
+});
+
+/* 재설정 토큰이 살아 있는지 */
+app.get('/api/auth/reset', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: !!auth.readReset(String(req.query.t || '')) });
+});
+
+/* 새 비밀번호로 바꾸기 */
+app.post('/api/auth/reset', (req, res) => {
+  const b = req.body || {};
+  const r = auth.readReset(String(b.token || ''));
+  if (!r) return res.status(400).json({ ok: false, message: '만료되었거나 이미 사용한 링크입니다. 다시 요청해 주세요.' });
+  const bad = auth.checkPassword(String(b.password || ''));
+  if (bad) return res.status(400).json({ ok: false, field: 'password', message: bad });
+
+  store.updateUser(r.userId, { password: auth.hashPassword(String(b.password)) });
+  auth.useReset(r.token);
+  auth.dropAllSessions(r.userId);
+  res.json({ ok: true, message: '비밀번호를 바꿨습니다. 새 비밀번호로 로그인해 주세요.' });
+});
+
+/* 내 주문 내역 */
+app.get('/api/auth/orders', auth.requireUser, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const email = req.user.email;
+  const list = store.getOrders().filter((o) =>
+    o.userId === req.user.id || ((o.buyer && o.buyer.email || '').toLowerCase() === email));
+  res.json({ ok: true, orders: list });
 });
 
 /* ═══ 관리자 API — 앞단 nginx Basic 인증으로 보호된다 ═══ */
@@ -263,6 +460,32 @@ app.patch('/api/admin/inquiries/:id', (req, res) => {
 });
 
 app.get('/api/admin/subscribers', (req, res) => res.json(store.getSubscribers()));
+
+/* 회원 명단 — 비밀번호 해시는 절대 내보내지 않는다 */
+app.get('/api/admin/users', (req, res) => {
+  res.json(store.getUsers().map((u) => auth.publicUser(u)));
+});
+
+/* 아직 쓰이지 않은 비밀번호 재설정 요청.
+   메일 발송이 붙기 전까지는 운영자가 이 링크를 직접 전해 준다. */
+app.get('/api/admin/resets', (req, res) => {
+  const now = Date.now();
+  const users = store.getUsers();
+  const list = store.getResets()
+    .filter((r) => !r.used && new Date(r.expires) > now)
+    .map((r) => {
+      const u = users.filter((x) => x.id === r.userId)[0];
+      return {
+        email: u ? u.email : '(탈퇴한 회원)',
+        name: u ? u.name : '',
+        at: r.at,
+        expires: r.expires,
+        url: 'https://woonhyangjae.com/reset.html?t=' + r.token
+      };
+    })
+    .sort((a, b) => b.at.localeCompare(a.at));
+  res.json(list);
+});
 
 app.get('/api/admin/analytics', (req, res) => {
   const days = Math.min(90, Math.max(1, Number(req.query.days) || 30));

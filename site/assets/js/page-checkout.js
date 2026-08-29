@@ -17,7 +17,8 @@ window.WHJ.ready(function () {
 
       /* 주문자 */
       '<div class="checkout-block">' +
-        '<h3>주문자</h3>' +
+        '<div id="memberBar"></div>' +
+        '<h2>주문자</h2>' +
         '<div class="field-row">' +
           '<div class="field"><label for="o-name">성함</label>' +
             '<input id="o-name" name="name" type="text" autocomplete="name" required></div>' +
@@ -26,12 +27,12 @@ window.WHJ.ready(function () {
         '</div>' +
         '<div class="field"><label for="o-email">이메일 — 주문 확인 메일을 보내드립니다</label>' +
           '<input id="o-email" name="email" type="email" autocomplete="email" required></div>' +
-        '<p class="buybox-note">회원가입 없이 주문하실 수 있습니다.</p>' +
+        '<p class="buybox-note" id="memberNote">회원가입 없이 주문하실 수 있습니다.</p>' +
       '</div>' +
 
       /* 배송지 */
       '<div class="checkout-block">' +
-        '<h3>배송지</h3>' +
+        '<h2>배송지</h2>' +
         '<div class="field"><label for="o-recv">받는 분</label>' +
           '<input id="o-recv" name="receiver" type="text" required></div>' +
         '<div class="field-row">' +
@@ -57,7 +58,7 @@ window.WHJ.ready(function () {
 
       /* 기프트 */
       '<div class="checkout-block">' +
-        '<h3>기프트 옵션</h3>' +
+        '<h2>기프트 옵션</h2>' +
         '<label class="check"><input type="checkbox" id="o-gift" name="gift">' +
           '<span>선물로 보냅니다 — 전용 리본과 메시지 카드를 함께 넣어드립니다</span></label>' +
         '<div id="giftFields" hidden>' +
@@ -70,13 +71,13 @@ window.WHJ.ready(function () {
 
       /* 결제 수단 */
       '<div class="checkout-block">' +
-        '<h3>결제 수단</h3>' +
+        '<h2>결제 수단</h2>' +
         '<div class="pay-methods">' +
-          '<label><input type="radio" name="pay" value="naverpay" checked><span>네이버페이</span></label>' +
-          '<label><input type="radio" name="pay" value="kakaopay"><span>카카오페이</span></label>' +
-          '<label><input type="radio" name="pay" value="toss"><span>토스페이</span></label>' +
-          '<label><input type="radio" name="pay" value="card"><span>신용 · 체크카드</span></label>' +
-          '<label><input type="radio" name="pay" value="bank"><span>계좌이체</span></label>' +
+          '<label><input type="radio" id="pay-naverpay" name="pay" value="naverpay" checked><span>네이버페이</span></label>' +
+          '<label><input type="radio" id="pay-kakaopay" name="pay" value="kakaopay"><span>카카오페이</span></label>' +
+          '<label><input type="radio" id="pay-toss" name="pay" value="toss"><span>토스페이</span></label>' +
+          '<label><input type="radio" id="pay-card" name="pay" value="card"><span>신용 · 체크카드</span></label>' +
+          '<label><input type="radio" id="pay-bank" name="pay" value="bank"><span>계좌이체</span></label>' +
         '</div>' +
         '<p class="notice mt-2">' +
           '현재 결제 모듈이 연결되지 않은 상태입니다. PG 심사 통과 전까지는 이 단계에서 ' +
@@ -93,7 +94,7 @@ window.WHJ.ready(function () {
 
     /* 주문 요약 */
     '<div class="summary is-sticky">' +
-      '<h3>주문 요약</h3>' +
+      '<h2>주문 요약</h2>' +
       t.lines.map(function (l) {
         return '<div class="summary-row"><span>' + W.esc(l.product.nameKo) +
           ' × ' + l.qty + (l.gift ? ' · 기프트' : '') + '</span><span>' + W.won(l.amount) + '</span></div>';
@@ -148,6 +149,68 @@ window.WHJ.ready(function () {
     });
     if (gift.checked) document.getElementById('giftFields').hidden = false;
   } catch (e) {}
+  /* ── 회원이면 아는 것은 미리 채워 둔다 ────────────────
+     이미 적어 둔 칸은 건드리지 않는다. 되살린 임시 저장이 먼저다.
+     로그인하지 않았어도 주문은 그대로 된다 — 안내 한 줄만 달라진다. */
+  (function () {
+    var A = window.WHJAuth;
+    var bar = document.getElementById('memberBar');
+    var note = document.getElementById('memberNote');
+    if (!A || !bar) return;
+
+    function put(name, value) {
+      var el = form.elements[name];
+      if (el && !el.value && value) el.value = value;
+    }
+
+    A.me().then(function (user) {
+      if (!user) {
+        var next = encodeURIComponent('/checkout.html');
+        bar.innerHTML =
+          '<div class="member-bar">' +
+            '<span>이미 회원이신가요?</span>' +
+            '<a href="/login.html?next=' + next + '">로그인하고 주문하기 →</a>' +
+          '</div>';
+        return;
+      }
+
+      bar.innerHTML =
+        '<div class="member-bar is-on">' +
+          '<span>' + A.esc(user.name) + ' 님으로 주문합니다</span>' +
+          '<a href="/account.html">내 정보 →</a>' +
+        '</div>';
+      if (note) note.textContent = '주문 내역은 내 정보에서 다시 보실 수 있습니다.';
+
+      put('name', user.name);
+      put('email', user.email);
+      put('phone', hyphen(user.phone));
+
+      var a = user.address;
+      if (a) {
+        put('receiver', a.receiver || user.name);
+        put('zip', a.zip);
+        put('addr1', a.addr);
+        if (a.memo) {
+          var sel = form.elements.memo;
+          var known = Array.prototype.some.call(sel.options, function (o) { return o.value === a.memo || o.text === a.memo; });
+          if (known) sel.value = a.memo;
+          else {
+            sel.value = '직접 입력';
+            document.getElementById('memoFree').hidden = false;
+            put('memo2', a.memo);
+          }
+        }
+      }
+    });
+
+    function hyphen(d) {
+      d = String(d || '').replace(/[^0-9]/g, '');
+      if (d.length < 4) return d;
+      if (d.length < 8) return d.slice(0, 3) + '-' + d.slice(3);
+      return d.slice(0, 3) + '-' + d.slice(3, d.length - 4) + '-' + d.slice(-4);
+    }
+  })();
+
   form.addEventListener('input', function () {
     var data = {};
     Array.prototype.forEach.call(form.elements, function (el) {

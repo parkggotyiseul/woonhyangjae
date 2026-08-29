@@ -4,5 +4,10 @@ Disallow: /admin/
 Disallow: /cart.html
 Disallow: /checkout.html
 Disallow: /order.html
+Disallow: /login.html
+Disallow: /join.html
+Disallow: /forgot.html
+Disallow: /reset.html
+Disallow: /account.html
 
 Sitemap: https://woonhyangjae.com/sitemap.xml

@@ -107,6 +107,42 @@ function addSubscriber(email, target) {
   return list;
 }
 
+/* ── 회원 ─────────────────────────────────────────────────
+   비밀번호는 해시만 들어간다. 원문은 어디에도 남지 않는다.
+   탈퇴하면 이 목록에서 지운다 — 주문 기록에는 이름과 연락처가 남지만
+   그것은 거래 기록이라 전자상거래법상 보관 의무가 있는 부분이다. */
+function getUsers() { return readJson("users.json", []); }
+function saveUsers(list) { writeJson("users.json", list); return list; }
+function findUserByEmail(email) {
+  return getUsers().filter((u) => u.email === email)[0] || null;
+}
+function findUserById(id) {
+  return getUsers().filter((u) => u.id === id)[0] || null;
+}
+function addUser(u) {
+  const list = getUsers();
+  list.push(u);
+  saveUsers(list);
+  return u;
+}
+function updateUser(id, patch) {
+  const list = getUsers();
+  const i = list.findIndex((u) => u.id === id);
+  if (i < 0) return null;
+  list[i] = { ...list[i], ...patch, updatedAt: new Date().toISOString() };
+  saveUsers(list);
+  return list[i];
+}
+function removeUser(id) {
+  saveUsers(getUsers().filter((u) => u.id !== id));
+}
+
+/* 로그인 상태와 비밀번호 재설정 토큰 */
+function getSessions() { return readJson("sessions.json", []); }
+function saveSessions(list) { writeJson("sessions.json", list); return list; }
+function getResets() { return readJson("resets.json", []); }
+function saveResets(list) { writeJson("resets.json", list); return list; }
+
 /* ── 문의 ─────────────────────────────────────────────── */
 function getInquiries() { return readJson('inquiries.json', []); }
 function addInquiry(item) {
@@ -186,6 +222,8 @@ module.exports = {
   getOrders, saveOrders, addOrder, updateOrder,
   getSubscribers, addSubscriber,
   getInquiries, addInquiry, updateInquiry,
+  getUsers, saveUsers, findUserByEmail, findUserById, addUser, updateUser, removeUser,
+  getSessions, saveSessions, getResets, saveResets,
   addEvent, readEvents, pruneEvents,
   listUploads, removeUpload
 };
