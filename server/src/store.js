@@ -141,6 +141,8 @@ function removeUser(id) {
 function getSessions() { return readJson("sessions.json", []); }
 function saveSessions(list) { writeJson("sessions.json", list); return list; }
 function getResets() { return readJson("resets.json", []); }
+function getVerifications() { return readJson("verifications.json", []); }
+function saveVerifications(list) { writeJson("verifications.json", list); return list; }
 function saveResets(list) { writeJson("resets.json", list); return list; }
 
 /* ── 문의 ─────────────────────────────────────────────── */
@@ -224,6 +226,7 @@ module.exports = {
   getInquiries, addInquiry, updateInquiry,
   getUsers, saveUsers, findUserByEmail, findUserById, addUser, updateUser, removeUser,
   getSessions, saveSessions, getResets, saveResets,
+  getVerifications, saveVerifications,
   addEvent, readEvents, pruneEvents,
   listUploads, removeUpload
 };

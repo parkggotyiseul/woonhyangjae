@@ -67,6 +67,138 @@ function normEmail(v) { return String(v || '').trim().toLowerCase().slice(0, 160
 function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 function normPhone(v) { return String(v || '').replace(/[^0-9]/g, '').slice(0, 11); }
 
+/* ── 지저분한 가입을 걸러 내는 것들 ───────────────────────
+
+   본인확인기관(PASS 등)은 사업자 등록과 계약이 있어야 붙일 수 있다.
+   그전까지도 손댈 수 있는 자리가 넷 있고, 실제로 어뷰징의 대부분은
+   여기서 걸린다.
+
+     1. 한 휴대폰 번호에 계정 하나
+     2. 버리는 메일 주소 차단
+     3. 같은 사람이 점과 +로 여러 주소를 만드는 것 막기
+     4. 한 자리에서 계정을 쏟아 내는 것 막기                              */
+
+/* 흔한 일회용 메일 서비스. 완벽한 목록은 없지만, 손이 덜 가는 쪽부터 막는다. */
+const THROWAWAY = new Set([
+  'mailinator.com', 'guerrillamail.com', 'guerrillamail.net', 'sharklasers.com',
+  '10minutemail.com', '10minutemail.net', 'tempmail.com', 'temp-mail.org',
+  'throwawaymail.com', 'yopmail.com', 'trashmail.com', 'getnada.com',
+  'maildrop.cc', 'dispostable.com', 'fakeinbox.com', 'mohmal.com',
+  'moakt.com', 'emailondeck.com', 'mytemp.email', 'tempmailo.com',
+  'inboxkitten.com', 'minuteinbox.com', 'spam4.me', 'grr.la'
+]);
+
+function throwawayEmail(email) {
+  const at = String(email || '').split('@')[1] || '';
+  return THROWAWAY.has(at.toLowerCase());
+}
+
+/* 같은 사람이 만든 여러 주소를 하나로 본다.
+   지메일은 점을 무시하고 + 뒤를 버린다. 다른 곳도 + 규칙은 대체로 같다.
+   저장은 원래 주소로 하고, 중복 판정에만 이 값을 쓴다. */
+function emailIdentity(email) {
+  const [rawUser, domain] = String(email || '').toLowerCase().split('@');
+  if (!domain) return String(email || '').toLowerCase();
+  let user = (rawUser || '').split('+')[0];
+  if (domain === 'gmail.com' || domain === 'googlemail.com') {
+    user = user.replace(/\./g, '');
+    return user + '@gmail.com';
+  }
+  return user + '@' + domain;
+}
+
+/* 휴대폰 번호 형태 — 010 으로 시작하는 11자리만 받는다.
+   집전화나 가상번호로 계정을 늘리는 것을 막기 위해서다. */
+function validMobile(phone) {
+  const d = String(phone || '').replace(/[^0-9]/g, '');
+  return /^01[016789]\d{7,8}$/.test(d);
+}
+
+/* ── 휴대폰 인증번호 ──────────────────────────────────────
+   여섯 자리 숫자, 5분, 세 번까지. 번호 자체도 해시로 저장한다.
+   짧고 금방 사라지는 값이라 scrypt 까지는 쓰지 않는다 —
+   실제 방어선은 시도 횟수와 유효 시간이다. */
+const CODE_MINUTES = 5;
+const CODE_TRIES = 3;
+const VERIFY_MINUTES = 30;      // 인증을 마친 뒤 가입까지 주어지는 시간
+
+function hashCode(code, salt) {
+  return crypto.createHash('sha256').update(salt + ':' + code).digest('hex');
+}
+
+function issueCode(phone) {
+  const now = Date.now();
+  const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+  const salt = crypto.randomBytes(8).toString('hex');
+  const list = store.getVerifications()
+    .filter((v) => new Date(v.expires) > now && v.phone !== phone);
+  list.push({
+    phone,
+    salt,
+    hash: hashCode(code, salt),
+    tries: 0,
+    at: new Date(now).toISOString(),
+    expires: new Date(now + CODE_MINUTES * 60000).toISOString(),
+    token: '',
+    tokenExpires: ''
+  });
+  store.saveVerifications(list);
+  return code;
+}
+
+/* 맞으면 짧게 쓰는 표를 하나 내준다. 가입할 때 그 표를 함께 낸다. */
+function checkCode(phone, code) {
+  const list = store.getVerifications();
+  const i = list.findIndex((v) => v.phone === phone);
+  if (i < 0) return { ok: false, message: '인증번호를 먼저 받아 주세요.' };
+
+  const v = list[i];
+  if (new Date(v.expires) <= Date.now()) {
+    list.splice(i, 1);
+    store.saveVerifications(list);
+    return { ok: false, message: '인증번호가 만료되었습니다. 다시 받아 주세요.' };
+  }
+  if (v.tries >= CODE_TRIES) {
+    return { ok: false, message: '입력 횟수를 넘겼습니다. 다시 받아 주세요.' };
+  }
+
+  const got = Buffer.from(hashCode(String(code || ''), v.salt));
+  const want = Buffer.from(v.hash);
+  const same = got.length === want.length && crypto.timingSafeEqual(got, want);
+  if (!same) {
+    v.tries += 1;
+    store.saveVerifications(list);
+    const left = CODE_TRIES - v.tries;
+    return { ok: false, message: left > 0
+      ? '인증번호가 맞지 않습니다. ' + left + '번 더 넣으실 수 있습니다.'
+      : '입력 횟수를 넘겼습니다. 다시 받아 주세요.' };
+  }
+
+  v.token = crypto.randomBytes(24).toString('base64url');
+  v.tokenExpires = new Date(Date.now() + VERIFY_MINUTES * 60000).toISOString();
+  store.saveVerifications(list);
+  return { ok: true, token: v.token };
+}
+
+/* 가입 때 낸 표가 그 번호의 것이 맞는지 */
+function useVerifyToken(phone, token) {
+  if (!token) return false;
+  const list = store.getVerifications();
+  const i = list.findIndex((v) => v.phone === phone && v.token && v.token === token);
+  if (i < 0) return false;
+  if (new Date(list[i].tokenExpires) <= Date.now()) return false;
+  list.splice(i, 1);                       // 한 번 쓰면 사라진다
+  store.saveVerifications(list);
+  return true;
+}
+
+/* 방금 보냈는지 — 연달아 누르는 것을 막는다 */
+function sentRecently(phone, seconds) {
+  const v = store.getVerifications().filter((x) => x.phone === phone)[0];
+  if (!v) return false;
+  return Date.now() - new Date(v.at).getTime() < seconds * 1000;
+}
+
 /* ── 로그인 상태 ──────────────────────────────────────── */
 
 function newToken() { return crypto.randomBytes(32).toString('base64url'); }
@@ -215,6 +347,9 @@ function publicUser(u) {
 module.exports = {
   hashPassword, verifyPassword, checkPassword,
   normEmail, validEmail, normPhone,
+  throwawayEmail, emailIdentity, validMobile,
+  issueCode, checkCode, useVerifyToken, sentRecently,
+  CODE_MINUTES, VERIFY_MINUTES,
   createSession, readSession, dropSession, dropAllSessions,
   createReset, readReset, useReset,
   tooMany, noteFail, clearFails,

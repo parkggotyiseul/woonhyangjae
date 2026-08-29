@@ -1219,8 +1219,10 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
   .header-inner{ gap:.6rem; }
   .header-util{ gap:.7rem; flex-wrap:nowrap; }
 
-  /* SHOP 은 아래 메뉴 안에 있다 */
+  /* 좁은 화면에서는 담은 것과 나, 둘만 남긴다.
+     SHOP 은 아래 메뉴 안에 그대로 있다. */
   .header-util > a[href="/shop.html"]{ display:none; }
+  .util-ico{ width:2.25rem; height:2.25rem; }
 
   /* 언어는 국기만 — 이름은 메뉴를 펼치면 보인다 */
   .lang-btn{ padding:.45rem .55rem; gap:.3rem; min-height:40px; }
@@ -1440,11 +1442,16 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
   padding:clamp(2rem,5vw,3.25rem) clamp(1.5rem,4vw,3rem);
 }
 .auth-head{ text-align:center; margin-bottom:clamp(1.75rem,4vw,2.5rem); }
-.auth-mark{
-  display:block;
-  font-family:var(--serif); font-weight:200;
-  font-size:1.9rem; color:var(--oak);
-  margin-bottom:.9rem;
+/* 인장 — 컬렉션의 빈 자리에 쓴 것과 같은 네모. 글자만 덩그러니 두지 않는다. */
+.auth-seal{
+  display:grid; place-items:center;
+  width:2.9rem; height:2.9rem;
+  margin:0 auto 1.1rem;
+  border:1px solid var(--cream-dim);
+}
+.auth-seal i{
+  font-family:var(--serif); font-weight:200; font-style:normal;
+  font-size:1.35rem; line-height:1; color:var(--oak);
 }
 .auth-head h1{
   font-size:clamp(1.25rem,3vw,1.6rem); font-weight:300;
@@ -1644,4 +1651,110 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
   .line-amount{ font-size:.95rem; }
   .cart-line > *{ min-width:0; }
   .qty{ flex-wrap:wrap; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   머리말 표식 — 글자 대신 선 하나
+   세 자리가 서로 다른 것을 가리키므로 모양도 다르다.
+   병(물건) · 봉투(담은 것) · 사람(나)
+   ═══════════════════════════════════════════════════════ */
+.util-ico{
+  position:relative;
+  display:grid; place-items:center;
+  width:2.5rem; height:2.5rem;
+  color:var(--on-dark-mute);
+  transition:color .3s var(--ease);
+}
+.util-ico:hover{ color:var(--cream); }
+.site-header.is-stuck .util-ico{ color:var(--on-light-mute); }
+.site-header.is-stuck .util-ico:hover{ color:var(--ink); }
+
+/* 로그인해 있으면 표식이 조금 더 또렷하다 */
+.util-ico.is-on{ color:var(--oak); }
+.site-header.is-stuck .util-ico.is-on{ color:var(--mahogany); }
+
+.ico{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  overflow:visible;
+}
+
+/* 담은 것이 있을 때만 켜지는 점 */
+.util-ico .cart-dot{
+  position:absolute; top:.45rem; right:.4rem;
+  width:5px; height:5px; margin:0;
+}
+
+/* 회원 화면 다듬기 — 읽는 순서를 먼저 세우고, 그다음이 장식이다 */
+.auth-head{
+  padding-bottom:clamp(1.5rem,3.5vw,2rem);
+  border-bottom:1px solid var(--cream-dim);
+}
+.auth-head h1{ font-size:clamp(1.3rem,3.2vw,1.7rem); letter-spacing:.06em; }
+.auth-head p{ font-size:.86rem; }
+
+/* 칸 이름은 작게, 자간을 넓혀 라벨답게 */
+.auth-card .field label,
+.auth-card .agree .check-all span{
+  font-family:var(--sans); font-weight:300;
+  font-size:.74rem; letter-spacing:.14em;
+  color:var(--on-light-mute);
+}
+.auth-card .field input{
+  padding-block:.9rem;
+  transition:border-color .3s var(--ease), background .3s var(--ease);
+}
+.auth-card .field input:focus{
+  border-color:var(--oak);
+  background:#FCFAF7;
+}
+
+/* 들어가기 단추 — 글자 사이를 벌려 눌러야 할 것으로 읽히게 */
+.btn-full{
+  letter-spacing:.2em;
+  padding-block:1.05rem;
+  margin-top:1.5rem;
+}
+
+.auth-links{ font-size:.78rem; letter-spacing:.02em; }
+
+/* 마친 화면의 표식도 같은 네모로 */
+.auth-done .done-mark{
+  display:grid; place-items:center;
+  width:2.9rem; height:2.9rem;
+  margin:0 auto 1.1rem;
+  border:1px solid var(--cream-dim);
+  font-size:1rem;
+}
+
+/* 휴대폰 인증 — 칸과 단추가 한 줄에 앉는다 */
+.verify-row{ display:flex; gap:.6rem; align-items:stretch; }
+.verify-row input{ flex:1; min-width:0; }
+.btn-sm{
+  flex:0 0 auto; white-space:nowrap;
+  padding:.7rem 1.1rem; font-size:.76rem; letter-spacing:.1em;
+  min-height:0;
+}
+.verify-code{ margin-top:.9rem; }
+
+/* 인증을 마치면 번호 칸에 조용한 표시를 남긴다 */
+.is-verified #j-phone{
+  background:var(--cream-warm);
+  border-color:var(--oak);
+  color:var(--on-light-mute);
+}
+.is-verified .verify-row::after{
+  content:"확인됨";
+  align-self:center;
+  font-family:var(--sans); font-size:.74rem; letter-spacing:.1em;
+  color:var(--mahogany); white-space:nowrap;
+}
+
+@media (max-width:420px){
+  .verify-row{ flex-direction:column; }
+  .btn-sm{ width:100%; }
+  .is-verified .verify-row::after{ align-self:flex-start; }
 }

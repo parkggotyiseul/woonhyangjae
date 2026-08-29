@@ -11,6 +11,7 @@ const crypto = require('crypto');
 
 const store = require('./store');
 const auth = require('./auth');
+const sms = require('./sms');
 const analytics = require('./analytics');
 
 const app = express();
@@ -160,6 +161,10 @@ app.post('/api/inquiries', (req, res) => {
    같은 사람에게 어떤 이메일이 가입돼 있는지 알려 주지 않는다. 로그인 실패와
    비밀번호 찾기 응답이 늘 같은 이유다.                                    */
 
+/* 문자를 보낼 수 있을 때만 인증을 요구한다.
+   보내지도 못하면서 요구하면 아무도 가입하지 못한다. */
+const VERIFY_PHONE = process.env.VERIFY_PHONE === '1' && sms.ready();
+
 function clientKey(req) {
   return (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
 }
@@ -174,14 +179,45 @@ app.post('/api/auth/join', (req, res) => {
 
   if (!name) return res.status(400).json({ ok: false, field: 'name', message: '성함을 입력해 주세요.' });
   if (!auth.validEmail(email)) return res.status(400).json({ ok: false, field: 'email', message: '이메일 주소를 확인해 주세요.' });
-  if (phone && phone.length < 10) return res.status(400).json({ ok: false, field: 'phone', message: '연락처를 확인해 주세요.' });
+  if (auth.throwawayEmail(email)) {
+    return res.status(400).json({ ok: false, field: 'email',
+      message: '잠시 쓰고 버리는 메일 주소로는 가입하실 수 없습니다.' });
+  }
+  if (!auth.validMobile(phone)) {
+    return res.status(400).json({ ok: false, field: 'phone', message: '휴대폰 번호를 확인해 주세요.' });
+  }
   const bad = auth.checkPassword(pw);
   if (bad) return res.status(400).json({ ok: false, field: 'password', message: bad });
   if (!b.agreeTerms || !b.agreePrivacy) {
     return res.status(400).json({ ok: false, field: 'agree', message: '필수 약관에 동의해 주세요.' });
   }
-  if (store.findUserByEmail(email)) {
+
+  /* 한 자리에서 계정을 쏟아 내는 것을 막는다 */
+  const joinKey = 'join:' + clientKey(req);
+  if (auth.tooMany(joinKey)) {
+    return res.status(429).json({ ok: false, message: '가입 시도가 너무 잦습니다. 잠시 뒤에 다시 해 주세요.' });
+  }
+  auth.noteFail(joinKey);
+
+  /* 같은 주소를 점과 + 로 늘린 것까지 하나로 본다 */
+  const identity = auth.emailIdentity(email);
+  const users = store.getUsers();
+  if (users.some((u) => auth.emailIdentity(u.email) === identity)) {
     return res.status(409).json({ ok: false, field: 'email', message: '이미 가입된 이메일입니다. 로그인해 주세요.' });
+  }
+  /* 한 휴대폰 번호에 계정 하나 */
+  if (users.some((u) => u.phone === phone)) {
+    return res.status(409).json({ ok: false, field: 'phone',
+      message: '이미 가입에 쓰인 번호입니다. 비밀번호를 잊으셨다면 재설정해 주세요.' });
+  }
+
+  /* 본인확인을 켜 두었다면, 인증을 마친 표가 있어야 가입된다 */
+  let verified = false;
+  if (VERIFY_PHONE) {
+    if (!auth.useVerifyToken(phone, String(b.verifyToken || ''))) {
+      return res.status(400).json({ ok: false, field: 'phone', message: '휴대폰 인증을 먼저 마쳐 주세요.' });
+    }
+    verified = true;
   }
 
   const now = new Date().toISOString();
@@ -191,6 +227,7 @@ app.post('/api/auth/join', (req, res) => {
     password: auth.hashPassword(pw),
     address: null,
     marketing: !!b.marketing,
+    phoneVerified: verified,
     agreedAt: now,
     at: now
   });
@@ -198,6 +235,57 @@ app.post('/api/auth/join', (req, res) => {
   const sess = auth.createSession(user.id, { agent: req.headers['user-agent'] });
   auth.setCookie(res, sess.token);
   res.json({ ok: true, user: auth.publicUser(user) });
+});
+
+/* ── 휴대폰 본인확인 ────────────────────────────────────
+
+   본인확인기관(PASS · 아이핀)은 사업자 등록과 계약이 있어야 붙는다.
+   그 전 단계로 문자 인증을 둔다. 실물 번호 하나에 계정 하나가 되므로
+   지저분한 아이디가 쏟아지는 것은 여기서 대부분 막힌다.
+
+   발송처가 연결돼 있지 않으면 인증을 켜지 않는다. 켜 두고 못 보내면
+   아무도 가입하지 못하기 때문이다(VERIFY_PHONE 가 그 스위치다).      */
+app.get('/api/auth/verify/state', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: true, required: VERIFY_PHONE, ready: sms.ready() });
+});
+
+app.post('/api/auth/verify/send', async (req, res) => {
+  if (!VERIFY_PHONE) {
+    return res.status(400).json({ ok: false, message: '지금은 휴대폰 인증을 받지 않습니다.' });
+  }
+  const phone = auth.normPhone((req.body || {}).phone);
+  if (!auth.validMobile(phone)) {
+    return res.status(400).json({ ok: false, field: 'phone', message: '휴대폰 번호를 확인해 주세요.' });
+  }
+  if (store.getUsers().some((u) => u.phone === phone)) {
+    return res.status(409).json({ ok: false, field: 'phone',
+      message: '이미 가입에 쓰인 번호입니다. 비밀번호를 잊으셨다면 재설정해 주세요.' });
+  }
+  if (auth.sentRecently(phone, 60)) {
+    return res.status(429).json({ ok: false, message: '방금 보내 드렸습니다. 1분 뒤에 다시 받아 주세요.' });
+  }
+  const key = 'sms:' + clientKey(req);
+  if (auth.tooMany(key)) {
+    return res.status(429).json({ ok: false, message: '요청이 너무 잦습니다. 잠시 뒤에 다시 해 주세요.' });
+  }
+  auth.noteFail(key);
+
+  const code = auth.issueCode(phone);
+  try {
+    await sms.send(phone, '[운향재] 인증번호 ' + code + ' — ' + auth.CODE_MINUTES + '분 안에 입력해 주세요.');
+  } catch (e) {
+    return res.status(503).json({ ok: false, message: '문자를 보내지 못했습니다. 잠시 뒤에 다시 해 주세요.' });
+  }
+  res.json({ ok: true, minutes: auth.CODE_MINUTES });
+});
+
+app.post('/api/auth/verify/check', (req, res) => {
+  const b = req.body || {};
+  const phone = auth.normPhone(b.phone);
+  const r = auth.checkCode(phone, String(b.code || ''));
+  if (!r.ok) return res.status(400).json({ ok: false, field: 'code', message: r.message });
+  res.json({ ok: true, verifyToken: r.token, minutes: auth.VERIFY_MINUTES });
 });
 
 /* 로그인 */

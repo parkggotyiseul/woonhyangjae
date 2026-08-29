@@ -104,6 +104,13 @@
       if (d.length < 10 || d.length > 11) return '연락처 자릿수를 확인해 주세요.';
       return null;
     },
+    /* 가입에는 휴대폰만 받는다. 집전화나 가상번호로 계정을 늘리는 것을 막는다. */
+    mobile: function (v) {
+      if (!v) return '휴대폰 번호를 입력해 주세요.';
+      var d = v.replace(/[^0-9]/g, '');
+      if (!/^01[016789]\d{7,8}$/.test(d)) return '휴대폰 번호 형태가 아닙니다.';
+      return null;
+    },
     password: function (v) {
       if (!v) return '비밀번호를 입력해 주세요.';
       if (v.length < 8) return '8자 이상으로 정해 주세요.';
@@ -136,7 +143,7 @@
     });
 
     /* 연락처는 적는 동안 하이픈을 붙여 준다 */
-    form.querySelectorAll('[data-check="phone"]').forEach(function (input) {
+    form.querySelectorAll('[data-check="phone"], [data-check="mobile"]').forEach(function (input) {
       input.addEventListener('input', function () {
         var d = input.value.replace(/[^0-9]/g, '').slice(0, 11);
         input.value = d.length < 4 ? d
@@ -229,12 +236,14 @@
     var host = document.querySelector('[data-account]');
     if (!host) return;
     A.me().then(function (user) {
+      var ico = '<svg class="ico" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false"><circle cx="12" cy="8.4" r="3.4"/><path d="M5.2 20.4c0-3.5 3-6 6.8-6s6.8 2.5 6.8 6"/></svg>';
       if (user) {
-        host.innerHTML = '<a href="/account.html">' +
-          (user.name ? esc(user.name) + '님' : '내 정보') + '</a>';
+        host.innerHTML = '<a class="util-ico is-on" href="/account.html"' +
+          ' title="' + esc(user.name || '내 정보') + ' 님" aria-label="내 정보">' + ico + '</a>';
       } else {
         var next = encodeURIComponent(location.pathname + location.search);
-        host.innerHTML = '<a href="/login.html?next=' + next + '">로그인</a>';
+        host.innerHTML = '<a class="util-ico" href="/login.html?next=' + next + '"' +
+          ' title="로그인" aria-label="로그인">' + ico + '</a>';
       }
     });
   };
