@@ -1041,20 +1041,16 @@ li{ list-style:none; }
 .lang{ position:relative; }
 /* 테두리를 두르면 상표 옆에서 버튼이 먼저 눈에 띈다.
    SHOP · CART 와 같은 무게로 두고, 국기만 작은 표식으로 남긴다. */
+/* 국기 하나만 남긴다. 옆의 표식들과 같은 크기로 앉혀 머리말 줄을 고르게 만든다. */
 .lang-btn{
-  display:flex; align-items:center; gap:.45rem;
-  background:none; border:0;
-  padding:.4rem .2rem; cursor:pointer;
-  font-family:var(--sans); font-weight:300;
-  font-size:.72rem; letter-spacing:.12em;
-  color:var(--on-dark-mute);
-  transition:color .3s var(--ease);
+  display:grid; place-items:center;
+  width:2.5rem; height:2.5rem;
+  background:none; border:0; padding:0; cursor:pointer;
+  opacity:.7;
+  transition:opacity .3s var(--ease);
 }
-.lang-btn:hover{ color:var(--cream); }
-.site-header.is-stuck .lang-btn{ color:var(--on-light-mute); }
-.site-header.is-stuck .lang-btn:hover{ color:var(--ink); }
+.lang-btn:hover{ opacity:1; }
 .lang-flag{ font-size:.95rem; line-height:1; }
-.lang-caret{ font-size:.55rem; opacity:.7; }
 
 .lang-menu{
   position:absolute; top:calc(100% + .4rem); right:0;
@@ -1082,7 +1078,6 @@ li{ list-style:none; }
 .lang-menu button:hover{ background:var(--cream-warm); color:var(--ink); }
 .lang-menu button.is-on{ color:var(--ink); }
 .lang-menu button.is-on::after{ content:"·"; margin-left:auto; color:var(--oak); }
-.lang-name{ font-size:.78rem; }
 
 /* ── 컬렉션 아코디언 ─────────────────────────────────── */
 .acc{ border-top:1px solid var(--cream-dim); }
@@ -1225,9 +1220,7 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
   .util-ico{ width:2.25rem; height:2.25rem; }
 
   /* 언어는 국기만 — 이름은 메뉴를 펼치면 보인다 */
-  .lang-btn{ padding:.45rem .55rem; gap:.3rem; min-height:40px; }
-  .lang-btn .lang-name,
-  .lang-btn .lang-caret{ display:none; }
+  .lang-btn{ width:2.25rem; height:2.25rem; }
   .lang-menu button{ min-height:40px; }
 
   .header-util a{
@@ -1413,7 +1406,6 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
   .brand-en{ font-size:.5rem; letter-spacing:.2em; }
   .header-util{ gap:.5rem; }
   .header-util a{ font-size:.66rem; letter-spacing:.08em; }
-  .lang-btn{ padding:.4rem .15rem; }
   .nav{ inset-inline:0; padding-inline:1rem; }
 }
 

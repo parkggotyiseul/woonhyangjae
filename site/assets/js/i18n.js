@@ -100,7 +100,6 @@
       'nav.spaces': 'Spaces',
       'nav.contact': 'Contact',
       'nav.shop': 'SHOP',
-      'nav.cart': 'CART',
       'nav.menu': 'Menu',
 
       'nav.philosophy.1': 'Invisible Architecture',
@@ -145,7 +144,6 @@
       'nav.spaces': '空间',
       'nav.contact': '咨询',
       'nav.shop': '购买',
-      'nav.cart': '购物车',
       'nav.menu': '菜单',
 
       'nav.philosophy.1': '看不见的建筑',
@@ -187,7 +185,6 @@
       'nav.spaces': 'Không gian',
       'nav.contact': 'Liên hệ',
       'nav.shop': 'CỬA HÀNG',
-      'nav.cart': 'GIỎ HÀNG',
       'nav.menu': 'Menu',
 
       'nav.philosophy.1': 'Kiến trúc vô hình',
@@ -264,9 +261,9 @@
 
     var meta = LANGS.filter(function (l) { return l.code === current; })[0];
     var flag = document.querySelector('.lang-btn .lang-flag');
-    var name = document.querySelector('.lang-btn .lang-name');
+    var btn = document.querySelector('.lang-btn');
     if (flag) flag.outerHTML = FLAGS[current];
-    if (name) name.textContent = meta.short;
+    if (btn) btn.setAttribute('title', meta.name);
     document.querySelectorAll('.lang-menu button').forEach(function (b) {
       b.classList.toggle('is-on', b.getAttribute('data-lang') === current);
     });
@@ -277,10 +274,8 @@
     if (!host) return;
     host.className = 'lang';
     host.innerHTML =
-      '<button type="button" class="lang-btn" aria-haspopup="true" aria-expanded="false">' +
-        FLAGS.ko + '<span class="lang-name">KOR</span>' +
-        '<span class="lang-caret" aria-hidden="true">▾</span>' +
-      '</button>' +
+      '<button type="button" class="lang-btn" aria-haspopup="true" aria-expanded="false"' +
+        ' title="언어" aria-label="언어 고르기">' + FLAGS.ko + '</button>' +
       '<div class="lang-menu" role="menu">' +
         LANGS.map(function (l) {
           return '<button type="button" role="menuitem" data-lang="' + l.code + '">' +
