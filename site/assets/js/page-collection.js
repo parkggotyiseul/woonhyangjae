@@ -106,6 +106,14 @@ window.WHJ.ready(function () {
   var NUM = ['하나', '둘', '셋', '넷', '다섯', '여섯', '일곱'];
   function ko(n) { return NUM[n - 1] || String(n); }
 
+  /* 조사는 앞 글자에 받침이 있는지로 갈린다. 하나"가" / 둘"이", 하나"는" / 둘"은".
+     장의 수가 바뀌어도 문장이 어색해지지 않도록 여기서 고른다. */
+  function josa(word, withBatchim, withoutBatchim) {
+    var last = word.charCodeAt(word.length - 1) - 0xAC00;
+    var has = last >= 0 && last <= 11171 && last % 28 !== 0;
+    return word + (has ? withBatchim : withoutBatchim);
+  }
+
   var next = W.namedChapters().filter(function (c) { return W.revealOf(c) === 'named'; });
   var veiled = W.veiledChapters();
 
@@ -128,15 +136,17 @@ window.WHJ.ready(function () {
     veilHost.innerHTML = veiled.map(function () {
       return '<div class="veil"><span class="veil-seal" aria-hidden="true"></span></div>';
     }).join('');
-    veilHost.setAttribute('aria-label', '아직 이름을 붙이지 않은 ' + ko(veiled.length) + ' 개의 장');
+    veilHost.setAttribute('aria-label', '아직 이름을 붙이지 않은 ' + veiled.length + '개의 장');
   }
 
   /* 문장 속 숫자는 데이터에서 뽑는다. 장을 하나 열면 문장도 따라 바뀐다. */
   var countLine = document.getElementById('chapterCount');
   if (countLine) {
-    countLine.textContent =
-      '일곱 개의 장 가운데 ' + ko(next.length + 1) + '이 이름을 얻었습니다. ' +
-      '나머지 ' + ko(veiled.length) + '은 비워 두었습니다.';
+    var named = W.namedChapters().length;
+    countLine.textContent = veiled.length
+      ? '일곱 개의 장 가운데 ' + josa(ko(named), '이', '가') + ' 이름을 얻었습니다. ' +
+        '나머지 ' + josa(ko(veiled.length), '은', '는') + ' 비워 두었습니다.'
+      : '일곱 개의 장이 모두 이름을 얻었습니다.';
   }
 
   W.observe(document.querySelectorAll('.reveal'));
