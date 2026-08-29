@@ -4,6 +4,7 @@
    2단계에서 DB·API로 이관할 때 이 구조를 그대로 씁니다. */
 window.WHJ_CATALOG =
 {
+  "_collectionsVersion": 2,
   "brand": {
     "nameKo": "운향재",
     "nameHanja": "雲香齋",

@@ -129,8 +129,20 @@
       var b = e.target.closest('button[data-tab]');
       if (b) show(b.getAttribute('data-tab'));
     });
-    var first = bar.querySelector('button[data-tab]');
-    if (first) show(first.getAttribute('data-tab'));
+
+    /* 메뉴에서 /spaces.html#mood 처럼 탭을 바로 가리킬 수 있게 한다.
+       그 이름의 탭이 없으면 첫 번째 탭을 연다. */
+    var has = function (key) { return !!(key && bar.querySelector('button[data-tab="' + key + '"]')); };
+    var fromHash = function () {
+      var key = (location.hash || '').slice(1);
+      if (has(key)) { show(key); return true; }
+      return false;
+    };
+    window.addEventListener('hashchange', fromHash);
+    if (!fromHash()) {
+      var first = bar.querySelector('button[data-tab]');
+      if (first) show(first.getAttribute('data-tab'));
+    }
   };
 
   /* ── 장의 공개 단계 ───────────────────────────────────

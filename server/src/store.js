@@ -33,11 +33,39 @@ function readJson(file, fallback) {
   }
 }
 
-/* ── 카탈로그 ─────────────────────────────────────────── */
+/* ── 카탈로그 ───────────────────────────────────────────
+
+   운영 데이터는 볼륨의 catalog.json 이다. 씨앗은 처음 한 번만 심긴다.
+   그래서 씨앗의 컬렉션 글(장의 이름 · 이야기 · 공개 단계)을 고쳐도
+   이미 돌고 있는 서버에는 영영 반영되지 않는 문제가 있었다.
+   운영 데이터를 손으로 덮어쓰면 관리자가 고친 가격·재고까지 날아간다.
+
+   그래서 컬렉션 글에만 판 번호를 붙였다. 씨앗의 번호가 더 크면
+   컬렉션 부분만 갈아 끼우고, 제품·가격·재고는 그대로 둔다.
+   장의 이름이나 순서, 공개 단계를 바꿀 때 씨앗의 _collectionsVersion 을
+   한 칸 올리면 다음 배포에서 저절로 따라온다. */
+function readSeed() {
+  return JSON.parse(fs.readFileSync(path.join(__dirname, 'seed-catalog.json'), 'utf8'));
+}
+
 function getCatalog() {
   let c = readJson('catalog.json', null);
   if (!c) {
-    c = JSON.parse(fs.readFileSync(path.join(__dirname, 'seed-catalog.json'), 'utf8'));
+    c = readSeed();
+    writeJson('catalog.json', c);
+    return c;
+  }
+
+  const seed = readSeed();
+  const have = Number(c._collectionsVersion) || 0;
+  const want = Number(seed._collectionsVersion) || 0;
+  if (want > have) {
+    writeJson('catalog.prev.json', c);       // 되돌릴 수 있게 남긴다
+    c.collections = seed.collections;
+    c._collectionNote = seed._collectionNote;
+    c._collectionsVersion = want;
+    // 관리자가 채운 값이 있으면 그것을 살리고, 빈 자리만 씨앗으로 메운다
+    c.brand = Object.assign({}, seed.brand, c.brand);
     writeJson('catalog.json', c);
   }
   return c;
