@@ -1,7 +1,7 @@
 # 운향재 (雲香齋) 홈페이지
 
 자연의 요소를 향으로 옮기는 하이엔드 디퓨저 브랜드. 한 요소를 정해 그 안의 층위를
-파고든다 — 첫 번째 장은 나무(木), 이후 물·꽃·돌·흙·불·집으로 확장한다.
+파고든다 — 일곱 개의 장 중 셋(나무·꽃·돌)만 이름을 공개했고, 남은 넷은 비워 두었다.
 운영자는 비개발자 1인이다. **설명은 한국어로, 전문용어는 풀어서** 쓴다.
 
 ## 이 사이트의 목적
@@ -93,7 +93,7 @@ site/            정적 사이트 (컨테이너가 그대로 서빙)
   assets/data/catalog.js   ★ 제품·컬렉션 데이터 원본
   assets/js/page-*.js      페이지별 스크립트
   admin/         관리자 화면 (HTTP Basic 인증으로 보호)
-tools/           머리말·꼬리말 동기화, 캐시 번호 올리기 (위 참고)
+tools/           머리말·꼬리말 동기화, 캐시 번호 올리기, 카탈로그 대조 (위 참고)
 nginx/site.conf  컨테이너 내부 nginx (정적 파일 전담)
 deploy/          호스트 nginx 설정 · TLS · Let's Encrypt 스크립트
 docker-compose.yml
@@ -101,7 +101,36 @@ docker-compose.yml
 
 **제품·컬렉션을 추가/수정할 땐 `site/assets/data/catalog.js` 하나만 고친다.**
 HTML은 건드리지 않는다. 나중에 DB로 옮길 때도 이 구조를 그대로 쓴다.
-`status: "active"` = 진행 중인 장, `"upcoming"` = Coming Soon.
+컬렉션의 공개 단계는 `reveal` 값으로 정한다.
+
+| 값 | 사이트에서 보이는 모습 |
+|---|---|
+| `open` | 진행 중 — 한자 · 이름 · 이야기 · 제품까지 전부 |
+| `named` | 이름과 이야기까지. 제품은 아직 없다 |
+| `veiled` | **빈 자리** — 이름도 한자도 나오지 않는다 |
+
+관리자 → 상품 → 컬렉션 표에서 바꾼다. `status` 는 옛 화면이 쓰는 값이라
+관리자가 `reveal` 과 함께 자동으로 맞춰 준다.
+
+### 카탈로그는 세 곳에 있다
+
+```bash
+node tools/check-catalog.js --live
+```
+
+1. `site/assets/data/catalog.js` — API 가 죽었을 때 쓰는 기본값
+2. `server/src/seed-catalog.json` — 서버가 처음 켜질 때 심는 씨앗
+3. 도커 볼륨의 `catalog.json` — **실제 운영 데이터** (관리자가 고치는 곳)
+
+1 과 2 는 항상 같아야 한다. 3 은 관리자가 고치므로 값은 달라도 되지만
+**구조(항목 목록)가 달라지면 한쪽이 조용히 깨진다.** 위 명령이 그것을 잡아 준다.
+
+씨앗을 고쳤을 때 운영 데이터에 반영하려면 — **관리자가 고쳐 둔 내용이 날아가므로**
+`check-catalog.js --live` 로 값이 같은지 먼저 확인할 것:
+
+```bash
+ssh -i ~/woonhyangjae/woonhyangjae.pem ubuntu@ssl.woonhyangjae.com "sudo -n docker run --rm -v woonhyangjae_api-data:/d -v /home/ubuntu/git/woonhyangjae/server/src:/s:ro alpine sh -c 'cp /d/catalog.json /d/catalog.before-reseed.json; cp /s/seed-catalog.json /d/catalog.json'"
+```
 
 ## 웹서버 구성
 

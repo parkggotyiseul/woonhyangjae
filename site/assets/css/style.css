@@ -337,15 +337,35 @@ li{ list-style:none; }
   opacity:.35;
   margin-top:.6rem;
 }
-.chapter.is-active .chapter-hanja{ opacity:1; }
-.chapter.is-active .chapter-en{ opacity:1; color:var(--oak); }
+/* 진행 중인 장은 또렷하게, 이름만 정해진 장은 그 중간에.
+   비워 둔 장은 글자 대신 빈 인장만 남는다. */
+.chapter.is-open .chapter-hanja{ opacity:1; }
+.chapter.is-open .chapter-en{ opacity:1; color:var(--oak); }
+.chapter.is-named .chapter-hanja{ opacity:.55; }
+.chapter.is-named .chapter-en{ opacity:.6; }
+
+.chapter-seal{
+  width:clamp(1.1rem,2.6vw,1.7rem);
+  aspect-ratio:1;
+  margin:0 auto;
+  border:1px solid var(--on-dark);
+  opacity:.16;
+}
+.chapter.is-veiled .chapter-en{ opacity:.2; letter-spacing:0; }
 .chapters-note{
   margin-top:1.5rem;
   font-family:var(--sans); font-size:.76rem;
   letter-spacing:.06em; color:var(--on-dark-mute);
 }
+/* 좁은 화면에서 네 칸씩 접으면 둘째 줄에 빈 칸 하나가 남아 타일이 빠진 것처럼 보인다.
+   일곱 자리를 한 줄로 유지하고, 대신 영문 이름을 접어 자리를 만든다.
+   이 띠는 "일곱 개의 장"이라는 사실 자체를 보여 주는 것이 역할이다. */
 @media (max-width:720px){
-  .chapters{ grid-auto-flow:row; grid-template-columns:repeat(4,1fr); }
+  .chapters{ grid-auto-flow:column; grid-auto-columns:1fr; }
+  .chapter{ padding:1.15rem .2rem; }
+  .chapter-en{ display:none; }
+  .chapter-hanja{ letter-spacing:0; text-indent:0; }
+  .chapter-seal{ width:1rem; }
 }
 
 /* ═══ 방법론 5단계 ═══════════════════════════════════ */
@@ -1278,3 +1298,126 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
 .statement .sec-num,
 .pull-quote .sec-num,
 .pcard-coming .pcard-num{ color:var(--oak); }
+
+/* ── 앞으로의 장 ─────────────────────────────────────────
+   다음 차례 둘은 카드로 예고하고, 아직 비워 둔 자리는
+   빈 인장만 남긴다. 채워진 것과 비워 둔 것의 대비가 이 구역의 전부다. */
+.ahead-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));
+  gap:1px;
+  background:var(--ink-line);
+  border:1px solid var(--ink-line);
+  margin-bottom:clamp(3.5rem,8vw,6rem);
+}
+.ahead{
+  background:var(--ink);
+  padding:clamp(2rem,4vw,3rem) clamp(1.5rem,3vw,2.5rem);
+  display:flex; flex-direction:column;
+}
+.ahead-num{
+  font-family:var(--disp); font-size:.7rem;
+  letter-spacing:.24em; color:var(--oak);
+}
+.ahead-hanja{
+  font-family:var(--serif); font-weight:200;
+  font-size:clamp(3rem,7vw,4.5rem); line-height:1;
+  color:var(--on-dark); opacity:.5;
+  margin:clamp(1.25rem,3vw,2rem) 0 clamp(1rem,2vw,1.5rem);
+}
+.ahead.is-next .ahead-hanja{ opacity:.85; }
+.ahead-name{
+  font-size:1.35rem; font-weight:300; letter-spacing:.08em;
+  margin-bottom:1rem;
+}
+.ahead-title{
+  display:block; margin-top:.5rem;
+  font-size:.95rem; color:var(--oak); letter-spacing:.04em;
+}
+.ahead-desc{
+  font-size:.9rem; line-height:1.95;
+  color:var(--on-dark-mute);
+  flex:1;
+}
+.ahead-state{
+  margin-top:1.75rem; padding-top:1rem;
+  border-top:1px solid var(--ink-line);
+  font-family:var(--sans); font-size:.72rem;
+  letter-spacing:.16em; color:var(--on-dark-mute);
+}
+.ahead.is-next .ahead-state{ color:var(--oak); }
+
+/* 비워 둔 자리 */
+.veiled-block{
+  display:grid;
+  grid-template-columns:minmax(0,auto) minmax(0,1fr);
+  gap:clamp(2rem,6vw,5rem);
+  align-items:center;
+}
+.veiled-row{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(.75rem,2vw,1.1rem);
+}
+.veil{ display:grid; place-items:center; }
+.veil-seal{
+  display:block;
+  width:clamp(3.25rem,8vw,4.75rem);
+  aspect-ratio:1;
+  border:1px solid var(--on-dark);
+  opacity:.14;
+  animation:veil-breathe 7s var(--ease) infinite;
+}
+.veil:nth-child(2) .veil-seal{ animation-delay:1.4s; }
+.veil:nth-child(3) .veil-seal{ animation-delay:2.8s; }
+.veil:nth-child(4) .veil-seal{ animation-delay:4.2s; }
+@keyframes veil-breathe{
+  0%,100%{ opacity:.10; }
+  50%    { opacity:.26; }
+}
+@media (prefers-reduced-motion:reduce){
+  .veil-seal{ animation:none; opacity:.18; }
+}
+
+.veiled-copy h3{
+  font-size:1.15rem; letter-spacing:.06em;
+  margin-bottom:1.25rem;
+}
+.veiled-copy p{
+  font-size:.92rem; line-height:2;
+  color:var(--on-dark-mute);
+  margin-bottom:1rem;
+}
+.veiled-copy .veiled-last{
+  color:var(--oak); font-style:italic;
+  margin-top:1.5rem; margin-bottom:0;
+}
+
+@media (max-width:760px){
+  .veiled-block{ grid-template-columns:1fr; gap:2.5rem; }
+  .veiled-row{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .veil-seal{ width:100%; }
+}
+
+/* ── 아주 좁은 화면(320px 대) 머리말 ─────────────────────
+   구형 아이폰 SE 나 작은 안드로이드에서 상표 · CART · 언어 · 햄버거가
+   한 줄에 다 들어가지 못해 햄버거가 4px 밖으로 밀려나 있었다.
+   글자 크기가 아니라 자간과 여백을 먼저 줄여 자리를 만든다. */
+@media (max-width:360px){
+  .header-inner{ gap:.4rem; padding-inline:1rem; }
+  .brand-ko{ font-size:1.05rem; letter-spacing:.08em; }
+  .brand-en{ font-size:.5rem; letter-spacing:.2em; }
+  .header-util{ gap:.5rem; }
+  .header-util a{ font-size:.66rem; letter-spacing:.08em; }
+  .lang-btn{ padding:.4rem .15rem; }
+  .nav{ inset-inline:0; padding-inline:1rem; }
+}
+
+/* 섹션 머리는 [번호] [제목] [영문] 이 한 줄이다.
+   좁은 화면에서 제목이 긴 페이지(개인정보처리방침 등)는 한국어가 통째로
+   한 덩어리라 줄바꿈이 되지 않아 영문 라벨이 화면 밖으로 밀렸다.
+   줄을 접어 영문을 아래로 내린다. */
+@media (max-width:480px){
+  .sec-head{ flex-wrap:wrap; gap:.4rem 1rem; }
+  .sec-en{ margin-left:0; flex-basis:100%; }
+}

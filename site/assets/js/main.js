@@ -133,13 +133,32 @@
     if (first) show(first.getAttribute('data-tab'));
   };
 
-  /* ── 八章 렌더링 ──────────────────────────────────────
-     상태(active/upcoming/done)만 바꾸면 글자 밝기가 자동으로 반영된다.
-     아직 오지 않은 장에는 링크를 걸지 않는다. */
+  /* ── 장의 공개 단계 ───────────────────────────────────
+       open    진행 중 — 제품이 나와 있다
+       named   이름과 이야기까지 정해졌다 — 아직 제품은 없다
+       veiled  비워 둔 자리 — 이름도 한자도 사이트에 내보내지 않는다
+     reveal 값이 없는 옛 데이터로도 화면이 깨지지 않도록 status 로 되짚는다. */
+  W.revealOf = function (c) {
+    if (c && c.reveal) return c.reveal;
+    return (c && c.status === 'active') ? 'open' : 'veiled';
+  };
+  W.namedChapters  = function () { return W.collections.filter(function (c) { return W.revealOf(c) !== 'veiled'; }); };
+  W.veiledChapters = function () { return W.collections.filter(function (c) { return W.revealOf(c) === 'veiled'; }); };
+
+  /* ── 七章 띠 렌더링 ───────────────────────────────────
+     비워 둔 장은 글자 대신 빈 인장만 남긴다.
+     칸의 수는 그대로 일곱이므로, 몇 개가 남았는지는 보인다. */
   W.renderChapters = function (el) {
     if (!el) return;
     el.innerHTML = W.collections.map(function (c) {
-      return '<div class="chapter' + (c.status === 'active' ? ' is-active' : '') + '">' +
+      var r = W.revealOf(c);
+      if (r === 'veiled') {
+        return '<div class="chapter is-veiled">' +
+          '<div class="chapter-seal" aria-hidden="true"></div>' +
+          '<div class="chapter-en" aria-hidden="true">·</div>' +
+        '</div>';
+      }
+      return '<div class="chapter is-' + r + '">' +
         '<div class="chapter-hanja">' + esc(c.hanja) + '</div>' +
         '<div class="chapter-en">' + esc(c.en) + '</div>' +
       '</div>';

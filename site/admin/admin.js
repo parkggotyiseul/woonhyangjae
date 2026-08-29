@@ -280,16 +280,18 @@
       '</div>' +
 
       '<div class="panel"><h2>컬렉션</h2>' +
-        '<p class="note mb-1">상태를 <strong>진행중</strong>으로 바꾸면 사이트에 그 컬렉션이 나타납니다.</p>' +
-        '<div class="table-wrap"><table><thead><tr><th>요소</th><th>부제</th><th class="num">상품 수</th><th>상태</th></tr></thead><tbody>' +
+        '<p class="note mb-1">사이트에는 <strong>이름 공개</strong> 이상인 장만 글자로 나옵니다. ' +
+          '<strong>비워 둠</strong>인 장은 이름도 한자도 나오지 않고 빈 자리로만 보입니다.</p>' +
+        '<div class="table-wrap"><table><thead><tr><th>요소</th><th>부제</th><th class="num">상품 수</th><th>공개 단계</th></tr></thead><tbody>' +
         (C.collections || []).map(function (c) {
           var n = (C.products || []).filter(function (p) { return p.collectionId === c.id; }).length;
           return '<tr><td><strong>' + esc(c.hanja + ' ' + c.ko) + '</strong></td>' +
             '<td>' + esc(c.subtitle || '') + '</td><td class="num">' + n + '</td>' +
             '<td><select class="sel-sm" data-col="' + esc(c.id) + '">' +
-              ['active:진행중', 'upcoming:예정', 'done:완료'].map(function (o) {
+              ['veiled:비워 둠', 'named:이름 공개', 'open:진행 중'].map(function (o) {
                 var val = o.split(':')[0], t = o.split(':')[1];
-                return '<option value="' + val + '"' + (c.status === val ? ' selected' : '') + '>' + t + '</option>';
+                var now = c.reveal || (c.status === 'active' ? 'open' : 'veiled');
+                return '<option value="' + val + '"' + (now === val ? ' selected' : '') + '>' + t + '</option>';
               }).join('') + '</select></td></tr>';
         }).join('') +
         '</tbody></table></div>' +
@@ -697,10 +699,13 @@
           var id = sel.getAttribute('data-col');
           S.catalog.collections.forEach(function (c) {
             if (c.id !== id) return;
-            c.status = sel.value;
-            c.statusLabel = { active: '진행중', upcoming: '예정', done: '완료' }[sel.value];
+            /* 사이트는 reveal 로 무엇을 보여줄지 정한다.
+               status 는 옛 화면들이 아직 쓰고 있으므로 함께 맞춰 둔다. */
+            c.reveal = sel.value;
+            c.status = sel.value === 'open' ? 'active' : 'upcoming';
+            c.statusLabel = { open: '진행중', named: '다음 장', veiled: '미정' }[sel.value];
           });
-          saveCatalog('컬렉션 상태를 바꿨습니다.');
+          saveCatalog('공개 단계를 바꿨습니다.');
         });
       });
     }

@@ -9,32 +9,79 @@
   'use strict';
 
   /* 국기는 이모지 대신 작은 SVG 로 그린다.
-     이모지 국기는 윈도우에서 두 글자(KR, US)로만 보여서 국기 구실을 못 한다. */
+     이모지 국기는 윈도우에서 두 글자(KR, US)로만 보여서 국기 구실을 못 한다.
+     20x13px 로 줄어들어도 무엇인지 알아볼 수 있는 선까지만 그린다. */
   function flagSvg(inner) {
     return '<svg class="lang-flag" viewBox="0 0 24 16" width="20" height="13" aria-hidden="true">' +
       inner + '<rect x=".5" y=".5" width="23" height="15" fill="none" stroke="rgba(0,0,0,.16)"/></svg>';
   }
+
+  /* 오각별 하나. 중국 국기에 쓴다. */
+  function star(cx, cy, r, rot) {
+    var pts = [];
+    for (var i = 0; i < 10; i++) {
+      var rad = (i % 2 ? r * 0.382 : r);
+      var a = (-90 + rot + i * 36) * Math.PI / 180;
+      pts.push((cx + rad * Math.cos(a)).toFixed(2) + ',' + (cy + rad * Math.sin(a)).toFixed(2));
+    }
+    return '<polygon points="' + pts.join(' ') + '"/>';
+  }
+
+  /* 태극기의 사괘 한 벌. pattern 은 위에서 아래로, 1 이 이어진 획이다.
+     획은 그 괘와 태극 중심을 잇는 선에 직각으로 놓인다. */
+  function trigram(cx, cy, rot, pattern) {
+    var barW = 4.2, barH = 0.62, gap = 0.5, half = (barW - 1.1) / 2;
+    var rows = pattern.map(function (solid, i) {
+      var y = ((i - 1) * (barH + gap) - barH / 2).toFixed(2);
+      if (solid) {
+        return '<rect x="' + (-barW / 2) + '" y="' + y + '" width="' + barW + '" height="' + barH + '"/>';
+      }
+      return '<rect x="' + (-barW / 2) + '" y="' + y + '" width="' + half.toFixed(2) + '" height="' + barH + '"/>' +
+             '<rect x="' + (barW / 2 - half).toFixed(2) + '" y="' + y + '" width="' + half.toFixed(2) + '" height="' + barH + '"/>';
+    }).join('');
+    return '<g fill="#0A0A0A" transform="translate(' + cx + ' ' + cy + ') rotate(' + rot + ')">' + rows + '</g>';
+  }
+
   var FLAGS = {
+    /* 태극기 — 태극은 기의 대각선을 따라 기울어 있고,
+       사괘는 건(왼위) 리(왼아래) 감(오른위) 곤(오른아래) 순이다. */
     ko: flagSvg(
       '<rect width="24" height="16" fill="#fff"/>' +
-      '<path d="M12 4.6a3.4 3.4 0 0 1 0 6.8 3.4 3.4 0 0 0 0-6.8z" fill="#0047A0"/>' +
-      '<path d="M12 4.6a3.4 3.4 0 0 0 0 6.8 3.4 3.4 0 0 1 0-6.8z" fill="#CD2E3A"/>' +
-      '<g stroke="#000" stroke-width=".7"><path d="M3.6 4.2l1.7 2.4M5.2 3.1l1.7 2.4M3.6 11.8l1.7-2.4M5.2 12.9l1.7-2.4' +
-      'M20.4 4.2l-1.7 2.4M18.8 3.1l-1.7 2.4M20.4 11.8l-1.7-2.4M18.8 12.9l-1.7-2.4"/></g>'),
+      '<g transform="rotate(-33.69 12 8)">' +
+        '<circle cx="12" cy="8" r="3.35" fill="#CD2E3A"/>' +
+        '<path d="M8.65 8A1.675 1.675 0 0 1 12 8A1.675 1.675 0 0 0 15.35 8A3.35 3.35 0 0 1 8.65 8Z" fill="#0047A0"/>' +
+      '</g>' +
+      trigram(4.9, 3.3, -56.31, [1, 1, 1]) +
+      trigram(4.9, 12.7, 56.31, [1, 0, 1]) +
+      trigram(19.1, 3.3, 56.31, [0, 1, 0]) +
+      trigram(19.1, 12.7, -56.31, [0, 0, 0])),
+
     en: flagSvg(
       '<rect width="24" height="16" fill="#fff"/>' +
-      '<g fill="#B22234"><rect width="24" height="1.9"/><rect y="3.7" width="24" height="1.9"/>' +
-      '<rect y="7.4" width="24" height="1.9"/><rect y="11.1" width="24" height="1.9"/>' +
-      '<rect y="14.8" width="24" height="1.2"/></g>' +
-      '<rect width="10" height="8.6" fill="#3C3B6E"/>'),
+      '<g fill="#B22234">' +
+        '<rect y="0" width="24" height="1.23"/><rect y="2.46" width="24" height="1.23"/>' +
+        '<rect y="4.92" width="24" height="1.23"/><rect y="7.38" width="24" height="1.23"/>' +
+        '<rect y="9.85" width="24" height="1.23"/><rect y="12.31" width="24" height="1.23"/>' +
+        '<rect y="14.77" width="24" height="1.23"/>' +
+      '</g>' +
+      '<rect width="9.6" height="8.61" fill="#3C3B6E"/>' +
+      '<g fill="#fff">' +
+        star(2.4, 2.2, 1.05, 0) + star(7.2, 2.2, 1.05, 0) +
+        star(2.4, 6.2, 1.05, 0) + star(7.2, 6.2, 1.05, 0) +
+        star(4.8, 4.2, 1.05, 0) +
+      '</g>'),
+
     zh: flagSvg(
       '<rect width="24" height="16" fill="#DE2910"/>' +
-      '<path d="M5 2.6l.85 2.6-2.2-1.6h2.7l-2.2 1.6z" fill="#FFDE00"/>' +
-      '<g fill="#FFDE00"><circle cx="9.6" cy="2.2" r=".9"/><circle cx="11.4" cy="4" r=".9"/>' +
-      '<circle cx="11.4" cy="6.4" r=".9"/><circle cx="9.6" cy="8.1" r=".9"/></g>'),
+      '<g fill="#FFDE00">' +
+        star(5.2, 4.6, 2.6, 0) +
+        star(9.9, 1.9, .95, 24) + star(11.6, 3.8, .95, 46) +
+        star(11.6, 6.3, .95, -20) + star(9.9, 8.2, .95, 0) +
+      '</g>'),
+
     vi: flagSvg(
       '<rect width="24" height="16" fill="#DA251D"/>' +
-      '<path d="M12 4l1.5 4.6-3.9-2.85h4.8L10.5 8.6z" fill="#FFFF00"/>')
+      '<g fill="#FFFF00">' + star(12, 8, 4.2, 0) + '</g>')
   };
 
   var LANGS = [
@@ -76,9 +123,7 @@
       'nav.contact.4': 'Business Information',
 
       /* 홈 */
-      'home.tagline': 'Elements, translated into scent',
-      'home.meta': 'Composed by Seoul Fragrance · 20% fragrance load · Made in Korea',
-      'lang.note': 'This page has not been translated yet. The content below is in Korean.',
+      'lang.note': 'Menus are translated. The page content below is in Korean.',
 
       /* 폼 */
 
@@ -121,9 +166,7 @@
       'nav.contact.3': '退换货',
       'nav.contact.4': '企业信息',
 
-      'home.tagline': '将自然的元素移作香气',
-      'home.meta': '首尔香料调香 · 香料浓度 20% · 韩国制造',
-      'lang.note': '本页尚未翻译，以下内容为韩文。',
+      'lang.note': '菜单已翻译，以下正文为韩文。',
 
 
       'foot.tagline': '将自然的元素移作香气',
@@ -164,9 +207,7 @@
       'nav.contact.3': 'Đổi trả',
       'nav.contact.4': 'Thông tin doanh nghiệp',
 
-      'home.tagline': 'Chuyển những nguyên tố của tự nhiên thành hương',
-      'home.meta': 'Điều chế bởi Seoul Fragrance · Nồng độ hương 20% · Made in Korea',
-      'lang.note': 'Trang này chưa được dịch. Nội dung bên dưới là tiếng Hàn.',
+      'lang.note': 'Menu đã được dịch. Nội dung bên dưới bằng tiếng Hàn.',
 
 
       'foot.tagline': 'Chuyển những nguyên tố của tự nhiên thành hương',
@@ -207,15 +248,12 @@
       n.setAttribute(attr, v == null ? n.getAttribute('data-ko-' + attr) : v);
     });
 
-    /* 이 페이지 본문에 번역이 하나도 없으면 머리말 아래에 한 줄로 알린다.
-       메뉴만 영어로 바뀌고 본문은 한국어인 상태를 그대로 두면 오해를 산다. */
+    /* 번역은 메뉴와 꼬리말까지다. 본문은 어느 페이지든 한국어로 둔다.
+       메뉴만 영어로 바뀐 채 본문이 한국어인 상태를 말없이 두면 오해를 사므로,
+       한국어가 아닌 언어를 고르면 머리말 아래에 한 줄로 알린다. */
     var note = document.getElementById('langNote');
     if (note) {
-      var done = 0;
-      document.querySelectorAll('#main [data-i18n]').forEach(function (n) {
-        if (t(n.getAttribute('data-i18n')) != null) done++;
-      });
-      var show = current !== 'ko' && done === 0;
+      var show = current !== 'ko';
       note.hidden = !show;
       note.classList.toggle('is-on', show);
       if (show) note.textContent = t('lang.note') || '';

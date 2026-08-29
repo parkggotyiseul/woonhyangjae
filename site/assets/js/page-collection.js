@@ -1,12 +1,16 @@
 /* 운향재 — 컬렉션 페이지
-   일곱 개의 장을 접어 두고, 누르면 그 장만 펼친다.
-   처음부터 다 펼쳐 두면 어느 장이 진행 중인지 묻히기 때문이다.
-   진행 중인 장은 처음부터 열려 있고, 아직 오지 않은 장은 열리지 않는다. */
+
+   화면은 두 덩어리다.
+     1) 이름을 얻은 장  — 접었다 펴는 목록. 진행 중인 장만 처음부터 열려 있다.
+     2) 앞으로의 장    — 다음 차례 예고 둘과, 아직 비워 둔 자리들.
+
+   비워 둔 장(reveal:"veiled")은 목록에 넣지 않는다. 이름도 한자도 내보내지
+   않고, 아래 '앞으로의 장'에서 빈 인장으로만 자리를 지킨다. */
 window.WHJ.ready(function () {
   var W = window.WHJ;
   if (!W) return;
-  var host = document.getElementById('chapterAcc');
-  if (!host) return;
+
+  /* ── 1. 이름을 얻은 장 ───────────────────────────── */
 
   function productBlock(p) {
     if (p.status === 'coming') {
@@ -55,43 +59,85 @@ window.WHJ.ready(function () {
     '</div>';
   }
 
-  host.innerHTML = W.collections.map(function (c) {
-    var items = W.byCollection(c.id);
-    var onsale = items.filter(function (x) { return x.status === 'onsale'; });
-    var active = c.status === 'active';
+  var acc = document.getElementById('chapterAcc');
+  if (acc) {
+    acc.innerHTML = W.namedChapters().map(function (c) {
+      var open = W.revealOf(c) === 'open';
+      var items = open ? W.byCollection(c.id) : [];
+      var onsale = items.filter(function (x) { return x.status === 'onsale'; });
 
-    var body = active
-      ? '<p class="sec-lede">' + W.esc(c.description) + '</p>' +
-        '<div class="pick-list">' + items.map(productBlock).join('') + '</div>' +
-        onsale.map(detailBlock).join('')
-      : '<p class="sec-lede">' + W.esc(c.description) + '</p>' +
-        '<p class="notice">아직 준비 중인 장입니다. 한 장을 온전히 마친 뒤에 다음 장으로 넘어갑니다.</p>';
+      var body = open
+        ? '<p class="sec-lede">' + W.esc(c.description) + '</p>' +
+          '<div class="pick-list">' + items.map(productBlock).join('') + '</div>' +
+          onsale.map(detailBlock).join('')
+        : '<p class="sec-lede">' + W.esc(c.description) + '</p>' +
+          '<p class="notice">향은 아직 짓지 않았습니다. 한 장을 온전히 마친 뒤에 다음 장으로 넘어갑니다.</p>' +
+          '<div class="link-row"><a class="link-line" href="/shop.html#notify">이 장이 열릴 때 알려드립니다 →</a></div>';
 
-    return '<div class="acc-item' + (active ? ' is-open' : ' is-locked') + '" data-acc="' + W.esc(c.id) + '">' +
-      '<button class="acc-head" type="button" data-acc-toggle="' + W.esc(c.id) + '"' +
-        ' aria-expanded="' + (active ? 'true' : 'false') + '">' +
-        '<span class="acc-hanja">' + W.esc(c.hanja) + '</span>' +
-        '<span>' +
-          '<span class="acc-title">' + W.esc(c.code) + ' · ' + W.esc(c.ko) +
-            (c.title ? ' — ' + W.esc(c.title) : '') + '</span>' +
-          '<span class="acc-sub">' + W.esc(c.subtitle || '') +
-            ' · ' + W.esc(active ? '진행중' : '준비 중') +
-            (items.length ? ' · ' + items.length + '종' : '') + '</span>' +
-        '</span>' +
-        '<span class="acc-sign" aria-hidden="true">+</span>' +
-      '</button>' +
-      '<div class="acc-body">' + body + '</div>' +
-    '</div>';
-  }).join('');
+      return '<div class="acc-item' + (open ? ' is-open' : '') + '" data-acc="' + W.esc(c.id) + '">' +
+        '<button class="acc-head" type="button" data-acc-toggle="' + W.esc(c.id) + '"' +
+          ' aria-expanded="' + (open ? 'true' : 'false') + '">' +
+          '<span class="acc-hanja">' + W.esc(c.hanja) + '</span>' +
+          '<span>' +
+            '<span class="acc-title">' + W.esc(c.code) + ' · ' + W.esc(c.ko) +
+              (c.title ? ' — ' + W.esc(c.title) : '') + '</span>' +
+            '<span class="acc-sub">' + W.esc(c.subtitle || '') +
+              ' · ' + W.esc(c.statusLabel || (open ? '진행중' : '준비 중')) +
+              (items.length ? ' · ' + items.length + '종' : '') + '</span>' +
+          '</span>' +
+          '<span class="acc-sign" aria-hidden="true">+</span>' +
+        '</button>' +
+        '<div class="acc-body">' + body + '</div>' +
+      '</div>';
+    }).join('');
 
-  host.addEventListener('click', function (e) {
-    var btn = e.target.closest('[data-acc-toggle]');
-    if (!btn) return;
-    var item = btn.closest('.acc-item');
-    var open = item.classList.toggle('is-open');
-    btn.setAttribute('aria-expanded', String(open));
-    if (open) W.observe(item.querySelectorAll('.reveal'));
-  });
+    acc.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-acc-toggle]');
+      if (!btn) return;
+      var item = btn.closest('.acc-item');
+      var open = item.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) W.observe(item.querySelectorAll('.reveal'));
+    });
+  }
+
+  /* ── 2. 앞으로의 장 ──────────────────────────────── */
+
+  var NUM = ['하나', '둘', '셋', '넷', '다섯', '여섯', '일곱'];
+  function ko(n) { return NUM[n - 1] || String(n); }
+
+  var next = W.namedChapters().filter(function (c) { return W.revealOf(c) === 'named'; });
+  var veiled = W.veiledChapters();
+
+  var nextHost = document.getElementById('nextChapters');
+  if (nextHost) {
+    nextHost.innerHTML = next.map(function (c, i) {
+      return '<article class="ahead' + (i === 0 ? ' is-next' : '') + '">' +
+        '<p class="ahead-num">' + W.esc(c.code) + ' · ' + W.esc(c.en) + '</p>' +
+        '<div class="ahead-hanja" aria-hidden="true">' + W.esc(c.hanja) + '</div>' +
+        '<h3 class="ahead-name">' + W.esc(c.ko) +
+          (c.title ? '<span class="ahead-title">' + W.esc(c.title) + '</span>' : '') + '</h3>' +
+        '<p class="ahead-desc">' + W.esc(c.description || c.teaser || '') + '</p>' +
+        '<p class="ahead-state">' + W.esc(c.statusLabel || '준비 중') + '</p>' +
+      '</article>';
+    }).join('');
+  }
+
+  var veilHost = document.getElementById('veiledRow');
+  if (veilHost) {
+    veilHost.innerHTML = veiled.map(function () {
+      return '<div class="veil"><span class="veil-seal" aria-hidden="true"></span></div>';
+    }).join('');
+    veilHost.setAttribute('aria-label', '아직 이름을 붙이지 않은 ' + ko(veiled.length) + ' 개의 장');
+  }
+
+  /* 문장 속 숫자는 데이터에서 뽑는다. 장을 하나 열면 문장도 따라 바뀐다. */
+  var countLine = document.getElementById('chapterCount');
+  if (countLine) {
+    countLine.textContent =
+      '일곱 개의 장 가운데 ' + ko(next.length + 1) + '이 이름을 얻었습니다. ' +
+      '나머지 ' + ko(veiled.length) + '은 비워 두었습니다.';
+  }
 
   W.observe(document.querySelectorAll('.reveal'));
 });

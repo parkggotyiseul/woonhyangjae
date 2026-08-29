@@ -100,6 +100,14 @@ window.WHJ.ready(function () {
     var a = e.target.closest('a[href="#notify"]');
     if (a) { e.preventDefault(); open(); }
   });
+
+  /* 다른 페이지에서 /shop.html#notify 로 건너온 경우.
+     그 주소에 해당하는 요소가 없으므로 브라우저는 아무것도 하지 않는다.
+     여기서 직접 열어 준다. */
+  if (location.hash === '#notify') open();
+  window.addEventListener('hashchange', function () {
+    if (location.hash === '#notify') open();
+  });
   document.getElementById('notifyClose').addEventListener('click', close);
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
