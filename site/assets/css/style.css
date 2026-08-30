@@ -344,12 +344,37 @@ li{ list-style:none; }
 .chapter.is-named .chapter-hanja{ opacity:.55; }
 .chapter.is-named .chapter-en{ opacity:.6; }
 
+/* 비워 둔 장 — 네모는 빈칸(체크박스)으로 읽힌다.
+   아직 형태를 얻지 못한 것이므로 윤곽 없는 안개로 둔다.
+   넷이 저마다 다른 모양·크기·농도라, 찍어 낸 도장처럼 보이지 않는다.
+
+   움직이지는 않는다. 이 브랜드의 모션은 페이드뿐이고, 木 花 石 옆에서
+   혼자 일렁이면 그 순간 장식이 된다. 형태의 차이만으로 충분하다. */
 .chapter-seal{
-  width:clamp(1.1rem,2.6vw,1.7rem);
+  width:clamp(1.7rem,3.8vw,2.8rem);
   aspect-ratio:1;
   margin:0 auto;
-  border:1px solid var(--on-dark);
-  opacity:.16;
+  background:radial-gradient(closest-side,
+    rgba(237,231,222,.30), rgba(237,231,222,.05) 62%, rgba(237,231,222,0) 100%);
+  filter:blur(2.4px);
+  border-radius:58% 42% 47% 53% / 52% 56% 44% 48%;
+}
+/* 넷은 늘 4~7번째 칸이다. 각각 다른 안개가 되도록 흩뜨린다. */
+.chapter:nth-child(4) .chapter-seal{
+  border-radius:44% 56% 62% 38% / 60% 42% 58% 40%;
+  transform:rotate(-14deg) scale(1.05); opacity:.95;
+}
+.chapter:nth-child(5) .chapter-seal{
+  border-radius:63% 37% 41% 59% / 45% 61% 39% 55%;
+  transform:rotate(9deg) scale(.9); opacity:.75;
+}
+.chapter:nth-child(6) .chapter-seal{
+  border-radius:39% 61% 57% 43% / 58% 40% 60% 42%;
+  transform:rotate(-24deg) scale(1.12); opacity:1;
+}
+.chapter:nth-child(7) .chapter-seal{
+  border-radius:52% 48% 36% 64% / 40% 64% 36% 60%;
+  transform:rotate(17deg) scale(.84); opacity:.66;
 }
 .chapter.is-veiled .chapter-en{ opacity:.2; letter-spacing:0; }
 .chapters-note{
@@ -365,7 +390,7 @@ li{ list-style:none; }
   .chapter{ padding:1.15rem .2rem; }
   .chapter-en{ display:none; }
   .chapter-hanja{ letter-spacing:0; text-indent:0; }
-  .chapter-seal{ width:1rem; }
+  .chapter-seal{ width:1.5rem; }
 }
 
 /* ═══ 방법론 5단계 ═══════════════════════════════════ */
@@ -1359,21 +1384,25 @@ svg.lang-flag{ display:block; flex:0 0 auto; border-radius:1px; }
 .veil{ display:grid; place-items:center; }
 .veil-seal{
   display:block;
-  width:clamp(3.25rem,8vw,4.75rem);
+  width:clamp(3.75rem,9vw,5.5rem);
   aspect-ratio:1;
-  border:1px solid var(--on-dark);
-  opacity:.14;
-  animation:veil-breathe 7s var(--ease) infinite;
+  background:radial-gradient(closest-side,
+    rgba(237,231,222,.28), rgba(237,231,222,.05) 60%, rgba(237,231,222,0) 100%);
+  filter:blur(3.6px);
+  border-radius:58% 42% 47% 53% / 52% 56% 44% 48%;
 }
-.veil:nth-child(2) .veil-seal{ animation-delay:1.4s; }
-.veil:nth-child(3) .veil-seal{ animation-delay:2.8s; }
-.veil:nth-child(4) .veil-seal{ animation-delay:4.2s; }
-@keyframes veil-breathe{
-  0%,100%{ opacity:.10; }
-  50%    { opacity:.26; }
+.veil:nth-child(1) .veil-seal{ transform:rotate(-14deg) scale(1.05); opacity:.95; }
+.veil:nth-child(2) .veil-seal{
+  border-radius:63% 37% 41% 59% / 45% 61% 39% 55%;
+  transform:rotate(9deg) scale(.9); opacity:.75;
 }
-@media (prefers-reduced-motion:reduce){
-  .veil-seal{ animation:none; opacity:.18; }
+.veil:nth-child(3) .veil-seal{
+  border-radius:39% 61% 57% 43% / 58% 40% 60% 42%;
+  transform:rotate(-24deg) scale(1.12); opacity:1;
+}
+.veil:nth-child(4) .veil-seal{
+  border-radius:52% 48% 36% 64% / 40% 64% 36% 60%;
+  transform:rotate(17deg) scale(.84); opacity:.66;
 }
 
 .veiled-copy h3{
